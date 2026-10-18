@@ -1,12 +1,12 @@
 # Poner el chat en Next.js
 
-Camino probado: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 y `@supcoflow/chat` 2.2.1.
+Camino probado: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 y `@supcoflow/chat` 2.2.1. Probado sólo al compilar (`next build`); no se corrió `next start` ni se abrió en un navegador.
 **Pages Router: no probado; avisale a la persona** y no improvises.
 
-## Por qué hace falta el archivo envoltorio
+## Por qué se usa el archivo envoltorio
 
 En el App Router todo es componente de servidor salvo que el archivo diga `"use client"`. El paquete
-`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene) y usa hooks de React. Medido (R7, mismo
+`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene) (la causa del fallo de abajo no está demostrada). Medido (R7, mismo
 proyecto, mismo layout):
 
 - Importando `ChatDeIntake` directo en `app/layout.tsx`, `next build` FALLA (salida 1) al prerenderizar `/` con
@@ -14,7 +14,7 @@ proyecto, mismo layout):
 - Con el envoltorio que devuelve `supcoflow widget --json` (`nextjs.contenido`, que empieza con `"use client"`),
   `next build` termina bien (salida 0).
 
-Por eso: nunca importes `ChatDeIntake` directo en un layout o en un componente de servidor; usá el envoltorio, tal
+Síntoma medido, causa no probada; lo que sí se sabe: el paquete no trae `"use client"` y el envoltorio lo arregla. Por eso: no importes `ChatDeIntake` directo en un layout o en un componente de servidor; usá el envoltorio, tal
 cual viene, sin reescribir los ids (`tenantId`, `projectId`, `backendUrl`). Va en `nextjs.archivo_sugerido`
 (`app/_supcoflow/chat-de-soporte.tsx`) y se usa como `nextjs.uso` (`<ChatDeSoporte />`).
 
@@ -30,7 +30,7 @@ import { ChatDeSoporte } from "./_supcoflow/chat-de-soporte";
 <ChatDeSoporte usuario={{ id: usuario.id, rol: usuario.rol }} />
 ```
 
-(Ajustá la ruta del import a la del layout.)
+(Ajustá la ruta del import a la del layout. `{ id, rol }` es sólo un ejemplo: pasá únicamente los campos que la persona aceptó.)
 
 ## El usuario, del lado del servidor
 

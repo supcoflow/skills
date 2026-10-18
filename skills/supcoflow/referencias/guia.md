@@ -6,17 +6,18 @@ Una sección por pantalla o función que un usuario usa (de 1 a 60).
 ## El formato
 
 ```markdown
-# Guía de Mi App            <- opcional; se ignora
+# Guía de Mi App            ← opcional; se ignora
 
-## Facturas                 <- una sección por pantalla o función. Nombre: 1 a 120 caracteres
-Para qué sirve: Ver y pagar las facturas del mes.             <- obligatorio, 1 a 600
-Qué puede hacer el usuario: Descargar el PDF, pagar con       <- obligatorio, 1 a 600; puede seguir
+## Facturas                 ← una sección por pantalla o función. Nombre: 1 a 120 caracteres
+Para qué sirve: Ver y pagar las facturas del mes.             ← obligatorio, 1 a 600
+Qué puede hacer el usuario: Descargar el PDF, pagar con       ← obligatorio, 1 a 600; puede seguir
 tarjeta y ver el historial.                                      en las líneas de abajo
-Problemas comunes:                                            <- opcional; hasta 10, cada uno de 1 a 300
+Problemas comunes:                                            ← opcional; hasta 10, cada uno de 1 a 300
 - El botón Pagar no responde con tarjetas de débito.
 - El PDF sale en blanco en Safari.
 ```
 
+- Las flechas ← del bloque son explicación: no las copies al archivo (pasarían a ser parte del texto).
 - Las etiquetas se reconocen al principio de la línea, sin distinguir mayúsculas y con o sin tildes
   («Para que sirve:» vale).
 - Una línea que no es etiqueta continúa el campo anterior (se une con un espacio). Los problemas van uno por línea,
@@ -73,5 +74,5 @@ como `línea N: motivo`. Corregí TODAS las líneas de la lista y volvé a corre
 | `la guía no tiene la forma esperada` (línea 1) | Revisá el formato completo contra el ejemplo. |
 
 Otros códigos de `guia revisar`, todos con salida 3: `falta_guia` (no hay `.supcoflow/guia.md` en la raíz del repo:
-escribilo), `guia_muy_grande` (pasa de 64 KB: acortalo) y `guia_ilegible` (no es UTF-8 válido: guardalo en UTF-8).
+escribilo), `guia_muy_grande` (pasa de 64 KB: acortalo) y `guia_ilegible` (no se puede leer, p. ej. UTF-8 inválido: guardalo en UTF-8).
 Con salida 4 `sin_proyecto`, falta el proyecto: volvé al paso 2 del orden.
