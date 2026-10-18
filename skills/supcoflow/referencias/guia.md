@@ -6,18 +6,23 @@ Una sección por pantalla o función que un usuario usa (de 1 a 60).
 ## El formato
 
 ```markdown
-# Guía de Mi App            ← opcional; se ignora
+# Guía de Mi App
 
-## Facturas                 ← una sección por pantalla o función. Nombre: 1 a 120 caracteres
-Para qué sirve: Ver y pagar las facturas del mes.             ← obligatorio, 1 a 600
-Qué puede hacer el usuario: Descargar el PDF, pagar con       ← obligatorio, 1 a 600; puede seguir
-tarjeta y ver el historial.                                      en las líneas de abajo
-Problemas comunes:                                            ← opcional; hasta 10, cada uno de 1 a 300
+## Facturas
+Para qué sirve: Ver y pagar las facturas del mes.
+Qué puede hacer el usuario: Descargar el PDF, pagar con
+tarjeta y ver el historial.
+Problemas comunes:
 - El botón Pagar no responde con tarjetas de débito.
 - El PDF sale en blanco en Safari.
 ```
 
-- Las flechas ← del bloque son explicación: no las copies al archivo (pasarían a ser parte del texto).
+- `# Guía de Mi App` (el título) es opcional y se ignora.
+- Una sección (`## Nombre`) por pantalla o función: de 1 a 60; el nombre, de 1 a 120 caracteres.
+- «Para qué sirve:» y «Qué puede hacer el usuario:» son obligatorios, de 1 a 600 caracteres cada uno; pueden seguir
+  en las líneas de abajo (como en «Qué puede hacer el usuario:» del bloque).
+- «Problemas comunes:» es opcional: hasta 10, cada uno de 1 a 300 caracteres.
+
 - Las etiquetas se reconocen al principio de la línea, sin distinguir mayúsculas y con o sin tildes
   («Para que sirve:» vale).
 - Una línea que no es etiqueta continúa el campo anterior (se une con un espacio). Los problemas van uno por línea,

@@ -6,7 +6,7 @@ Camino probado: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 y `@supcofl
 ## Por qué se usa el archivo envoltorio
 
 En el App Router todo es componente de servidor salvo que el archivo diga `"use client"`. El paquete
-`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene) (la causa del fallo de abajo no está demostrada). Medido (R7, mismo
+`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene) Medido (R7, mismo
 proyecto, mismo layout):
 
 - Importando `ChatDeIntake` directo en `app/layout.tsx`, `next build` FALLA (salida 1) al prerenderizar `/` con
