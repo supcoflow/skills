@@ -41,8 +41,9 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
    `supcoflow politica fijar`).
 5. Escribir `.supcoflow/guia.md` → `supcoflow guia revisar --json` → pedir el sí para el commit local →
    `supcoflow guia publicar --json`.
-6. `supcoflow sitios agregar --sitio <origen de la app> --json` → `supcoflow chat prender --json` →
-   `supcoflow widget --json` → poner el componente.
+6. `supcoflow sitios agregar --sitio <origen de la app> --json` (el sitio donde la usan sus usuarios, p. ej. su
+   dominio público; `http://localhost:3000` sólo para una prueba local; si el código no lo dice, preguntalo) →
+   `supcoflow chat prender --json` → `supcoflow widget --json` → poner el componente.
 7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número sale del encabezado de
    esta skill, nunca escrito aparte; `--app <carpeta>` si la app no está en la raíz) → resumen.
 
@@ -99,9 +100,11 @@ Nunca `git push`, ni a la rama principal ni a otra.
 1. Si `git status --porcelain -- .supcoflow/guia.md` no está vacío, mostrale el diff de ESE archivo y el mensaje de
    commit propuesto, y preguntale si lo deja en un commit local («queda guardado en tu repo; no lo subo a GitHub»).
    El sí va ANTES del commit.
-2. Con un sí: `git commit -m "<mensaje>" -- .supcoflow/guia.md` (sólo ese archivo, para no arrastrar lo que tenga en
-   el índice) y verificá con `git show --name-only HEAD` que el commit nuevo toca sólo ese archivo. Con un no: no
-   commitees, y decile que la guía se publica igual pero el commit que queda anotado es uno que todavía no la contiene.
+2. Con un sí: `git add -- .supcoflow/guia.md` (si es nuevo, sin esto el commit falla) y después
+   `git commit -m "<mensaje>" -- .supcoflow/guia.md`: con la ruta, lo que la persona tenga en el índice queda ahí, sin
+   commitear. Nunca `git add .` ni `git commit -a`. Verificá con `git show --name-only HEAD` que el commit nuevo toca
+   sólo ese archivo. Con un no: no commitees, y decile que la guía se publica igual pero el commit que queda anotado
+   es uno que todavía no la contiene.
 3. `supcoflow guia publicar --json`, sin `--desde-github`. Repetirlo con la misma guía devuelve la misma publicación
    (`ya_publicada`): una sesión cortada se retoma sin duplicar.
 4. Avisale en una línea que subir la guía a GitHub queda en sus manos.
@@ -112,7 +115,8 @@ Camino probado en [`referencias/nextjs.md`](referencias/nextjs.md).
 
 - Instalá el paquete con el gestor de la app y la versión exacta de `supcoflow widget --json` (`instalar`, traducido
   al gestor).
-- El archivo envoltorio con `nextjs.contenido` tal cual, SIN reescribir los ids; usalo (`nextjs.uso`) en el layout
+- El archivo envoltorio con `nextjs.contenido` tal cual, SIN reescribir los ids, en `nextjs.archivo_sugerido` (la ruta
+  sugerida; podés elegir otra si la app lo pide); usalo (`nextjs.uso`) en el layout
   que cubre las pantallas donde se traban los usuarios; pasale `usuario` y `contextoAutomatico` según la tabla del
   punto 5.
 - **CSP**: una segunda directiva `connect-src` se ignora, y reemplazar la que hay borra destinos que la app necesita.

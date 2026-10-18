@@ -82,6 +82,7 @@ const FLAGS_CONOCIDOS = new Set(
 );
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
+// --force está sólo para que la skill pueda PROHIBIRLO («Nunca `--force`»), no para usarlo.
 const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force"]);
 
 function pedazosDeCodigo(texto: string): string[] {
