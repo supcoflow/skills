@@ -17,7 +17,8 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
+// HUELLA_RAIZ sólo existe para que el test pruebe las negativas sobre una copia.
+const RAIZ = process.env.HUELLA_RAIZ ?? join(dirname(fileURLToPath(import.meta.url)), "..");
 export const CARPETA_DE_LA_SKILL = join(RAIZ, "skills", "supcoflow");
 export const ARCHIVO_DE_HUELLA = join(RAIZ, "test", "vectores", "huella-de-la-skill.json");
 
@@ -66,6 +67,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const previo = existsSync(ARCHIVO_DE_HUELLA)
       ? JSON.parse(readFileSync(ARCHIVO_DE_HUELLA, "utf8"))
       : null;
+    // Una versión publicada no se reescribe NUNCA: la 0.1.0 es la única sin publicar.
+    // Si se publica, esta excepción hay que sacarla junto con el 0.1.0 de acá.
+    if (args.includes("--sin-subir-version") && previo && previo.version !== "0.1.0") {
+      console.error(
+        `--sin-subir-version sólo vale para la 0.1.0 (sin publicar); la registrada es ${previo.version}: subí metadata.version.`,
+      );
+      process.exit(1);
+    }
     if (
       previo &&
       previo.version === version &&

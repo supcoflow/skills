@@ -1,5 +1,7 @@
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error módulo .mjs sin tipos: es el mismo algoritmo que usa `npm run huella`
@@ -67,12 +69,20 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 // de la persona al asistente, no un comando de terminal.
 // ---------------------------------------------------------------------------------
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
+// Grupos: la primera palabra de los comandos de dos palabras en el vector real
+// ("guia publicar", "instalacion anotar", "chat prender"...). Los demás son de una
+// palabra ("quien-soy", "widget"). En 0.6.0 ninguna palabra es a la vez grupo y comando.
+const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
+const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
   [...describir.comandos.flatMap((c) => c.flags), ...describir.flags_globales].flatMap((f) => {
     const m = f.match(/^(--[a-z][a-z-]*)(?:,\s*(-[a-z]))?/);
     return m ? [m[1], ...(m[2] ? [m[2]] : [])] : [];
   }),
 );
+// Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
+// ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
+const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short"]);
 
 function pedazosDeCodigo(texto: string): string[] {
   const salida: string[] = [];
@@ -84,32 +94,69 @@ function pedazosDeCodigo(texto: string): string[] {
   return salida;
 }
 
-function comandosInventados(texto: string): string[] {
+function prosa(texto: string): string {
+  return texto.replace(/```[^\n]*\n[\s\S]*?```/g, "\n").replace(/`[^`\n]+`/g, " ");
+}
+
+// Un ``` sin cerrar haría que el resto del archivo se lea como código (o al revés):
+// que nada escape a los revisores por estar mal cerrado.
+function fencesDesbalanceadas(texto: string): boolean {
+  return texto.split("\n").filter((l) => /^\s*```/.test(l)).length % 2 !== 0;
+}
+
+// Una invocación va desde `supcoflow` (o `supcoflow@X`) hasta el próximo separador de
+// shell. `supcoflow` como nombre de otra cosa (@supcoflow/chat, .supcoflow/guia.md,
+// supcoflow-skills, chat.supcoflow.dev) no es invocación.
+const INVOCACION = /(?<![/\w@.-])supcoflow(?:@[\w.]+)?(?![\w/@-]|\.\w)([^&|;]*)/g;
+function invocacionesDe(pedazo: string): { tokens: string[]; desde: number; hasta: number }[] {
+  return [...pedazo.matchAll(INVOCACION)].map((m) => ({
+    tokens: m[1].split(/\s+/).filter(Boolean),
+    desde: m.index!,
+    hasta: m.index! + m[0].length,
+  }));
+}
+
+// Regla del comando: se saltean los flags iniciales (`supcoflow --json widget`), y la
+// primera palabra que no es flag, sea cual sea (mayúsculas, dígitos, guion bajo), tiene
+// que ser un comando de una palabra o un grupo. Si es un grupo, la siguiente palabra
+// que no es flag tiene que formar un comando del vector: `guia borrar` falla aunque
+// `guia` exista, y `guia` sin subcomando también. Un comando de una palabra no mira
+// lo que le sigue (son sus argumentos).
+export function comandosInventados(texto: string): string[] {
   const malos: string[] = [];
   for (const pedazo of pedazosDeCodigo(texto)) {
-    for (const m of pedazo.matchAll(/(?<![/\w@-])supcoflow(?:@[\w.]+)?(?:\s+([a-z][a-z-]*)(?:\s+([a-z][a-z-]*))?)?/g)) {
-      const [, a, b] = m;
-      if (!a) continue; // `supcoflow` solo, o `npx -y supcoflow@0.6.0` partido en otra línea
-      const dos = b ? `${a} ${b}` : null;
-      if (dos && NOMBRES.has(dos)) continue;
-      if (NOMBRES.has(a)) continue;
-      malos.push(dos ?? a);
+    for (const { tokens } of invocacionesDe(pedazo)) {
+      const palabras = tokens.filter((t) => !t.startsWith("-"));
+      const [a, b] = palabras;
+      if (a === undefined) continue; // `supcoflow` solo, o `supcoflow --json`
+      if (SOLOS.has(a)) continue;
+      if (GRUPOS.has(a)) {
+        if (b !== undefined && NOMBRES.has(`${a} ${b}`)) continue;
+        malos.push(b === undefined ? `${a} (falta el subcomando)` : `${a} ${b}`);
+        continue;
+      }
+      malos.push(a);
     }
   }
   return malos;
 }
 
-const HERRAMIENTAS_AJENAS = /\b(npm|pnpm|yarn|bun|git|npx skills|node)\b/;
-function flagsInventados(texto: string): string[] {
+// Dentro de una invocación de supcoflow, el flag tiene que existir en describir (ni
+// siquiera vale uno ajeno conocido). Fuera de una invocación (npm, git, prosa) vale lo
+// de describir o la lista cerrada de ajenos: `npx skills add x --foo` falla.
+export function flagsInventados(texto: string): string[] {
   const malos: string[] = [];
-  for (const linea of texto.split("\n")) {
-    // `--save-exact` de npm o `--` de git no son nuestros; en una línea que además
-    // nombra a supcoflow, en cambio, todo flag tiene que existir.
-    if (HERRAMIENTAS_AJENAS.test(linea) && !/supcoflow\s/.test(linea)) continue;
-    for (const m of linea.matchAll(/(?<![\w-])(--[a-z][a-z-]*)/g)) {
-      if (!FLAGS_CONOCIDOS.has(m[1])) malos.push(m[1]);
+  const FLAG = /(?<![\w-])(--[a-z][a-z-]*)/g;
+  for (const pedazo of pedazosDeCodigo(texto)) {
+    const rangos = invocacionesDe(pedazo);
+    for (const m of pedazo.matchAll(FLAG)) {
+      const dentro = rangos.some((r) => m.index! >= r.desde && m.index! < r.hasta);
+      const ok = FLAGS_CONOCIDOS.has(m[1]) || (!dentro && FLAGS_AJENOS.has(m[1]));
+      if (!ok) malos.push(m[1]);
     }
   }
+  for (const m of prosa(texto).matchAll(FLAG))
+    if (!FLAGS_CONOCIDOS.has(m[1]) && !FLAGS_AJENOS.has(m[1])) malos.push(m[1]);
   return malos;
 }
 
@@ -155,15 +202,40 @@ describe("los comandos y flags contra describir", () => {
   it.each(textosDeLaSkill)("$ruta: cada --flag existe", ({ texto }) => {
     expect(flagsInventados(texto)).toEqual([]);
   });
-  it("control: un comando o un flag inventados hacen fallar al revisor", () => {
+  it.each(textosDeLaSkill)("$ruta: los ``` están balanceados", ({ texto }) => {
+    expect(fencesDesbalanceadas(texto)).toBe(false);
+  });
+  it("control: comandos inventados", () => {
     expect(comandosInventados("corré `supcoflow instalar`")).toEqual(["instalar"]);
+    expect(comandosInventados("`supcoflow Foo`")).toEqual(["Foo"]);
+    expect(comandosInventados("`supcoflow v2_x --json`")).toEqual(["v2_x"]);
+    expect(comandosInventados("`supcoflow --json instalar`")).toEqual(["instalar"]);
+    expect(comandosInventados("`supcoflow guia borrar`")).toEqual(["guia borrar"]);
+    expect(comandosInventados("`supcoflow --json guia borrar`")).toEqual(["guia borrar"]);
+    expect(comandosInventados("`supcoflow guia`")).toEqual(["guia (falta el subcomando)"]);
+    expect(comandosInventados("`supcoflow widget && supcoflow nada`")).toEqual(["nada"]);
+  });
+  it("control: lo válido pasa", () => {
     expect(comandosInventados("```\nnpx -y supcoflow@0.6.0 guia publicar --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow instalacion anotar --skill 0.1.0`")).toEqual([]);
-    expect(comandosInventados("`supcoflow guia borrar`")).toEqual(["guia borrar"]);
+    expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
+    expect(comandosInventados("`supcoflow quien-soy | cat`")).toEqual([]);
     expect(comandosInventados("el chat de supcoflow instala; pedí `/supcoflow go`")).toEqual([]);
+    expect(comandosInventados("`npm i @supcoflow/chat@2.2.1` en `.supcoflow/guia.md`")).toEqual([]);
+  });
+  it("control: flags inventados", () => {
     expect(flagsInventados("`supcoflow widget --magia`")).toEqual(["--magia"]);
+    expect(flagsInventados("`supcoflow widget --save-exact`")).toEqual(["--save-exact"]);
+    expect(flagsInventados("`npx skills add x --foo`")).toEqual(["--foo"]);
+    expect(flagsInventados("`git status --bar`")).toEqual(["--bar"]);
+    expect(flagsInventados("usá --inventado en prosa")).toEqual(["--inventado"]);
     expect(flagsInventados("`supcoflow widget --json`")).toEqual([]);
     expect(flagsInventados("`npm i @supcoflow/chat@2.2.1 --save-exact`")).toEqual([]);
+    expect(flagsInventados("`git status --porcelain`")).toEqual([]);
+  });
+  it("control: un ``` sin cerrar se detecta", () => {
+    expect(fencesDesbalanceadas("```\nsupcoflow widget\n")).toBe(true);
+    expect(fencesDesbalanceadas("```\nx\n```\n")).toBe(false);
   });
 });
 
@@ -216,6 +288,33 @@ describe("la versión clavada al texto", () => {
         `metadata.version (${version}) no es la registrada (${registro.version}): corré \`npm run huella -- --escribir\``,
       );
     }
+  });
+});
+
+describe("--sin-subir-version", () => {
+  // Sobre una copia (HUELLA_RAIZ): la huella de una versión publicada no se reescribe.
+  function correr(versionRegistrada: string) {
+    const raiz = mkdtempSync(join(tmpdir(), "huella-"));
+    cpSync(join(RAIZ, "skills"), join(raiz, "skills"), { recursive: true });
+    cpSync(join(RAIZ, "test"), join(raiz, "test"), { recursive: true });
+    const archivo = join(raiz, "test", "vectores", "huella-de-la-skill.json");
+    const registro = JSON.stringify({ version: versionRegistrada, huella: "0".repeat(64) });
+    writeFileSync(archivo, registro);
+    const r = spawnSync("node", [join(RAIZ, "scripts", "huella.mjs"), "--escribir", "--sin-subir-version"], {
+      env: { ...process.env, HUELLA_RAIZ: raiz },
+      encoding: "utf8",
+    });
+    return { r, despues: readFileSync(archivo, "utf8"), registro };
+  }
+  it("se niega si la versión registrada no es la 0.1.0", () => {
+    const { r, despues, registro } = correr("1.0.0");
+    expect(r.status).toBe(1);
+    expect(despues).toBe(registro);
+  });
+  it("con la 0.1.0 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.1.0");
+    expect(r.status).toBe(0);
+    expect(despues).not.toBe(registro);
   });
 });
 
