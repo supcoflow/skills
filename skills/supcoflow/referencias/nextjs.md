@@ -6,7 +6,7 @@ Camino probado: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 y `@supcofl
 ## Por qué se usa el archivo envoltorio
 
 En el App Router todo es componente de servidor salvo que el archivo diga `"use client"`. El paquete
-`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene) Medido (R7, mismo
+`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene). Medido (R7, mismo
 proyecto, mismo layout):
 
 - Importando `ChatDeIntake` directo en `app/layout.tsx`, `next build` FALLA (salida 1) al prerenderizar `/` con
@@ -16,7 +16,10 @@ proyecto, mismo layout):
 
 Síntoma medido, causa no probada; lo que sí se sabe: el paquete no trae `"use client"` y el envoltorio lo arregla. Por eso: no importes `ChatDeIntake` directo en un layout o en un componente de servidor; usá el envoltorio, tal
 cual viene, sin reescribir los ids (`tenantId`, `projectId`, `backendUrl`). Va en `nextjs.archivo_sugerido`
-(`app/_supcoflow/chat-de-soporte.tsx`) y se usa como `nextjs.uso` (`<ChatDeSoporte />`).
+(`app/_supcoflow/chat-de-soporte.tsx`) y se usa como `nextjs.uso` (`<ChatDeSoporte />`). La ruta es relativa a la
+carpeta de la app (con `--app apps/web`, a `apps/web`). Si la app usa `src/app`, va en
+`src/app/_supcoflow/chat-de-soporte.tsx`: nunca crees un `app/` al lado de `src/app` (Next ignoraría `src/app` y
+todas las rutas darían 404).
 
 ## Dónde ponerlo
 

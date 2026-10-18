@@ -36,7 +36,9 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
 1. `supcoflow quien-soy --json` (con 2: `supcoflow login --start --json`, la persona aprueba, `supcoflow login --wait --json`).
 2. `supcoflow proyecto ver --json`; si no hay proyecto: `supcoflow repo conectar --start --json` →
    `supcoflow repo conectar --wait --json` → `supcoflow proyecto crear --json`.
-3. `supcoflow configuracion --json`: lo que ya está fijado no se vuelve a preguntar.
+3. `supcoflow configuracion --json`: lo que ya está fijado no se vuelve a preguntar. Sólo cuenta lo fijado:
+   `acuerdo: null` o `politica.fijada_en: null` es sin fijar (aunque diga `modo: "relevar"`) → preguntalo, con el
+   aviso de que relevar gasta.
 4. Leer el código → propuesta → preguntas (punto 5) → aplicar la configuración (`supcoflow datos fijar`,
    `supcoflow politica fijar`).
 5. Escribir `.supcoflow/guia.md` → `supcoflow guia revisar --json` → pedir el sí para el commit local →
@@ -44,8 +46,9 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
 6. `supcoflow sitios agregar --sitio <origen de la app> --json` (el sitio donde la usan sus usuarios, p. ej. su
    dominio público; `http://localhost:3000` sólo para una prueba local; si el código no lo dice, preguntalo) →
    `supcoflow chat prender --json` → `supcoflow widget --json` → poner el componente.
-7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número sale del encabezado de
-   esta skill, nunca escrito aparte; `--app <carpeta>` si la app no está en la raíz) → resumen.
+7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número es el `metadata.version`
+   del encabezado YAML de este SKILL.md: si no lo tenés a la vista, abrí el archivo; nunca escrito aparte;
+   `--app <carpeta>` si la app no está en la raíz) → resumen.
 
 Cada paso se puede retomar: si la sesión se corta, `/supcoflow go` empieza por `configuracion` y sigue desde lo que falta.
 
@@ -85,7 +88,8 @@ Mostrale la propuesta de configuración y la lista de archivos que vas a crear o
 
 Antes de tocar un archivo: `git status --porcelain --ignored -- <archivo>`. Si tiene cambios sin commit, está
 borrado sin commit, o existe sin estar versionado (también si git lo ignora), no lo toques: mostrá lo que harías y
-preguntá. Nunca `--force`, nunca borrar archivos de la app.
+preguntá, salvo los archivos que creaste o cambiaste vos en esta sesión (la guía entre rondas de `guia revisar`, un
+layout que ya tocaste). Nunca `--force`, nunca borrar archivos de la app.
 
 ## 8. La guía
 
@@ -97,7 +101,8 @@ visible (un issue, un TODO, el README) o dictado por la persona. `supcoflow guia
 
 Nunca `git push`, ni a la rama principal ni a otra.
 
-1. Si `git status --porcelain -- .supcoflow/guia.md` no está vacío, mostrale el diff de ESE archivo y el mensaje de
+1. Si `git status --porcelain --ignored -- .supcoflow/guia.md` dice que git la ignora (`!!`), no se puede commitear:
+   decile que el commit declarado no la va a contener. Si no, y la salida no está vacía (nueva o cambiada), mostrale el diff de ESE archivo y el mensaje de
    commit propuesto, y preguntale si lo deja en un commit local («queda guardado en tu repo; no lo subo a GitHub»).
    El sí va ANTES del commit.
 2. Con un sí: `git add -- .supcoflow/guia.md` (si es nuevo, sin esto el commit falla) y después
@@ -116,7 +121,9 @@ Camino probado en [`referencias/nextjs.md`](referencias/nextjs.md).
 - Instalá el paquete con el gestor de la app y la versión exacta de `supcoflow widget --json` (`instalar`, traducido
   al gestor).
 - El archivo envoltorio con `nextjs.contenido` tal cual, SIN reescribir los ids, en `nextjs.archivo_sugerido` (la ruta
-  sugerida; podés elegir otra si la app lo pide); usalo (`nextjs.uso`) en el layout
+  sugerida, relativa a la carpeta de la app —la de `--app`, si no está en la raíz—; podés elegir otra si la app lo
+  pide). Si la app usa `src/app`, va dentro de `src/app`: nunca crees un `app/` al lado, porque Next ignoraría
+  `src/app` y todas las rutas darían 404. Usalo (`nextjs.uso`) en el layout
   que cubre las pantallas donde se traban los usuarios; pasale `usuario` y `contextoAutomatico` según la tabla del
   punto 5.
 - **CSP**: una segunda directiva `connect-src` se ignora, y reemplazar la que hay borra destinos que la app necesita.
