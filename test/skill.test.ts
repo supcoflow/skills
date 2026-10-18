@@ -82,7 +82,7 @@ const FLAGS_CONOCIDOS = new Set(
 );
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
-const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short"]);
+const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force"]);
 
 function pedazosDeCodigo(texto: string): string[] {
   const salida: string[] = [];
