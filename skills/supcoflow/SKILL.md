@@ -2,7 +2,7 @@
 name: supcoflow
 description: Instala y configura el chat de soporte de Supcoflow en una app (Next.js probado) con la terminal `supcoflow`. Usala cuando la persona pida "/supcoflow go", instalar el chat de Supcoflow, o configurar su chat, su guía o sus datos.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # Supcoflow go
@@ -49,11 +49,13 @@ aprobación hasta 90 s. El 5 de la tabla es el del `--wait` que venció sin apro
    aviso de que relevar gasta.
 4. Leer el código → propuesta → preguntas (punto 5) → aplicar la configuración (`supcoflow datos fijar`,
    `supcoflow politica fijar`).
-5. Escribir `.supcoflow/guia.md` → `supcoflow guia revisar --json` → pedir el sí para el commit local →
+5. `git status --porcelain --ignored -- .supcoflow/guia.md` (punto 7, antes de escribir) → escribir
+   `.supcoflow/guia.md` en una llamada → `supcoflow guia revisar --json` en otra → pedir el sí para el commit local →
    `supcoflow guia publicar --json`.
 6. `supcoflow sitios agregar --sitio <origen de la app> --json` (el sitio donde la usan sus usuarios, p. ej. su
    dominio público; `http://localhost:3000` sólo para una prueba local; si el código no lo dice, preguntalo) →
-   `supcoflow chat prender --json` → `supcoflow widget --json` → poner el componente.
+   `supcoflow chat prender --json` → `supcoflow widget --json` → poner el componente. La app se toca recién acá,
+   con la guía ya publicada y el sitio agregado.
 7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número es el `metadata.version`
    del encabezado YAML de este SKILL.md: si no lo tenés a la vista, abrí el archivo; nunca escrito aparte;
    `--app <carpeta>` si la app no está en la raíz) → resumen.
@@ -94,7 +96,8 @@ Mostrale la propuesta de configuración y la lista de archivos que vas a crear o
 
 ## 7. No pisar
 
-Antes de tocar un archivo: `git status --porcelain --ignored -- <archivo>`. Si tiene cambios sin commit, está
+Antes de crear o escribir un archivo (también `.supcoflow/guia.md`), nunca después:
+`git status --porcelain --ignored -- <archivo>`. Si tiene cambios sin commit, está
 borrado sin commit, o existe sin estar versionado (también si git lo ignora), no lo toques: mostrá lo que harías y
 preguntá, salvo los archivos que creaste o cambiaste vos en esta sesión (la guía entre rondas de `guia revisar`, un
 layout que ya tocaste). Nunca `--force`, nunca borrar archivos de la app.
@@ -103,18 +106,22 @@ layout que ya tocaste). Nunca `--force`, nunca borrar archivos de la app.
 
 Formato y ejemplo en [`referencias/guia.md`](referencias/guia.md). Leé el código y, si existe, el `CLAUDE.md`/`README`
 para entender las pantallas; una sección por pantalla o función que un usuario usa; «Problemas comunes» sólo de algo
-visible (un issue, un TODO, el README) o dictado por la persona. `supcoflow guia revisar --json` hasta que salga 0.
+visible (un issue, un TODO, el README) o dictado por la persona. Sólo lo que existe en el código y un usuario usa
+de verdad: nada de una sección «Inicio» por una página de plantilla, ni enlaces o botones que el código no tiene. `supcoflow guia revisar --json` hasta que salga 0.
 
 ## 9. Publicar la guía
 
 Nunca `git push`, ni a la rama principal ni a otra.
 
 1. Si `git status --porcelain --ignored -- .supcoflow/guia.md` dice que git la ignora (`!!`), no se puede commitear:
-   decile que el commit declarado no la va a contener. Si no, y la salida no está vacía (nueva o cambiada), mostrale el diff de ESE archivo y el mensaje de
-   commit propuesto, y preguntale si lo deja en un commit local («queda guardado en tu repo; no lo subo a GitHub»).
-   El sí va ANTES del commit.
+   decile que el commit declarado no la va a contener. Si no, y la salida no está vacía (nueva o cambiada), en UN
+   mismo mensaje mostrale el diff de ESE archivo (nueva, `??`: el archivo entero; cambiada:
+   `git diff -- .supcoflow/guia.md`), el mensaje de commit exacto que vas a usar, y preguntale si lo deja en un
+   commit local («queda guardado en tu repo; no lo subo a GitHub»). El sí va ANTES del commit.
 2. Con un sí: `git add -- .supcoflow/guia.md` (si es nuevo, sin esto el commit falla) y después
-   `git commit -m "<mensaje>" -- .supcoflow/guia.md`: con la ruta, lo que la persona tenga en el índice queda ahí, sin
+   `git commit -m "<mensaje>" -- .supcoflow/guia.md`, con EXACTAMENTE el mensaje que le mostraste: sin agregarle
+   nada (ni un `Co-Authored-By` ni otra atribución); si tu entorno agrega una sola, ponela en el mensaje que le
+   mostrás. Con la ruta, lo que la persona tenga en el índice queda ahí, sin
    commitear. Nunca `git add .` ni `git commit -a`. Verificá con `git show --name-only HEAD` que el commit nuevo toca
    sólo ese archivo. Con un no: no commitees, y decile que la guía se publica igual pero el commit que queda anotado
    es uno que todavía no la contiene.
@@ -154,4 +161,10 @@ terminal») con el comando exacto, y no reintentes.
 
 ## 13. El resumen final
 
-Dos o tres líneas: qué quedó configurado, dónde quedó el chat y qué falta si falta algo. La persona corrige.
+Límite duro: **tres líneas como máximo**, con esta forma y sin listas de archivos:
+
+1. qué quedó configurado;
+2. dónde quedó el chat;
+3. qué falta, o «nada».
+
+Nombrá sólo archivos que existen (si dudás, miralo antes). La persona corrige.
