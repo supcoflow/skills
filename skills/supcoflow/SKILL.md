@@ -2,7 +2,7 @@
 name: supcoflow
 description: Instala y configura el chat de soporte de Supcoflow en una app (Next.js probado) con la terminal `supcoflow`. Usala cuando la persona pida "/supcoflow go", instalar el chat de Supcoflow, o configurar su chat, su guía o sus datos.
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
 ---
 
 # Supcoflow go
@@ -124,10 +124,11 @@ Nunca `git push`, ni a la rama principal ni a otra.
    mostrás. Con la ruta, lo que la persona tenga en el índice queda ahí, sin
    commitear. Nunca `git add .` ni `git commit -a`. Verificá con `git show --name-only HEAD` que el commit nuevo toca
    sólo ese archivo. Con un no: no commitees, y decile que la guía se publica igual pero el commit que queda anotado
-   es uno que todavía no la contiene.
+   es uno que todavía no la contiene. También acá, con un no, va el aviso del paso 4.
 3. `supcoflow guia publicar --json`, sin `--desde-github`. Repetirlo con la misma guía devuelve la misma publicación
    (`ya_publicada`): una sesión cortada se retoma sin duplicar.
-4. Avisale en una línea que subir la guía a GitHub queda en sus manos.
+4. SIEMPRE, haya dicho sí o no al commit, en el mismo mensaje en que le contás que la guía se publicó, decile en una
+   línea: «Subir la guía a GitHub queda en tus manos».
 
 ## 10. Poner el chat
 
@@ -165,6 +166,6 @@ Límite duro: **tres líneas como máximo**, con esta forma y sin listas de arch
 
 1. qué quedó configurado;
 2. dónde quedó el chat;
-3. qué falta, o «nada».
+3. qué falta, o «nada»; si la guía no está en GitHub, esta línea incluye «subir la guía a GitHub queda en tus manos».
 
 Nombrá sólo archivos que existen (si dudás, miralo antes). La persona corrige.
