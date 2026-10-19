@@ -2,7 +2,7 @@
 name: supcoflow
 description: Instala y configura el chat de soporte de Supcoflow en una app (Next.js probado) con la terminal `supcoflow`. Usala cuando la persona pida "/supcoflow go", instalar el chat de Supcoflow, o configurar su chat, su guía o sus datos.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Supcoflow go
@@ -16,8 +16,11 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
 
 ## 2. Cómo se habla con Supcoflow
 
-- Siempre por la terminal y con `--json`. Correla fijada: `npx -y supcoflow@0.6.0 describir --json`; si
-  `supcoflow describir --json` ya dice `"version":"0.6.0"`, usá `supcoflow` a secas. Nunca `@latest` ni otra versión.
+- Siempre por la terminal y con `--json`. Primero `supcoflow describir --json`: si dice `"version":"0.6.0"`, usá
+  `supcoflow` a secas en todo lo que sigue. Sólo si no está instalada o es otra versión, corré cada comando fijado:
+  `npx -y supcoflow@0.6.0 describir --json`. Nunca `@latest` ni otra versión.
+- Un comando de la terminal por llamada, tal cual: sin `;`, `&&` ni pipes, y sin agregar `echo $?`. El código de
+  salida lo leés del resultado del propio comando.
 - Nunca inventes un comando ni un flag: leelos de `describir --json` al empezar. Abajo, `supcoflow` quiere decir
   la terminal fijada.
 
@@ -31,9 +34,14 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
 | 5 | esperando a una persona: decile qué tiene que hacer y volvé a correr el mismo comando cuando te avise |
 | 6 | tope alcanzado: no reintentes; contale el tope. |
 
+El 5 de un `--start` (`login`, `repo conectar`) es lo normal: mostrale a la persona el enlace y el código (lo único
+que tiene que hacer) y, en el mismo turno, sin esperar que te conteste, corré el `--wait`; él solo espera la
+aprobación hasta 90 s. El 5 de la tabla es el del `--wait` que venció sin aprobación.
+
 ## 3. El orden
 
-1. `supcoflow quien-soy --json` (con 2: `supcoflow login --start --json`, la persona aprueba, `supcoflow login --wait --json`).
+1. `supcoflow quien-soy --json` (con 2: `supcoflow login --start --json`, mostrás el enlace y el código y enseguida
+   `supcoflow login --wait --json`, hasta que salga 0).
 2. `supcoflow proyecto ver --json`; si no hay proyecto: `supcoflow repo conectar --start --json` →
    `supcoflow repo conectar --wait --json` → `supcoflow proyecto crear --json`.
 3. `supcoflow configuracion --json`: lo que ya está fijado no se vuelve a preguntar. Sólo cuenta lo fijado:
