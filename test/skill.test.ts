@@ -25,7 +25,7 @@ type Describir = {
   comandos: { nombre: string; flags: string[] }[];
   flags_globales: string[];
 };
-const describir: Describir = JSON.parse(leer(RAIZ, "test", "vectores", "describir-0.6.0.json"));
+const describir: Describir = JSON.parse(leer(RAIZ, "test", "vectores", "describir-0.7.0.json"));
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -71,7 +71,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guia publicar", "instalacion anotar", "chat prender"...). Los demás son de una
-// palabra ("quien-soy", "widget"). En 0.6.0 ninguna palabra es a la vez grupo y comando.
+// palabra ("quien-soy", "widget"). En 0.7.0 ninguna palabra es a la vez grupo y comando.
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -162,11 +162,11 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.6.0 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.7.0 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
-  /supcoflow(?:@[\w.]+)?\s+(tope|probar|fabrica|desarrollo|acceso|invitar|aprobar|operador)\b/, // tope, gasto, fábrica, acceso
+  /supcoflow(?:@[\w.]+)?\s+(tope|fabrica|desarrollo|acceso|invitar|aprobar|operador)\b/, // tope, gasto, fábrica, acceso
   /supcoflow(?:@[\w.]+)?\s+proyecto\s+(borrar|eliminar|delete|rm)\b/, // borrar el proyecto
   /supcoflow(?:@[\w.]+)?\s+(equipo|miembros|usuarios)\b/, // dar acceso a personas
   /npm run (tope|invitar|aprobar|operador|clave|clave-de-acceso)\b/,
@@ -217,7 +217,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow widget && supcoflow nada`")).toEqual(["nada"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.6.0 guia publicar --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.7.0 guia publicar --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow instalacion anotar --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow quien-soy | cat`")).toEqual([]);
@@ -326,15 +326,33 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.6.0 proyecto borrar`",
+      "`npx -y supcoflow@0.7.0 proyecto borrar`",
       "`supcoflow fabrica encender`",
       "`supcoflow acceso dar`",
       "`npm run invitar -- --login x`",
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.6.0 no tiene comandos de esas acciones", () => {
-    for (const nombre of NOMBRES) expect(nombre).not.toMatch(/tope|borrar|fabrica|acceso|probar|invitar/);
+  it("la terminal 0.7.0 no tiene comandos de esas acciones", () => {
+    for (const nombre of NOMBRES) expect(nombre).not.toMatch(/tope|borrar|fabrica|acceso|invitar/);
+  });
+  it("--autorizo-gasto sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
+    for (const { ruta, texto } of textosDeLaSkill)
+      if (texto.includes("--autorizo-gasto"))
+        expect(["SKILL.md", "referencias/prueba.md"], ruta).toContain(ruta);
+    const prueba = leer(CARPETA, "referencias", "prueba.md");
+    const iPregunta = prueba.indexOf("**Preguntale a la persona**");
+    const iComando = prueba.indexOf("`supcoflow probar --autorizo-gasto --json`");
+    expect(iPregunta).toBeGreaterThan(0);
+    expect(iComando).toBeGreaterThan(iPregunta);
+    expect(prueba).toMatch(/nunca agregás `--autorizo-gasto` por tu cuenta/);
+    expect(skillMd).toMatch(/nunca agregás\s+`--autorizo-gasto` sin ese sí/);
+  });
+  it("el nivel 3 nunca relanza un arranque_incierto desde la terminal y cuenta el cobro pendiente como tal", () => {
+    const prueba = leer(CARPETA, "referencias", "prueba.md");
+    expect(prueba).toMatch(/`arranque_incierto` no se relanza desde la terminal/);
+    expect(prueba).toMatch(/Nunca lo cuentes como 0/);
+    expect(prueba).toMatch(/`pendiente` o `perdido`/);
   });
   it("ninguna clave scf_ escrita en los textos", () => {
     for (const { texto } of textosDeLaSkill) expect(texto).not.toMatch(/scf_[A-Za-z0-9]{8,}/);

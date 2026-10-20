@@ -2,7 +2,7 @@
 name: supcoflow
 description: Instala y configura el chat de soporte de Supcoflow en una app (Next.js probado) con la terminal `supcoflow`. Usala cuando la persona pida "/supcoflow go", instalar el chat de Supcoflow, o configurar su chat, su guía o sus datos.
 metadata:
-  version: "0.1.3"
+  version: "0.2.1"
 ---
 
 # Supcoflow go
@@ -16,9 +16,9 @@ trata la app (la guía) y que lo que reporten termine donde la persona eligió.
 
 ## 2. Cómo se habla con Supcoflow
 
-- Siempre por la terminal y con `--json`. Primero `supcoflow describir --json`: si dice `"version":"0.6.0"`, usá
+- Siempre por la terminal y con `--json`. Primero `supcoflow describir --json`: si dice `"version":"0.7.0"`, usá
   `supcoflow` a secas en todo lo que sigue. Sólo si no está instalada o es otra versión, corré cada comando fijado:
-  `npx -y supcoflow@0.6.0 describir --json`. Nunca `@latest` ni otra versión.
+  `npx -y supcoflow@0.7.0 describir --json`. Nunca `@latest` ni otra versión.
 - Un comando de la terminal por llamada, tal cual: sin `;`, `&&` ni pipes, y sin agregar `echo $?`. El código de
   salida lo leés del resultado del propio comando.
 - Nunca inventes un comando ni un flag: leelos de `describir --json` al empezar. Abajo, `supcoflow` quiere decir
@@ -59,6 +59,11 @@ aprobación hasta 90 s. El 5 de la tabla es el del `--wait` que venció sin apro
 7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número es el `metadata.version`
    del encabezado YAML de este SKILL.md: si no lo tenés a la vista, abrí el archivo; nunca escrito aparte;
    `--app <carpeta>` si la app no está en la raíz) → resumen.
+
+8. Probar (opcional, nunca sin preguntar): ofrecele a la persona los niveles de
+   [`referencias/prueba.md`](referencias/prueba.md). El 1 (`supcoflow diagnosticar --json`) es gratis; el 2 usa un
+   navegador y conversa con la IA del chat; el 3 **gasta** y se lo preguntás a la persona antes, con el techo y el
+   saldo que dio `supcoflow probar --json`.
 
 Cada paso se puede retomar: si la sesión se corta, `/supcoflow go` empieza por `configuracion` y sigue desde lo que falta.
 
@@ -151,9 +156,11 @@ Camino probado en [`referencias/nextjs.md`](referencias/nextjs.md).
 
 ## 11. Lo que no hacés
 
-Gastar (no hay en esta versión ningún comando de prueba que gaste: si la persona pide probar, decile que eso viene
-después), subir el tope, borrar el proyecto, encender la fábrica, dar acceso a personas (la API los rechaza por
-clave: son de la consola). Nunca muestres ni copies una clave `scf_`.
+Gastar por tu cuenta: la única prueba que gasta es el nivel 3 de [`referencias/prueba.md`](referencias/prueba.md), y
+sólo con el sí explícito de la persona a los números que dio `supcoflow probar --json`; nunca agregás
+`--autorizo-gasto` sin ese sí, ni repetís un sí viejo para otra prueba. Tampoco: subir el tope, relanzar un
+`arranque_incierto` (se relanza desde la bandeja de la consola), borrar el proyecto, encender la fábrica, dar acceso
+a personas (la API los rechaza por clave: son de la consola). Nunca muestres ni copies una clave `scf_`.
 
 ## 12. Sin red
 
@@ -166,6 +173,6 @@ Límite duro: **tres líneas como máximo**, con esta forma y sin listas de arch
 
 1. qué quedó configurado;
 2. dónde quedó el chat;
-3. qué falta, o «nada»; si la guía no está en GitHub, esta línea incluye «subir la guía a GitHub queda en tus manos».
+3. qué falta, o «nada» (si probaste, el nivel y su resultado; si no, que se puede probar); si la guía no está en GitHub, esta línea incluye «subir la guía a GitHub queda en tus manos».
 
 Nombrá sólo archivos que existen (si dudás, miralo antes). La persona corrige.
