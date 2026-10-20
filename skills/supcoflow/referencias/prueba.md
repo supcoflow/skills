@@ -54,26 +54,34 @@ skill que gasta y **nunca agregás `--autorizo-gasto` por tu cuenta**.
 
 1. `supcoflow diagnosticar --json`. Si sale 4, arreglá o contale primero; no pidas dinero para una prueba que no
    puede llegar.
-2. `supcoflow probar --json` (sin autorización: no manda nada). Sale 4 con `falta_autorizacion` y trae el techo, el
-   saldo del mes, el tope y lo comprometido. Con una prueba abierta sale 4 `prueba_en_curso` con su id: seguila
-   con el punto 5, no pidas otra.
+2. `supcoflow probar --json` (sin autorización: no manda nada). Siempre sale 4 con `falta_autorizacion` y trae el
+   techo, el saldo del mes, el tope, lo comprometido, la `politica` y `prueba_abierta`. Si `prueba_abierta` trae
+   un id, ya hay una prueba sin desenlace: no pidas dinero; seguila con el punto 5 y `--prueba <id>`.
 3. **Preguntale a la persona**, citando los números tal como los dio `probar`: «Esta prueba gasta un relevamiento,
    hasta US$ <techo>. Te quedan US$ <saldo> este mes. Si el problema entra, se abre un issue de prueba, rotulado
-   como tal, en tu repo, y queda abierto (yo no lo cierro). ¿La hago?». Si la política es `guardar`, decile que la
-   prueba llega sólo hasta guardar el problema y no gasta. Una respuesta que no sea un sí claro es un no.
-4. Sólo con el sí, en una llamada aparte: `supcoflow probar --autorizo-gasto --json`. Sale 5 con el `prueba_id`.
-   Para usar un texto propio, `--mensaje "…"`; sin él va uno fijo del motor.
-   - Sale 6 (`tope_mensual`): no reintentes; contale el tope y lo comprometido. Subirlo no es cosa tuya.
-   - Sale 4 `techo_distinto`, `chat_deshabilitado` o `requiere_api_key`: contale el mensaje. No reintentes con otra
-     autorización: si cambió el techo, volvé al punto 2 y preguntá de nuevo con el número nuevo.
-   - Sale 1 con `intento_pendiente`: la respuesta no llegó y el pedido quedó guardado. Repetí
-     `supcoflow probar --autorizo-gasto --json` **sin `--mensaje`** (retoma la misma prueba, no pide otra). Era el
-     mismo sí de la persona.
+   como tal, en tu repo, y queda abierto (yo no lo cierro). ¿La hago?». Si la `politica` del mismo `probar --json`
+   es `guardar`, decile que la prueba llega sólo hasta guardar el problema y no gasta. Una respuesta que no sea un
+   sí claro es un no.
+4. Sólo con el sí, en una llamada aparte: `supcoflow probar --autorizo-gasto --json`. Sale 5 con el `prueba_id`:
+   andá directo al punto 5 (`--wait`), sin preguntar nada más. Para usar un texto propio, `--mensaje "…"`; sin él va
+   uno fijo del motor. Si no sale 5, mirá el campo `error`, no sólo el código:
+   - `intento_pendiente` (sale 1 o 4, y también lo da `--wait`): hay un pedido sin confirmar guardado. Repetí
+     `supcoflow probar --autorizo-gasto --json` **sin `--mensaje`** (retoma la misma prueba, no pide otra; es el
+     mismo sí de la persona) y después `--wait`.
+   - `prueba_en_curso` (4): ya hay una abierta; seguila con `supcoflow probar --wait --prueba <id>` (el id viene
+     en la respuesta).
+   - `tope_mensual` (6): no reintentes; contale el tope y lo comprometido. Subirlo no es cosa tuya.
+   - `techo_distinto` (4): cambió el techo; volvé al punto 2 y preguntá de nuevo con el número nuevo.
+   - `chat_deshabilitado` o `requiere_api_key` (4): contale el mensaje; no reintentes.
+   - exit 3 (entrada inválida): mandaste algo mal; corregilo con el mensaje. Exit 2: falta sesión
+     (`login --start` y `login --wait`). `idempotency_key_reusada` (1): no debería pasar; contalo y, si la persona
+     quiere, empezá de nuevo por el punto 2 (otra prueba pide otro sí).
+   - Cualquier otro exit 1: contalo con el mensaje; no reintentes más de una vez.
 5. `supcoflow probar --wait --json` (o con `--prueba <id>`): espera hasta 90 s por llamada.
    - 5: sigue corriendo; en el mismo turno, volvé a correr el mismo comando. No le pidas nada a la persona.
    - 0: llegó al desenlace. Con un issue, pasale el enlace. Con la política `guardar` es el caso guardado, no un
      issue: decíselo así.
-   - 4: hace falta que la persona mire la prueba en la consola; pasale el enlace a la bandeja y el motivo que
+   - 4 (con otro `error`, no `intento_pendiente`): hace falta que la persona mire la prueba en la consola; pasale el enlace a la bandeja y el motivo que
      trae. **Un `arranque_incierto` no se relanza desde la terminal** (ni con otro `probar`): se relanza sólo
      desde la bandeja de la consola; decíselo.
 6. **El cobro, como venga**: `leido` con el monto; `pendiente` o `perdido` se dicen como tales («todavía no se
