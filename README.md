@@ -21,10 +21,10 @@ puede copiar la carpeta `skills/supcoflow/` de este repo a `.claude/skills/supco
 
 ## Versiones
 
-- La skill es la `0.1.3` (`metadata.version` en `skills/supcoflow/SKILL.md`). El texto que recibe la persona
+- La skill es la `0.2.0` (`metadata.version` en `skills/supcoflow/SKILL.md`). El texto que recibe la persona
   (`SKILL.md` y `referencias/`) y esa versión están atados por una huella: cambiar el texto sin subir la versión
   deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.6.0`. Hasta que esa versión se publique, la skill no funciona en
+- Fija la terminal en `npx -y supcoflow@0.7.0`. Hasta que esa versión se publique, la skill no funciona en
   producción.
 
 ## Probar
@@ -36,7 +36,9 @@ npm test
 
 ## Lo que esta versión NO hace
 
-- No hay pruebas pagas (`probar`).
+- No gasta por su cuenta: la prueba paga (`probar`, nivel 3) sólo se pide con el sí de la persona a los números
+  que dio el motor (techo y saldo).
+- No relanza desde la terminal un relevamiento de arranque incierto: eso es de la consola.
 - No hace `git push`.
 - No tiene camino para quien no usa un asistente de código.
 
