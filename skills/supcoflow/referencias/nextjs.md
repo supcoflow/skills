@@ -1,55 +1,60 @@
-# Poner el chat en Next.js
+# Put the chat in Next.js
 
-Camino probado: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 y `@supcoflow/chat` 2.2.1. Probado sólo al compilar (`next build`); no se corrió `next start` ni se abrió en un navegador.
-**Pages Router: no probado; avisale a la persona** y no improvises.
+Tested path: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 and `@supcoflow/chat` 2.2.1. Tested only at build time
+(`next build`); `next start` was not run and it was not opened in a browser. The wrapper is the same in the version
+that `supcoflow widget --json` gives (2.3.0); the first real run of the 0.3.0 skill is what confirms it.
+**Pages Router: not tested; tell the person** and do not improvise.
 
-## Por qué se usa el archivo envoltorio
+## Why the wrapper file is used
 
-En el App Router todo es componente de servidor salvo que el archivo diga `"use client"`. El paquete
-`@supcoflow/chat` NO trae esa directiva (`dist/index.js` no la tiene). Medido (R7, mismo
-proyecto, mismo layout):
+In the App Router everything is a server component unless the file says `"use client"`. The `@supcoflow/chat`
+package does NOT carry that directive (`dist/index.js` does not have it). Measured (R7, same project, same layout):
 
-- Importando `ChatDeIntake` directo en `app/layout.tsx`, `next build` FALLA (salida 1) al prerenderizar `/` con
+- Importing `ChatDeIntake` directly in `app/layout.tsx`, `next build` FAILS (exit 1) when prerendering `/` with
   `TypeError: (0 , r.useRef) is not a function`.
-- Con el envoltorio que devuelve `supcoflow widget --json` (`nextjs.contenido`, que empieza con `"use client"`),
-  `next build` termina bien (salida 0).
+- With the wrapper that `supcoflow widget --json` returns (`nextjs.contenido`, which starts with `"use client"`),
+  `next build` ends well (exit 0).
 
-Síntoma medido, causa no probada; lo que sí se sabe: el paquete no trae `"use client"` y el envoltorio lo arregla. Por eso: no importes `ChatDeIntake` directo en un layout o en un componente de servidor; usá el envoltorio, tal
-cual viene, sin reescribir los ids (`tenantId`, `projectId`, `backendUrl`). Va en `nextjs.archivo_sugerido`
-(`app/_supcoflow/chat-de-soporte.tsx`) y se usa como `nextjs.uso` (`<ChatDeSoporte />`). La ruta es relativa a la
-carpeta de la app (con `--app apps/web`, a `apps/web`). Si la app usa `src/app`, va en
-`src/app/_supcoflow/chat-de-soporte.tsx`: nunca crees un `app/` al lado de `src/app` (Next ignoraría `src/app` y
-todas las rutas darían 404).
+Measured symptom, cause not proven; what is known: the package does not carry `"use client"` and the wrapper fixes it.
+So: do not import `ChatDeIntake` directly in a layout or a server component; use the wrapper, as it comes, without
+rewriting the ids (`tenantId`, `projectId`, `backendUrl`). It goes in `nextjs.archivo_sugerido`
+(`app/_supcoflow/support-chat.tsx`) and is used as `nextjs.uso`. The path is relative to the app's folder (with
+`--app apps/web`, to `apps/web`). If the app uses `src/app`, it goes in `src/app/_supcoflow/support-chat.tsx`: never
+create an `app/` next to `src/app` (Next would ignore `src/app` and every route would give 404).
 
-## Dónde ponerlo
+**If the chat is already installed** (the 0.2.x skill put it in `app/_supcoflow/chat-de-soporte.tsx`): do not create the
+new file next to it. Follow the order of point 10 of SKILL.md (`.supcoflow/instalacion.json`, then what the layout
+imports, then `archivos_anteriores`) and update that file in place; two chats would mean two bubbles.
 
-- En `app/layout.tsx` (dentro de `<body>`) si el chat va en toda la app.
-- Si la parte con sesión tiene su propio layout (p. ej. `app/(app)/layout.tsx`), ahí: es donde se traban los
-  usuarios y donde se conoce quién es.
+## Where to put it
+
+- In `app/layout.tsx` (inside `<body>`) if the chat goes in the whole app.
+- If the part with a session has its own layout (e.g. `app/(app)/layout.tsx`), there: it is where users get stuck and
+  where who they are is known.
 
 ```tsx
-import { ChatDeSoporte } from "./_supcoflow/chat-de-soporte";
-// dentro del <body>, tras los hijos:
-<ChatDeSoporte usuario={{ id: usuario.id, rol: usuario.rol }} />
+import { SupportChat } from "./_supcoflow/support-chat";
+// inside the <body>, after the children:
+<SupportChat usuario={{ id: user.id, rol: user.role }} />
 ```
 
-(Ajustá la ruta del import a la del layout. `{ id, rol }` es sólo un ejemplo: pasá únicamente los campos que la persona aceptó.)
+(Adjust the import path to the layout's. The component name and the import come from `nextjs.uso` and
+`nextjs.contenido`; `{ id, rol }` is just an example: pass only the fields the person accepted.)
 
-## El usuario, del lado del servidor
+## The user, from the server side
 
-El layout es un componente de servidor: leé ahí la sesión de la app (la forma que ya use) y pasá sólo valores
-serializables por props. El tipo de `usuario` del chat es `{ id, nombre, rol, atributos }`, pero la skill pasa
-**únicamente los campos que la persona aceptó** compartir (la tabla del punto 5 de SKILL.md) y **nunca `nombre`**.
-Sin sesión (parte pública), no pases `usuario`. No pases objetos de base de datos, funciones ni clases.
+The layout is a server component: read the app's session there (the way it already does) and pass only serializable
+values through props. The chat's `usuario` type is `{ id, nombre, rol, atributos }`, but the skill passes **only the
+fields the person accepted** to share (the table of point 5 of SKILL.md) and **never `nombre`**. Without a session
+(public part), do not pass `usuario`. Do not pass database objects, functions or classes.
 
-## La CSP
+## The CSP
 
-Sólo si la app ya tiene una, en `next.config.*` (`headers()`) o en el middleware/proxy. Seguí el punto 10 de
-SKILL.md: agregá el origen del chat a la directiva `connect-src` que ya existe, conservando todo lo que tiene;
-nunca escribas una segunda `connect-src`. Si la app no tiene CSP, no agregues ninguna.
+Only if the app already has one, in `next.config.*` (`headers()`) or in the middleware/proxy. Follow point 10 of
+SKILL.md: add the chat's origin to the `connect-src` directive that already exists, keeping everything it has; never
+write a second `connect-src`. If the app has no CSP, do not add any.
 
-## El origen del sitio
+## The site's origin
 
-`supcoflow sitios agregar --sitio <origen>` lleva el origen (esquema y host, sin ruta) desde donde los usuarios
-usan la app: su dominio público. `http://localhost:3000` sólo para una prueba local. Si el código no lo dice,
-preguntáselo a la persona.
+`supcoflow sites add --site <origin>` carries the origin (scheme and host, no path) from where users use the app: its
+public domain. `http://localhost:3000` only for a local test. If the code does not say, ask the person.

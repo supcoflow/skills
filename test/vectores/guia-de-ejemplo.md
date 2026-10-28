@@ -1,19 +1,21 @@
-# Guía de Mi Tienda
+# My Store guide
 
-## Catálogo
-Para qué sirve: Mostrar los productos disponibles y permitir buscarlos por nombre o por categoría.
-Qué puede hacer el usuario: Buscar productos, filtrar por categoría y abrir la ficha de cada uno.
-Problemas comunes:
-- La búsqueda no devuelve resultados aunque el producto existe.
-- Las imágenes de la ficha no cargan.
+## Catalog
+What it's for: Show the available products and let people search them by name or by category.
+What users can do: Search for products, filter by category and open each product's page.
+Where: /catalog
+Common problems:
+- Search returns nothing even though the product exists.
+- The images on the product page don't load.
 
-## Carrito
-Para qué sirve: Juntar los productos que la persona quiere comprar antes de pagar.
-Qué puede hacer el usuario: Agregar y quitar productos, cambiar cantidades y pasar al pago.
-Problemas comunes:
-- El carrito aparece vacío después de iniciar sesión.
-- El botón de pagar no responde.
+## Cart
+What it's for: Gather the products the person wants to buy before paying.
+What users can do: Add and remove products, change quantities and go to checkout.
+Where: /cart
+Common problems:
+- The cart is empty after signing in.
+- The pay button does nothing.
 
-## Mi cuenta
-Para qué sirve: Que la persona vea y edite sus datos personales y sus pedidos anteriores.
-Qué puede hacer el usuario: Cambiar el nombre y el correo, y revisar el estado de sus pedidos.
+## My account
+What it's for: Let the person see and edit their personal details and their past orders.
+What users can do: Change their name and email, and check the status of their orders.

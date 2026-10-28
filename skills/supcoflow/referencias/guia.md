@@ -1,83 +1,95 @@
-# La guía: `.supcoflow/guia.md`
+# The guide: `.supcoflow/guide.md`
 
-Es lo que el chat sabe de la app. Va en la raíz del repo, en `.supcoflow/guia.md`, en UTF-8 y de hasta 64 KB.
-Una sección por pantalla o función que un usuario usa (de 1 a 60).
+It is what the chat knows about the app. It goes at the root of the repo, in `.supcoflow/guide.md`, in UTF-8 and up to
+64 KB. One section per screen or function a user uses (from 1 to 60).
 
-## El formato
+The old name, `.supcoflow/guia.md`, still works: the terminal reads it only when `guide.md` does not exist, and says
+that `.supcoflow/guia.md` is the old name and should be renamed to `guide.md`. If both exist, `guide.md` wins and
+`guia.md` is ignored (the terminal says so). Never rename or delete the person's file; offer it and let them do it.
+
+## The format
 
 ```markdown
-# Guía de Mi App
+# My App guide
 
-## Facturas
-Para qué sirve: Ver y pagar las facturas del mes.
-Qué puede hacer el usuario: Descargar el PDF, pagar con
-tarjeta y ver el historial.
-Problemas comunes:
-- El botón Pagar no responde con tarjetas de débito.
-- El PDF sale en blanco en Safari.
+## Invoices
+What it's for: View and pay the month's invoices.
+What users can do: Download the PDF, pay by card
+and see the history.
+Where: /invoices
+Common problems:
+- The Pay button does nothing with debit cards.
+- The PDF comes out blank in Safari.
 ```
 
-- `# Guía de Mi App` (el título) es opcional y se ignora.
-- Una sección (`## Nombre`) por pantalla o función: de 1 a 60; el nombre, de 1 a 120 caracteres.
-- «Para qué sirve:» y «Qué puede hacer el usuario:» son obligatorios, de 1 a 600 caracteres cada uno; pueden seguir
-  en las líneas de abajo (como en «Qué puede hacer el usuario:» del bloque).
-- «Problemas comunes:» es opcional: hasta 10, cada uno de 1 a 300 caracteres.
+- `# My App guide` (the title) is optional and is ignored.
+- A section (`## Name`) per screen or function: from 1 to 60; the name, from 1 to 120 characters.
+- "What it's for:" and "What users can do:" are required, from 1 to 600 characters each; they can continue on the
+  lines below (as "What users can do:" does in the block).
+- "Common problems:" is optional: up to 10, each from 1 to 300 characters.
+- "Where:" is optional: the route of the app where that section lives (`/settings/billing`). It starts with `/`, up to
+  200 characters, no `<` or `>`. Write it only if that route exists in the code. The chat uses it to give the user a link.
+- The labels are recognized at the start of the line, in any case. The Spanish labels of the old guides are still
+  accepted; write the English ones.
+- A line that is not a label continues the previous field (joined with a space). Problems go one per line, with "- " at
+  the start; a line without "- " continues the previous problem.
+- It is an error: text before the first section that is not the `# ` title; text in a section before its first label;
+  a repeated label in the same section; any line with `<` or `>` (the guide is untrusted content and those characters
+  are not allowed: rewrite the sentence without them); more than 64 KB.
+- Only what a user sees. No business rules that were not dictated by the person.
 
-- Las etiquetas se reconocen al principio de la línea, sin distinguir mayúsculas y con o sin tildes
-  («Para que sirve:» vale).
-- Una línea que no es etiqueta continúa el campo anterior (se une con un espacio). Los problemas van uno por línea,
-  con «- » al principio; una línea sin «- » continúa el problema anterior.
-- Es error: texto antes de la primera sección que no sea el título `# `; texto en una sección antes de su primera
-  etiqueta; una etiqueta repetida en la misma sección; cualquier línea con `<` o `>` (la guía es contenido no
-  confiable y esos caracteres no se admiten: reescribí la frase sin ellos); más de 64 KB.
-- Sólo lo que un usuario ve. Nada de reglas de negocio que no estén dictadas por la persona.
+## The example guide
 
-## La guía de ejemplo
+This one passes `guide check`; imitate its shape.
 
-Esta pasa `guia revisar`; imitá su forma.
+# My Store guide
 
-# Guía de Mi Tienda
+## Catalog
+What it's for: Show the available products and let people search them by name or by category.
+What users can do: Search for products, filter by category and open each product's page.
+Where: /catalog
+Common problems:
+- Search returns nothing even though the product exists.
+- The images on the product page don't load.
 
-## Catálogo
-Para qué sirve: Mostrar los productos disponibles y permitir buscarlos por nombre o por categoría.
-Qué puede hacer el usuario: Buscar productos, filtrar por categoría y abrir la ficha de cada uno.
-Problemas comunes:
-- La búsqueda no devuelve resultados aunque el producto existe.
-- Las imágenes de la ficha no cargan.
+## Cart
+What it's for: Gather the products the person wants to buy before paying.
+What users can do: Add and remove products, change quantities and go to checkout.
+Where: /cart
+Common problems:
+- The cart is empty after signing in.
+- The pay button does nothing.
 
-## Carrito
-Para qué sirve: Juntar los productos que la persona quiere comprar antes de pagar.
-Qué puede hacer el usuario: Agregar y quitar productos, cambiar cantidades y pasar al pago.
-Problemas comunes:
-- El carrito aparece vacío después de iniciar sesión.
-- El botón de pagar no responde.
+## My account
+What it's for: Let the person see and edit their personal details and their past orders.
+What users can do: Change their name and email, and check the status of their orders.
 
-## Mi cuenta
-Para qué sirve: Que la persona vea y edite sus datos personales y sus pedidos anteriores.
-Qué puede hacer el usuario: Cambiar el nombre y el correo, y revisar el estado de sus pedidos.
+## Reading the errors of `guide check`
 
-## Leer los errores de `guia revisar`
+`supcoflow guide check --json` exits 0 if the guide is well formed. If not, it exits 3 with `"error":"guia_mal_armada"`
+and a list `errores` of `{ "linea": <number>, "motivo": "<text>" }` (up to 20, per line, in order). In text it comes
+out as `line N: reason`. Fix ALL the lines of the list and run it again; repeat until it exits 0.
 
-`supcoflow guia revisar --json` sale 0 si la guía está bien armada. Si no, sale 3 con `"error":"guia_mal_armada"` y
-una lista `errores` de `{ "linea": <número>, "motivo": "<texto>" }` (hasta 20, por línea, en orden). En texto sale
-como `línea N: motivo`. Corregí TODAS las líneas de la lista y volvé a correr; repetí hasta que salga 0.
-
-| Motivo | Qué hacer |
+| Reason (`motivo`) | What to do |
 |---|---|
-| `la guía no admite < ni >` | Reescribí esa línea sin `<` ni `>`. |
-| `hay texto antes de la primera sección («## Nombre»)` | Borrá ese texto o movelo dentro de una sección; sólo el título `# ` puede ir antes. |
-| `la guía no tiene ninguna sección («## Nombre»)` | Agregá al menos una sección que empiece con `## `. |
-| `la guía pasa de 60 secciones` | Juntá pantallas parecidas hasta llegar a 60 o menos. |
-| `la sección no tiene nombre` / `el nombre pasa de 120 caracteres` | Poné un nombre corto después de `## `. |
-| `falta «Para qué sirve:» en la sección «X»` (o «Qué puede hacer el usuario:») | Agregá esa etiqueta con texto a la sección X (la línea que se informa es la del `## X`). |
-| `la etiqueta «…» está repetida en la sección` | Dejá una sola vez la etiqueta en esa sección. |
-| `texto en la sección que no pertenece a ninguna etiqueta` | Poné una etiqueta antes de ese texto, o borralo. |
-| `los problemas comunes van con «- » al principio de cada línea` | Empezá cada problema con «- ». |
-| `… pasa de 600 caracteres` / `un problema común pasa de 300 caracteres` | Acortá el texto de esa línea. |
-| `hasta 10 problemas comunes por sección` | Dejá los 10 más importantes. |
-| `un problema común está vacío` | Escribí el problema después de «- » o borrá la línea. |
-| `la guía no tiene la forma esperada` (línea 1) | Revisá el formato completo contra el ejemplo. |
+| `the guide can't contain < or >` | Rewrite that line without `<` or `>`. |
+| `there is text before the first section ("## Name")` | Delete that text or move it inside a section; only the `# ` title can go before. |
+| `the guide has no sections ("## Name")` | Add at least one section that starts with `## `. |
+| `the guide has more than 60 sections` | Merge similar screens until you have 60 or fewer. |
+| `the section has no name` | Put a short name after `## `. |
+| `the section name is over 120 characters` | Put a short name after `## `. |
+| `"What it's for:" is missing in the section "X"` | Add that label with text to section X (the reported line is the `## X` one). |
+| `"What users can do:" is missing in the section "X"` | Add that label with text to section X (the reported line is the `## X` one). |
+| `the label "…" appears twice in the section` | Keep the label only once in that section. |
+| `there is text in the section that belongs to no label` | Put a label before that text, or delete it. |
+| `common problems must start with "- " on each line` | Start each problem with "- ". |
+| `"Where:" must be a path that starts with "/" (up to 200 characters)` | Write a real route of the app, like `/settings/billing`, or delete the line. |
+| `… is over 600 characters` | Shorten the text of that line. |
+| `a common problem is over 300 characters` | Shorten the text of that line. |
+| `up to 10 common problems per section` | Keep the 10 most important. |
+| `a common problem is empty` | Write the problem after "- " or delete the line. |
+| `the guide doesn't have the expected shape` | Check the whole format against the example. |
 
-Otros códigos de `guia revisar`, todos con salida 3: `falta_guia` (no hay `.supcoflow/guia.md` en la raíz del repo:
-escribilo), `guia_muy_grande` (pasa de 64 KB: acortalo) y `guia_ilegible` (no se puede leer, p. ej. UTF-8 inválido: guardalo en UTF-8).
-Con salida 4 `sin_proyecto`, falta el proyecto: volvé al paso 2 del orden.
+Other codes of `guide check`, all with exit 3: `falta_guia` (there is no `.supcoflow/guide.md` at the root of the repo:
+write it), `guia_muy_grande` (over 64 KB: shorten it) and `guia_ilegible` (it cannot be read, e.g. invalid UTF-8: save
+it as UTF-8). With exit 4 `sin_proyecto`, the project is missing: go back to step 2 of the order.
