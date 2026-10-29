@@ -16,6 +16,13 @@ al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
 | 5 | [05-no-a-la-prueba.md](05-no-a-la-prueba.md) | La persona dice «no» a la prueba paga: no se gasta nada |
 | 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `config` sin duplicar |
 
+## Si el repo todavía no tiene proyecto
+
+Con `/supcoflow go`, `supcoflow config --json` puede salir con 4 `sin_proyecto` en una app nueva: el asistente sigue por
+el paso 2 (conectar el repo y crear el proyecto) y vuelve a leer `config`; **no se detiene**. En un pedido parcial
+(guía, datos, diagnóstico) sin proyecto, el asistente dice que falta la instalación, ofrece el recorrido completo y no
+crea nada. Cualquier otro 4 es una decisión de una persona: el asistente se detiene y la pide.
+
 ## Cómo correrlos (a mano)
 
 1. Prepará la app de ejemplo del escenario en una carpeta nueva y un repo git propio (nunca el repo de trabajo). Un
@@ -31,7 +38,9 @@ el gasto.
 
 ## Lo esperado en TODOS los escenarios
 
-- **Un solo chat** montado al final (un único componente del chat en los layouts de la app).
+- **Un solo chat** montado al final (un único componente del chat en los layouts de la app). En un pedido parcial
+  («actualizá la guía», «cambiá qué ve el chat», «¿anda el chat?») es el que ya estaba: la app de ejemplo del escenario
+  ya lo trae instalado y el asistente no instala ni agrega otro.
 - **`supcoflow guide check --json` sale con 0** antes de publicar la guía.
 - **Ningún gasto sin el sí**: `--authorize-spend` no aparece en ningún comando sin un sí explícito de la persona a la
   tercera pregunta, y siempre con `--ceiling` y `--expect-policy` iguales a lo que se le mostró.

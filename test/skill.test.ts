@@ -713,10 +713,24 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(filas).toHaveLength(5);
     const fila = (re: RegExp) => P(filas.find((l) => re.test(l)) ?? "");
     expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
-    expect(fila(/Update the guide/)).toMatch(/Points 8 and 9.*Nothing else is asked/);
-    expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, then `supcoflow data set`\. No other question/);
+    expect(fila(/Update the guide/)).toMatch(/Points 8 and 9.*Do not ask about data, policy or the test\. The questions and permissions of points 7 and 9 stay \(overwriting, the business rules, the commit\)/);
+    expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code\. Do not ask the second or the third question\. The permissions of point 7 before touching files stay/);
     expect(fila(/Test it/)).toMatch(/referencias\/prueba\.md.*Level 3 spends: only with its own yes/);
     expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 9/);
+  });
+  it("el mapa no tiene prohibiciones absolutas que choquen con los permisos de los puntos 7 y 9", () => {
+    expect(P(mapa)).not.toMatch(/Nothing else is asked/);
+    expect(P(mapa)).not.toMatch(/No other question/);
+    const p5 = seccion(skillMd, /^## 5\./m, /^## 6\./m);
+    expect(P(p5)).toMatch(/in the full order and for whatever is still unset \(a request to change only the data uses the first one: see the map of point 3\)/);
+  });
+  it("si `config` sale 4 `sin_proyecto`: al instalar se sigue por el paso 2; en un pedido parcial se ofrece la instalación y no se crea nada; otro 4 se detiene", () => {
+    const intro = P(seccion(s3, /\*\*Start from what the person asked\.\*\*/, /\| The person asked/));
+    expect(intro).toMatch(/If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
+    expect(intro).toMatch(/When the person asked to install, go on to step 2 of the order \(connect the repo, create the project\) and read `config` again/);
+    expect(intro).toMatch(/For any other row, tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request/);
+    expect(intro).toMatch(/Any other exit 4 is a decision for a person: stop/);
+    expect(s3).toMatch(/^2\. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`/m);
   });
   it("el mapa no abre ningún camino que gaste ni nombra el flag de gasto", () => {
     expect(mapa).not.toContain("--authorize-spend");
@@ -765,5 +779,27 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   it("dicen que están escritos y no corridos; viven fuera de skills/ (no cambian la huella)", () => {
     expect(indice).toMatch(/escritos, no corridos/);
     expect(dir.startsWith(CARPETA)).toBe(false);
+  });
+});
+
+describe("los escenarios cubren los pedidos parciales y el repo sin proyecto (revisión A1+A2+A4, vuelta 1)", () => {
+  const dir = join(RAIZ, "docs", "escenarios");
+  it("el escenario 4 prepara el proyecto conectado y el chat instalado, y separa el pedido parcial del completo", () => {
+    const t = leer(dir, "04-guia-sin-commitear.md");
+    const app = seccion(t, /^## App de ejemplo$/m, /^## Pedido$/m);
+    expect(P(app)).toMatch(/proyecto de Supcoflow de prueba ya conectado al repo/);
+    expect(P(app)).toMatch(/el chat ya instalado/);
+    const pedido = seccion(t, /^## Pedido$/m, /^## Lo esperado$/m);
+    expect(P(pedido)).toMatch(/\(i\)\*\* «actualizá la guía» \(pedido parcial: el asistente conserva el chat que ya está, no instala nada\)/);
+    expect(P(pedido)).toMatch(/\(ii\)\*\* `\/supcoflow go`/);
+    expect(P(t)).toMatch(/no hace\*\* las preguntas de datos, política ni prueba/);
+  });
+  it("la lista común deja claro que en un pedido parcial el chat es el que ya estaba", () => {
+    const comun = seccion(leer(dir, "README.md"), /^## Lo esperado en TODOS los escenarios$/m);
+    expect(P(comun)).toMatch(/En un pedido parcial .* es el que ya estaba: la app de ejemplo del escenario ya lo trae instalado y el asistente no instala ni agrega otro/);
+  });
+  it("el índice y el escenario 1 describen `sin_proyecto`: se continúa por el paso 2, no se detiene", () => {
+    expect(P(leer(dir, "README.md"))).toMatch(/`sin_proyecto` en una app nueva: el asistente sigue por el paso 2 .* \*\*no se detiene\*\*/);
+    expect(P(leer(dir, "01-src-app.md"))).toMatch(/`sin_proyecto`: el asistente \*\*continúa\*\* por `repo connect` y `project create` \(paso 2\)/);
   });
 });

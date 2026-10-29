@@ -41,14 +41,17 @@ approval by itself for up to 90 s. The 5 in the table is the one from a `--wait`
 
 ## 3. The order
 
-**Start from what the person asked.** Every row begins with `supcoflow config --json` (and with the login of point 2 if
-it exits 2); then:
+**Start from what the person asked.** Every row begins with `supcoflow config --json` (with exit 2, the login of
+point 2 first). If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to
+install, go on to step 2 of the order (connect the repo, create the project) and read `config` again. For any other row,
+tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request.
+Any other exit 4 is a decision for a person: stop, as the table of point 2 says. Then:
 
 | The person asked | You do |
 |---|---|
 | Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 9). Fix only what it names. No test, nothing is spent. |
-| Update the guide | Points 8 and 9 (step 6 below). Nothing else is asked. |
-| Change what the chat sees about their users | Only the first question of point 5, then `supcoflow data set`. No other question. |
+| Update the guide | Points 8 and 9 (step 6 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
+| Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
 | Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
 | Install it, or `/supcoflow go` | The full order below, steps 1 to 9. |
 
@@ -99,7 +102,7 @@ language, which screens the guide covers. It is said in the summary; it is not a
 
 ## 5. What you ALWAYS ask the person
 
-These three, in one panel with exactly these words. Do not decide them yourself even if the code suggests it. Before
+These three, in one panel with exactly these words, in the full order and for whatever is still unset (a request to change only the data uses the first one: see the map of point 3). Do not decide them yourself even if the code suggests it. Before
 asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the investigating AI
 reads, not what the chat's AI sees while it talks; and this chat always offers users screenshots and pointing at
 elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved).
