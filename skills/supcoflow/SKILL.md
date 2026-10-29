@@ -24,6 +24,10 @@ guide) and what they report ends up where the person chose.
   command's own result.
 - Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
   terminal.
+- In the full order, start each step with one line: "Step N of 9: <what it is>" (for example "Step 3 of 9: your
+  settings"), so the person sees where you are.
+- Never paste the terminal's JSON to the person: say what it means in one sentence.
+- Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).
 
 | Code | What you do |
 |---|---|
@@ -68,7 +72,7 @@ The full order:
    investigating spends.
 4. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
    ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question.
-5. Read the code → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
+5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
    `supcoflow policy set`).
@@ -257,4 +261,5 @@ lists of files:
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
+The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.

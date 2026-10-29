@@ -88,7 +88,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      start again from point 2 (another test asks for another yes).
    - Any other exit 1: tell them with the message; do not retry more than once.
 5. `supcoflow test --wait --json` (or with `--test-id <id>`): it waits up to 90 s per call.
-   - 5: still running; in the same turn, run the same command again. Ask the person nothing.
+   - 5: still running; in the same turn, run the same command again. Ask the person nothing, but say one line per round: how many minutes it has been running (each round waits up to 90 s).
    - 0: it reached the outcome. With an issue, pass them the link. With the `guardar` policy it is the saved case, not
      an issue: tell them so.
    - 4 (with another `error`, not `intento_pendiente`): the person has to look at the test in the console; pass them

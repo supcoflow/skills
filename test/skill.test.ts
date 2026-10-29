@@ -685,6 +685,45 @@ describe("la rama del commit de la guía (1A.1, fricción 4)", () => {
   });
 });
 
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 5: se ve en qué paso va, sin JSON y sin grep/sed en pantalla.
+// ---------------------------------------------------------------------------------
+describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)", () => {
+  const s2 = () => P(seccion(skillMd, /^## 2\./m, /^## 3\./m));
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const s13 = () => P(seccion(skillMd, /^## 13\./m));
+  it("en el recorrido completo, cada paso empieza con una línea «Step N of 9: …»", () => {
+    expect(s2()).toMatch(/In the full order, start each step with one line: "Step N of 9: <what it is>"/);
+    expect(s2()).toContain('(for example "Step 3 of 9: your settings")');
+  });
+  it("el recorrido completo tiene exactamente nueve pasos (el «9» de la línea es cierto)", () => {
+    const orden = seccion(skillMd, /^The full order:/m, /^Testing beyond that/m);
+    const pasos = orden.split("\n").filter((l) => /^\d+\. /.test(l)).map((l) => Number(l.match(/^(\d+)\./)![1]));
+    expect(pasos).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+  it("las líneas de paso no se mezclan con el resumen: no cuentan en las tres líneas y no van en él", () => {
+    expect(s13()).toMatch(/The step lines of point 2 are not part of the summary/);
+    expect(s13()).toMatch(/three lines at most/);
+    for (const forma of s13().match(/\d\. "[^"]*"/g) ?? []) expect(forma).not.toMatch(/Step \d/);
+  });
+  it("nunca se pega el JSON de la terminal: se dice qué significa en una frase", () => {
+    expect(s2()).toContain("Never paste the terminal's JSON to the person: say what it means in one sentence.");
+  });
+  it("la app se lee con las herramientas de archivo y de búsqueda, no con pipelines de shell", () => {
+    expect(s2()).toContain(
+      "Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).",
+    );
+    expect(s3()).toMatch(/Read the code \(with your file tools, as point 2 says\)/);
+  });
+  it("el nivel 3 dice una línea por vuelta de `--wait`, con los minutos que lleva", () => {
+    const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
+    expect(prueba).toMatch(/5: still running; in the same turn, run the same command again\. Ask the person nothing, but say one line per round: how many minutes it has been running/);
+  });
+  it("no se inventa que la terminal diga el paso siguiente (eso es 0.9.0, no esta versión)", () => {
+    for (const { ruta, texto } of textosDeLaSkill) expect(P(texto), ruta).not.toMatch(/next step[^.]*terminal prints|terminal (?:tells|says) (?:you )?the next step/i);
+  });
+});
+
 describe("no dos chats (R7, spec §10.3)", () => {
   const p10 = () => seccion(skillMd, /^## 10\./m, /^## 11\./m);
   it("el orden para elegir el archivo", () => {
