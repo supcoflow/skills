@@ -128,7 +128,9 @@ got an answer: it is not a new test, and it has its own yes.
 2. With the yes, in a call of its own, run the recovery command:
    `supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`, with its own ceiling
    and policy, not the ones of this `test --json` and not the ones you offered, and without `--message`. The `message` of
-   this `test --json` gives the same command after "to recover that same request, repeat". Then point 5.
+   this `test --json` gives the same command after "to recover that same request, repeat". Only with exit 5 and a
+   `prueba_id`, go to point 5; otherwise handle the result as in point 4: `techo_distinto` or `politica_distinta`: go
+   back to point 2 and ask again with the new numbers, before any new test.
 3. A pending request with `politica: null` (saved by the old 0.7.0 terminal) has no policy to put in that command: its
    policy was never fixed, so recovering it may spend up to its ceiling, whatever the current policy says. Say it: "This
    old request has no fixed policy: recovering it may spend up to US$ <its ceiling>, even if the project is on save
@@ -136,4 +138,5 @@ got an answer: it is not a new test, and it has its own yes.
    test that spends nothing is not that yes: if they only authorize a test that spends nothing, stop: do not recover it.
    With the yes, run exactly the command that the `message` of this `test --json` gives after "to recover that same
    request, repeat" (it carries no `--expect-policy`), adding `--json` and nothing else. Do not add a policy to it: that
-   would be another request. Then point 5.
+   would be another request. Only with exit 5 and a `prueba_id`, go to point 5; otherwise handle the result as in
+   point 4.

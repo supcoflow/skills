@@ -840,7 +840,7 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
       "is not a yes to this",
       "the recovery command",
       "without `--message`",
-      "Then point 5",
+      "go to point 5",
     ]);
   });
   it("muestra el techo y la política del pendiente, y no abre una prueba nueva", () => {
@@ -885,6 +885,17 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
   it("pendiente sin política: el comando es el que da la terminal tras «to recover that same request, repeat», y no se le inventa una política", () => {
     expect(retomar()).toMatch(/run exactly the command that the `message` of this `test --json` gives after "to recover that same request, repeat"/);
     expect(retomar()).toMatch(/Do not add a policy to it/);
+  });
+  it("las dos recetas de la recuperación sólo pasan a `--wait` con salida 5 y `prueba_id`; si no, se maneja el resultado como en el punto 4 (revisión vuelta 2, P3)", () => {
+    const pasos = retomar().split(/(?= [123]\. [A-Z])/).filter((t) => /^ [123]\. /.test(t));
+    expect(pasos).toHaveLength(3);
+    const recetas = pasos.filter((t) => /go to point 5/.test(t));
+    expect(recetas).toHaveLength(2);
+    for (const receta of recetas) {
+      expect(receta).toMatch(/Only with exit 5 and a `prueba_id`, go to point 5; otherwise handle the result as in point 4/);
+      expect(receta).not.toMatch(/Then point 5/);
+    }
+    expect(retomar()).toMatch(/`techo_distinto` or `politica_distinta`: go back to point 2 and ask again with the new numbers, before any new test/);
   });
   it("el paso 4 y el paso 9 de SKILL.md distinguen recuperar de pedir una prueba nueva y remiten a prueba.md", () => {
     expect(paso4()).toMatch(/in place of option 1 of the third question/);
