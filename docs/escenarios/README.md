@@ -1,6 +1,6 @@
 # Escenarios para correr a mano con un asistente real
 
-Seis casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.3.0), no sólo que el texto
+Siete casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.3.1), no sólo que el texto
 diga lo correcto. Están **escritos, no corridos**: nadie los ha corrido todavía. Los tests de `test/` miran el texto;
 estos miran lo que el asistente hace.
 
@@ -15,6 +15,7 @@ al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
 | 4 | [04-guia-sin-commitear.md](04-guia-sin-commitear.md) | `guide.md` con cambios sin commitear: no se pisa sin preguntar |
 | 5 | [05-no-a-la-prueba.md](05-no-a-la-prueba.md) | La persona dice «no» a la prueba paga: no se gasta nada |
 | 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `config` sin duplicar |
+| 7 | [07-otra-rama.md](07-otra-rama.md) | Parado en otra rama (o en HEAD suelto): el asistente lo dice, recomienda no commitear ahí y no cambia de rama |
 
 ## Si el repo todavía no tiene proyecto
 

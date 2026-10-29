@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors or for building a chat from scratch.
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Supcoflow go
@@ -169,23 +169,34 @@ page, no links or buttons the code does not have. Add `Where:` with the route on
 
 ## 9. Publish the guide
 
-Never `git push`, neither to the main branch nor to another.
+Never `git push`, neither to the main branch nor to another. Never change the branch or create one.
 
 1. If `git status --porcelain --ignored -- .supcoflow/guide.md` says git ignores it (`!!`), it cannot be committed: tell
-   them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), in ONE
-   message show them the diff of THAT file (new, `??`: the whole file; changed: `git diff -- .supcoflow/guide.md`),
+   them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), first read
+   where the commit would land: `git branch --show-current` and the project's main branch, the `rama` of
+   `supcoflow project show --json` (`proyecto.rama`). If you cannot read the branch, treat it as no branch. Then, in
+   ONE message show them the diff of THAT file (new, `??`: the whole file; changed: `git diff -- .supcoflow/guide.md`),
    the exact commit message you will use, and the question about their business: "Anything about your business the
-   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask whether you leave it in a
-   local commit ("it stays in your repo; I don't push it to GitHub"). The yes comes BEFORE the commit.
+   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask about the commit, inside that
+   same question (not a new question), according to where it would land:
+   - On the project's main branch: the question names the branch. "I'll leave it in a local commit on `<branch>`; it
+     stays in your repo, I don't push it to GitHub."
+   - On another branch: say so and recommend not committing there: "You're on `<branch>`, not on the project's main
+     branch (`<rama>`)." Two options: commit anyway on that branch, or do not commit now: the guide is published anyway,
+     and it is committed on `<rama>` when they want.
+   - No branch (detached HEAD, empty output): recommend not committing, and say nothing about a branch. If they still
+     want it, tell them the commit would stay on no branch.
+
+   The yes comes BEFORE the commit.
    If they answer with rules, add them to the guide, run `supcoflow guide check --json` again and show the diff again
    before the commit.
 2. With a yes: `git add -- .supcoflow/guide.md` (if it is new, without this the commit fails) and then
    `git commit -m "<message>" -- .supcoflow/guide.md`, with EXACTLY the message you showed: adding nothing (no
    `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show. With the
    path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check with
-   `git show --name-only HEAD` that the new commit touches only that file. With a no: do not commit, and tell them the
-   guide is published anyway but the commit that stays recorded is one that does not contain it yet. Here too, with a
-   no, the notice of point 4 goes.
+   `git show --name-only HEAD` that the new commit touches only that file. With a no, or the option of not committing
+   now: do not commit, and tell them the guide is published anyway but the commit that stays recorded is one that does
+   not contain it yet. Here too, with a no, the notice of point 4 goes.
 3. `supcoflow guide publish --json`, without `--from-github`. Repeating it with the same guide returns the same
    publication (`ya_publicada`): a cut session is resumed without duplicating. If it warns that `guia.md` is the old
    name, pass the warning on to the person.
@@ -243,6 +254,7 @@ lists of files:
    for you to review.";
 2. where the chat lives (the file and the layout);
 3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); if the guide
-   is not on GitHub, this line includes "pushing the guide to GitHub is up to you".
+   is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
+   also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
 Name only files that exist (if in doubt, look first). The person corrects.

@@ -107,7 +107,7 @@ const FLAGS_POR_COMANDO = new Map<string, Set<string>>(
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
 // --force está sólo para que la skill pueda PROHIBIRLO («Nunca `--force`»), no para usarlo.
-const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force"]);
+const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force", "--show-current"]);
 
 function pedazosDeCodigo(texto: string): string[] {
   const salida: string[] = [];
@@ -364,13 +364,13 @@ describe("--sin-subir-version", () => {
     });
     return { r, despues: readFileSync(archivo, "utf8"), registro };
   }
-  it("se niega si la versión registrada no es la sin publicar (0.3.0)", () => {
+  it("se niega si la versión registrada no es la sin publicar (0.3.1)", () => {
     const { r, despues, registro } = correr("1.0.0");
     expect(r.status).toBe(1);
     expect(despues).toBe(registro);
   });
-  it("con la 0.3.0 (sin publicar) reescribe", () => {
-    const { r, despues, registro } = correr("0.3.0");
+  it("con la 0.3.1 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.3.1");
     expect(r.status).toBe(0);
     expect(despues).not.toBe(registro);
   });
@@ -458,8 +458,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.3.0 y fija la terminal 0.8.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.0");
+  it("la skill es la 0.3.1 y fija la terminal 0.8.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.1");
     expect(describir.version).toBe("0.8.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.8.0 describe --json");
   });
@@ -528,7 +528,7 @@ describe("la escena de la landing (spec §10)", () => {
     expect(P(p5)).toMatch(/this chat always offers users screenshots and pointing at elements/);
     expect(P(p5)).toMatch(/if the agreement rejects them, they are discarded when saved/);
   });
-  it("ninguna frase de la promesa de 1B (skill 0.3.1) en el texto", () => {
+  it("ninguna frase de la promesa de 1B (skill 0.3.2, tras 1A.1) en el texto", () => {
     for (const { ruta, texto } of textosDeLaSkill) {
       expect(P(texto), ruta).not.toMatch(/does not see it either/);
       expect(P(texto), ruta).not.toMatch(/does not offer screenshots or pointing at elements/);
@@ -632,6 +632,56 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
   it("publica con `guide publish` sin `--from-github`", () => {
     expect(P(p9())).toContain("`supcoflow guide publish --json`");
     expect(P(p9())).toMatch(/without `--from-github`/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 4: el commit de la guía cae en la rama que esté. La skill la mira y avisa.
+// ---------------------------------------------------------------------------------
+describe("la rama del commit de la guía (1A.1, fricción 4)", () => {
+  const p9 = () => P(seccion(skillMd, /^## 9\./m, /^## 10\./m));
+  const paso1 = () => P(seccion(seccion(skillMd, /^## 9\./m, /^## 10\./m), /^1\./m, /^2\./m));
+  // Comandos de git que cambian o crean ramas: la skill no puede nombrarlos en §9 (sólo `git branch --show-current`).
+  const CAMBIA_DE_RAMA = /git (?:checkout|switch)\b|git branch (?!--show-current)\S+|git (?:stash|reset)\b/;
+  it("antes de preguntar lee la rama con `git branch --show-current` y la compara con la `rama` del proyecto", () => {
+    expect(paso1()).toContain("`git branch --show-current`");
+    expect(paso1()).toMatch(/`rama`/);
+    expect(paso1()).toMatch(/`supcoflow project show --json`/);
+    expect(paso1().indexOf("`git branch --show-current`")).toBeLessThan(paso1().indexOf("ONE message"));
+  });
+  it("en la rama principal: la pregunta del commit nombra la rama", () => {
+    expect(paso1()).toMatch(/on the project's main branch[^.]*the question names the branch/i);
+    expect(paso1()).toContain("I'll leave it in a local commit on `<branch>`");
+  });
+  it("en otra rama: lo dice, recomienda no commitear ahí y ofrece dos opciones dentro de la misma pregunta", () => {
+    expect(paso1()).toMatch(/On another branch[^]*say so and recommend not committing there/);
+    expect(paso1()).toMatch(/commit anyway on that branch/);
+    expect(paso1()).toMatch(/do not commit now: the guide is published anyway, and it is committed on `<rama>` when they want/);
+    expect(paso1()).toMatch(/not a new question/i);
+  });
+  it("sin rama (HEAD suelto o salida vacía): recomienda no commitear, y si igual quiere, avisa que no queda en ninguna rama", () => {
+    expect(paso1()).toMatch(/No branch \(detached HEAD, empty output\)[^]*recommend not committing/);
+    expect(paso1()).toMatch(/the commit would stay on no branch/);
+  });
+  it("si no se puede leer la rama se trata como «sin rama»: lo seguro", () => {
+    expect(paso1()).toMatch(/If you cannot read the branch, treat it as no branch/);
+  });
+  it("nunca cambia de rama ni crea una: §9 no nombra checkout, switch ni `git branch <nombre>`", () => {
+    expect(p9()).toMatch(/Never change the branch or create one/);
+    expect(p9()).not.toMatch(CAMBIA_DE_RAMA);
+  });
+  it("control: el detector de comandos que cambian de rama atrapa los que importan y deja pasar --show-current", () => {
+    for (const mala of ["git checkout main", "git switch -c x", "git branch nueva", "git stash", "git reset --hard"])
+      expect(mala, mala).toMatch(CAMBIA_DE_RAMA);
+    expect("`git branch --show-current`").not.toMatch(CAMBIA_DE_RAMA);
+  });
+  it("el resumen (§13): sin commit, la línea 3 suma el comando para commitear en la rama del proyecto, sin pasar de tres líneas", () => {
+    const r = P(seccion(skillMd, /^## 13\./m));
+    expect(r).toMatch(/commit `\.supcoflow\/guide\.md` on `<rama>` when you want/);
+    expect(r).toMatch(/three lines at most/);
+  });
+  it("con un no (o la opción de no commitear) no se commitea, y el aviso del punto 4 sigue", () => {
+    expect(P(seccion(skillMd, /^## 9\./m, /^## 10\./m))).toMatch(/With a no[^.]*do not commit[^]*the notice of point 4 goes/);
   });
 });
 
@@ -750,7 +800,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
   const indice = leer(dir, "README.md");
 
-  it("son seis, los seis casos pedidos, y el índice los enlaza a todos", () => {
+  it("son siete, los casos pedidos, y el índice los enlaza a todos", () => {
     expect(archivos).toEqual([
       "01-src-app.md",
       "02-csp.md",
@@ -758,6 +808,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
       "04-guia-sin-commitear.md",
       "05-no-a-la-prueba.md",
       "06-sesion-cortada.md",
+      "07-otra-rama.md",
     ]);
     for (const f of archivos) expect(indice, f).toContain(`(${f})`);
   });
@@ -779,6 +830,16 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   it("dicen que están escritos y no corridos; viven fuera de skills/ (no cambian la huella)", () => {
     expect(indice).toMatch(/escritos, no corridos/);
     expect(dir.startsWith(CARPETA)).toBe(false);
+  });
+});
+
+describe("el escenario 7 (1A.1, fricción 4): la rama del commit", () => {
+  const t = leer(join(RAIZ, "docs", "escenarios"), "07-otra-rama.md");
+  it("cubre la rama principal, otra rama y HEAD suelto, y que el asistente nunca cambia de rama", () => {
+    expect(P(t)).toMatch(/\(a\)[^]*\(b\)[^]*\(c\)/);
+    expect(P(t)).toMatch(/recomienda no commitear/);
+    expect(P(t)).toMatch(/Nunca\*\* cambia de rama ni crea una/);
+    expect(P(t)).toContain("`git branch --show-current`");
   });
 });
 
