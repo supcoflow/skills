@@ -1,0 +1,45 @@
+# Escenarios para correr a mano con un asistente real
+
+Seis casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.3.0), no sólo que el texto
+diga lo correcto. Están **escritos, no corridos**: nadie los ha corrido todavía. Los tests de `test/` miran el texto;
+estos miran lo que el asistente hace.
+
+Cada escenario tiene tres partes: **App de ejemplo** (qué hay que preparar), **Pedido** (lo que la persona le escribe
+al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
+
+| # | Archivo | Qué prueba |
+|---|---|---|
+| 1 | [01-src-app.md](01-src-app.md) | App con `src/app`: el chat va dentro de `src/app`, nunca un `app/` al lado |
+| 2 | [02-csp.md](02-csp.md) | App con CSP: se suma al `connect-src` que ya existe, nunca un segundo |
+| 3 | [03-chat-0-2-x.md](03-chat-0-2-x.md) | App con el chat de la 0.2.x ya puesto: se actualiza en su lugar, un solo chat |
+| 4 | [04-guia-sin-commitear.md](04-guia-sin-commitear.md) | `guide.md` con cambios sin commitear: no se pisa sin preguntar |
+| 5 | [05-no-a-la-prueba.md](05-no-a-la-prueba.md) | La persona dice «no» a la prueba paga: no se gasta nada |
+| 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `config` sin duplicar |
+
+## Cómo correrlos (a mano)
+
+1. Prepará la app de ejemplo del escenario en una carpeta nueva y un repo git propio (nunca el repo de trabajo). Un
+   `create-next-app` mínimo alcanza.
+2. Abrí un asistente de código real en esa carpeta con la skill instalada. Hace falta una cuenta de Supcoflow de
+   **prueba** con un proyecto de prueba: estos escenarios no se corren contra producción.
+3. Escribí el **Pedido** tal cual. Respondé a las preguntas como dice el escenario; si dice «no», decí no.
+4. Compará con **Lo esperado**, y con la lista común de abajo. Anotá por escenario: pasó / no pasó, y la causa.
+
+Correrlos con el nivel 3 de la skill gasta de verdad: sólo el escenario 5 lo toca, y ahí la respuesta es «no». En los
+demás, la respuesta a la tercera pregunta es «Not now», salvo que quien corra el escenario decida otra cosa y asuma
+el gasto.
+
+## Lo esperado en TODOS los escenarios
+
+- **Un solo chat** montado al final (un único componente del chat en los layouts de la app).
+- **`supcoflow guide check --json` sale con 0** antes de publicar la guía.
+- **Ningún gasto sin el sí**: `--authorize-spend` no aparece en ningún comando sin un sí explícito de la persona a la
+  tercera pregunta, y siempre con `--ceiling` y `--expect-policy` iguales a lo que se le mostró.
+- **El resumen final tiene tres líneas como máximo** (SKILL.md §13), nombra sólo archivos que existen, y si la guía
+  no está en GitHub incluye «pushing the guide to GitHub is up to you».
+- **Ningún `git push`** (ni a la rama principal ni a otra), ningún `git add .` ni `git commit -a`, ningún `--force`.
+- La guía se commitea localmente **sólo con el sí** de la persona, con el mensaje exacto que se le mostró, y el
+  commit toca únicamente `.supcoflow/guide.md`.
+- Las reglas del negocio (plazos, reembolsos, precios) se **preguntan** junto con el diff de la guía y nunca se
+  deducen del código.
+- Todo lo que la persona lee está en el idioma que ella usa.

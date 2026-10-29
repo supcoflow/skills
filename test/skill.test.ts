@@ -730,3 +730,40 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(s3).toMatch(/^6\. `git status/m);
   });
 });
+
+describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la skill)", () => {
+  const dir = join(RAIZ, "docs", "escenarios");
+  const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
+  const indice = leer(dir, "README.md");
+
+  it("son seis, los seis casos pedidos, y el índice los enlaza a todos", () => {
+    expect(archivos).toEqual([
+      "01-src-app.md",
+      "02-csp.md",
+      "03-chat-0-2-x.md",
+      "04-guia-sin-commitear.md",
+      "05-no-a-la-prueba.md",
+      "06-sesion-cortada.md",
+    ]);
+    for (const f of archivos) expect(indice, f).toContain(`(${f})`);
+  });
+  it.each(archivos)("%s tiene app de ejemplo, pedido y lo esperado", (f) => {
+    const t = leer(dir, f);
+    expect(t).toMatch(/^## App de ejemplo$/m);
+    expect(t).toMatch(/^## Pedido$/m);
+    expect(t).toMatch(/^## Lo esperado$/m);
+    expect(t).toMatch(/lista común del README/);
+  });
+  it("el índice fija lo esperado en todos: un chat, guide check en 0, ningún gasto sin el sí, tres líneas, ningún push", () => {
+    const comun = seccion(indice, /^## Lo esperado en TODOS los escenarios$/m);
+    expect(comun).toMatch(/Un solo chat/);
+    expect(comun).toMatch(/guide check --json` sale con 0/);
+    expect(comun).toMatch(/Ningún gasto sin el sí/);
+    expect(comun).toMatch(/tres líneas como máximo/);
+    expect(comun).toMatch(/Ningún `git push`/);
+  });
+  it("dicen que están escritos y no corridos; viven fuera de skills/ (no cambian la huella)", () => {
+    expect(indice).toMatch(/escritos, no corridos/);
+    expect(dir.startsWith(CARPETA)).toBe(false);
+  });
+});
