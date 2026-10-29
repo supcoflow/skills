@@ -10,8 +10,16 @@ justo y maneja la terminal `supcoflow`.
 npx skills add supcoflow/skills
 ```
 
-El repo de GitHub `supcoflow/skills` **todavía no existe**: la publicación está pendiente. Mientras tanto, se
-puede copiar la carpeta `skills/supcoflow/` de este repo a `.claude/skills/supcoflow/` del proyecto.
+El comando es el mismo para cualquier asistente. Qué pasa depende de quién lo corre (comprobado con el instalador
+`skills` 1.7.4):
+
+- In your own terminal, check the agents it selects: Claude Code isn't ticked the first time.
+- If it first asks about Eve and you use another agent, answer no to get the list.
+- If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this
+  skill.
+
+Para comandos más cortos, la terminal se puede instalar aparte: `npm i -g supcoflow@0.8.1`. La skill no la instala por
+su cuenta.
 
 ## Usar
 
@@ -21,11 +29,12 @@ puede copiar la carpeta `skills/supcoflow/` de este repo a `.claude/skills/supco
 
 ## Versiones
 
-- La skill es la `0.3.0` (`metadata.version` en `skills/supcoflow/SKILL.md`). El texto que recibe la persona
+- La skill es la `0.3.1` (`metadata.version` en `skills/supcoflow/SKILL.md`). La privacidad de la etapa 1B, que el plan
+  1A tenía reservada para la 0.3.1, pasa a la `0.3.2`. El texto que recibe la persona
   (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una huella: cambiar el texto sin subir la
   versión deja un test en rojo (`npm run huella` la imprime).
 - Fija la terminal en `npx -y supcoflow@0.8.0`. Hasta que esa versión se publique, y el motor y el backend del chat
-  de la etapa 1, la skill no funciona en producción. La 0.2.1 sigue fijada a la terminal 0.7.0.
+  de la etapa 1, la skill no funciona en producción. La 0.2.1 sigue fijada a la terminal 0.7.0 y la 0.3.0 a la 0.8.0.
 - Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
   `describe-0.8.0.json` (la salida de `supcoflow describe --json` de la terminal 0.8.0), `guia-de-ejemplo.md` (la
   guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,

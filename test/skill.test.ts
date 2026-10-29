@@ -724,6 +724,37 @@ describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)",
   });
 });
 
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 1: el comando sigue agnóstico; el README explica cómo elegir el asistente.
+// ---------------------------------------------------------------------------------
+describe("el README de la instalación (1A.1, fricción 1)", () => {
+  const readme = P(leer(RAIZ, "README.md"));
+  it("el comando es el agnóstico de hoy: sin `-y`, sin `--agent` y sin `--all`", () => {
+    expect(readme).toContain("npx skills add supcoflow/skills");
+    for (const pedazo of pedazosDeCodigo(leer(RAIZ, "README.md")).filter((p) => /skills add/.test(p)))
+      expect(pedazo).not.toMatch(/\s(?:-y|-a|--yes|--agent|--all)\b/);
+  });
+  it("ya no dice que el repo de GitHub no existe", () => {
+    expect(readme).not.toMatch(/todavía no existe/);
+    expect(readme).not.toMatch(/Mientras tanto, se puede copiar/);
+  });
+  it("dice las tres vías del instalador tal cual y una línea para la terminal instalada", () => {
+    expect(readme).toContain("In your own terminal, check the agents it selects: Claude Code isn't ticked the first time.");
+    expect(readme).toContain("If it first asks about Eve and you use another agent, answer no to get the list.");
+    expect(readme).toContain(
+      "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
+    );
+    expect(readme).toContain("npm i -g supcoflow@0.8.1");
+  });
+  it("no pide reiniciar Claude Code (no hay evidencia)", () => {
+    expect(readme).not.toMatch(/reinici|restart/i);
+  });
+  it("la versión es la 0.3.1 y avisa que 1B pasa a la 0.3.2", () => {
+    expect(readme).toMatch(/La skill es la `0\.3\.1`/);
+    expect(readme).toMatch(/1B.*pasa a la `0\.3\.2`/);
+  });
+});
+
 describe("no dos chats (R7, spec §10.3)", () => {
   const p10 = () => seccion(skillMd, /^## 10\./m, /^## 11\./m);
   it("el orden para elegir el archivo", () => {
