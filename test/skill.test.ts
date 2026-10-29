@@ -132,7 +132,8 @@ function fencesDesbalanceadas(texto: string): boolean {
 // Una invocación va desde `supcoflow` (o `supcoflow@X`) hasta el próximo separador de
 // shell. `supcoflow` como nombre de otra cosa (@supcoflow/chat, .supcoflow/guide.md,
 // supcoflow-skills, chat.supcoflow.dev) no es invocación.
-const INVOCACION = /(?<![/\w@.-])supcoflow(?:@[\w.]+)?(?![\w/@-]|\.\w)([^&|;]*)/g;
+// `git remote add supcoflow <url>` nombra un remoto de git que se llama así: tampoco es una invocación (1A.1, 2a).
+const INVOCACION = /(?<![/\w@.-])(?<!git remote (?:add|set-url) )supcoflow(?:@[\w.]+)?(?![\w/@-]|\.\w)([^&|;]*)/g;
 function invocacionesDe(pedazo: string): { tokens: string[]; desde: number; hasta: number }[] {
   return [...pedazo.matchAll(INVOCACION)].map((m) => ({
     tokens: m[1].split(/\s+/).filter(Boolean),
@@ -268,6 +269,10 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
     expect(comandosInventados("the chat of supcoflow installs; ask for `/supcoflow go`")).toEqual([]);
     expect(comandosInventados("`npm i @supcoflow/chat@2.3.0` and `.supcoflow/guide.md`")).toEqual([]);
+    // el remoto de git que se llama «supcoflow» no es una invocación de la terminal
+    expect(comandosInventados("`git remote add supcoflow https://github.com/o/r.git`")).toEqual([]);
+    expect(comandosInventados("`git remote set-url supcoflow https://github.com/o/r.git`")).toEqual([]);
+    expect(comandosInventados("`git remote add supcoflow x && supcoflow deploy`")).toEqual(["deploy"]);
   });
   it("control: flags inventados", () => {
     expect(flagsInventados("`supcoflow widget --magia`")).toEqual(["--magia"]);
@@ -794,6 +799,36 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
   });
   it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
     expect(paso4()).not.toContain("--authorize-spend");
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 2a: un `origin` con alias de SSH se asocia con un remoto `supcoflow`, con el sí de la persona.
+// ---------------------------------------------------------------------------------
+describe("el remoto `supcoflow` para un origin con alias de SSH (1A.1, fricción 2a)", () => {
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const parrafo = () => s3().slice(s3().indexOf("If the first command that needs the repo"), s3().indexOf("| The person asked"));
+  it("ante `sin_repo` por un alias de SSH muestra el comando exacto del mensaje, dice que sólo toca la configuración de git de este clon y que nunca se trae nada", () => {
+    expect(parrafo()).toMatch(/exits 3 with `error: "sin_repo"`/);
+    expect(parrafo()).toContain("`git remote add supcoflow https://github.com/<owner>/<repo>.git`");
+    expect(parrafo()).toMatch(/show the person that exact command/);
+    expect(parrafo()).toMatch(/only touches this clone's git settings and is never fetched/);
+  });
+  it("lo corre sólo con el sí de la persona, y es un permiso como el del commit, no una cuarta pregunta", () => {
+    expect(parrafo()).toMatch(/run it only with their yes/);
+    expect(parrafo()).toMatch(/a permission like the commit's, not a fourth question/);
+  });
+  it("después sigue sin `--repo`, y si el mensaje no trae comando, frena", () => {
+    expect(parrafo()).toMatch(/go on without `--repo`/);
+    expect(parrafo()).toMatch(/If the message gives no command, tell the person what it says and stop/);
+  });
+  it("no corre `ssh` ni toca la configuración de SSH, y no usa el comando para traer nada", () => {
+    for (const { ruta, texto } of textosDeLaSkill) {
+      expect(P(texto), ruta).not.toMatch(/\bssh -G\b|\bssh-keyscan\b|git fetch|git pull|git remote update/);
+    }
+  });
+  it("sirve también para `falta_guia` y `sin_clon` (el mismo comando)", () => {
+    expect(parrafo()).toMatch(/`falta_guia` or `sin_clon`[^.]*same command/);
   });
 });
 

@@ -51,6 +51,13 @@ install, go on to step 2 of the order (connect the repo, create the project) and
 tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request.
 Any other exit 4 is a decision for a person: stop, as the table of point 2 says. Then:
 
+If the first command that needs the repo exits 3 with `error: "sin_repo"` because the "origin" is an SSH alias (the
+message says so and gives `git remote add supcoflow https://github.com/<owner>/<repo>.git`, or the same with
+`set-url`), show the person that exact command, say it only touches this clone's git settings and is never fetched, and
+run it only with their yes (a permission like the commit's, not a fourth question). Then go on without `--repo`. The
+`falta_guia` or `sin_clon` of an alias gives the same command. If the message gives no command, tell the person what it
+says and stop.
+
 | The person asked | You do |
 |---|---|
 | Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 9). Fix only what it names. No test, nothing is spent. |
