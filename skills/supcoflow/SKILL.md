@@ -16,9 +16,9 @@ guide) and what they report ends up where the person chose.
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.0"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.1"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.0 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.1 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result.

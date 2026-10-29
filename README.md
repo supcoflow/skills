@@ -33,10 +33,10 @@ su cuenta.
   1A tenía reservada para la 0.3.1, pasa a la `0.3.2`. El texto que recibe la persona
   (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una huella: cambiar el texto sin subir la
   versión deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.8.0`. Hasta que esa versión se publique, y el motor y el backend del chat
+- Fija la terminal en `npx -y supcoflow@0.8.1`. Hasta que esa versión se publique, y el motor y el backend del chat
   de la etapa 1, la skill no funciona en producción. La 0.2.1 sigue fijada a la terminal 0.7.0 y la 0.3.0 a la 0.8.0.
 - Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
-  `describe-0.8.0.json` (la salida de `supcoflow describe --json` de la terminal 0.8.0), `guia-de-ejemplo.md` (la
+  `describe-0.8.1.json` (la salida de `supcoflow describe --json` de la terminal 0.8.1), `guia-de-ejemplo.md` (la
   guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,
   byte a byte) y `motivos-de-la-guia.json` (esos mismos `motivo`, más el `queHacer` propio de la skill). No se
   escriben a mano: el motor es la fuente de la guía y los `motivo`; la terminal construida, la de `describe`.

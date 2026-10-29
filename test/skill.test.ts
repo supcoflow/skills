@@ -26,7 +26,7 @@ type Describir = {
   flags_globales: string[];
 };
 // El vector es la salida de `supcoflow describe --json` de la terminal fijada. Se leen sus claves en inglés
-// (`commands`, `name`, `global_flags`) y, por si la 0.8.0 publicada conserva las del 0.7.0, las castellanas:
+// (`commands`, `name`, `global_flags`) y, por si la 0.8.1 publicada conserva las del 0.7.0, las castellanas:
 // al re-sincronizar el vector con la terminal real, esto es lo único que puede necesitar tocarse.
 function leerDescribe(archivo: string): Describir {
   const crudo = JSON.parse(leer(RAIZ, "test", "vectores", archivo));
@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.8.0.json");
+const describir: Describir = leerDescribe("describe-0.8.1.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -83,7 +83,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guide publish", "install record", "chat on"...). Los demás son de una
-// palabra ("whoami", "widget", "test"). En 0.8.0 ninguna palabra es a la vez grupo y comando.
+// palabra ("whoami", "widget", "test"). En 0.8.1 ninguna palabra es a la vez grupo y comando.
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -203,7 +203,7 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.8.0 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.8.1 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
@@ -263,7 +263,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.8.0 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.8.1 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
@@ -313,6 +313,26 @@ describe("la versión de la terminal", () => {
       for (const f of texto.match(/(?<![/\w-])supcoflow@[^\s`'")]+/g) ?? [])
         expect(f).toBe(`supcoflow@${describir.version}`);
     }
+  });
+});
+
+describe("el vector de describe es el de la terminal 0.8.1 (1A.1, S5)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
+  const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
+  it("hay un único vector de describe y es el de la 0.8.1", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.8.1.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.8.1");
+  });
+  it("lo que la skill nombra de la 0.8.1 está en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
+    for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
+      expect(crudo, nombre).toContain(nombre);
+    for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "sin_repo"])
+      expect(textosDeLaSkill.some(({ texto }) => texto.includes(nombre)), `la skill no nombra ${nombre}`).toBe(true);
+  });
+  it("el vector no es el de la 0.8.0: `project show` trae `contexto` y `test` trae `maquina`", () => {
+    const d = JSON.parse(crudo) as { comandos: { nombre: string; resumen: string }[] };
+    expect(d.comandos.find((c) => c.nombre === "project show")!.resumen).toContain("`contexto`");
+    expect(d.comandos.find((c) => c.nombre === "test")!.resumen).toContain("`maquina`");
   });
 });
 
@@ -391,8 +411,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.8.0 project delete`",
-      "`npx -y supcoflow@0.8.0 proyecto borrar`",
+      "`npx -y supcoflow@0.8.1 project delete`",
+      "`npx -y supcoflow@0.8.1 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -401,7 +421,7 @@ describe("lo que la skill no hace", () => {
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.8.0 no tiene comandos de esas acciones", () => {
+  it("la terminal 0.8.1 no tiene comandos de esas acciones", () => {
     for (const nombre of NOMBRES) expect(nombre).not.toMatch(/\bcap\b|delete|factory|access|invite|tope|borrar|fabrica|acceso|invitar/);
   });
   it("--authorize-spend sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
@@ -463,13 +483,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.3.1 y fija la terminal 0.8.0", () => {
+  it("la skill es la 0.3.1 y fija la terminal 0.8.1", () => {
     expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.1");
-    expect(describir.version).toBe("0.8.0");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.8.0 describe --json");
+    expect(describir.version).toBe("0.8.1");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.8.1 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.8.1"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.0.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
