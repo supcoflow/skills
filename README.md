@@ -28,8 +28,9 @@ puede copiar la carpeta `skills/supcoflow/` de este repo a `.claude/skills/supco
   de la etapa 1, la skill no funciona en producción. La 0.2.1 sigue fijada a la terminal 0.7.0.
 - Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
   `describe-0.8.0.json` (la salida de `supcoflow describe --json` de la terminal 0.8.0), `guia-de-ejemplo.md` (la
-  guía de ejemplo del motor, byte a byte) y `motivos-de-la-guia.json` (los `motivo` de `guide check`, del test del
-  motor).
+  guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,
+  byte a byte) y `motivos-de-la-guia.json` (esos mismos `motivo`, más el `queHacer` propio de la skill). No se
+  escriben a mano: el motor es la fuente de la guía y los `motivo`; la terminal construida, la de `describe`.
 
 ## Probar
 
