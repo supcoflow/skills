@@ -1,6 +1,6 @@
 ---
 name: supcoflow
-description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use it when the person asks for "/supcoflow go", to install the Supcoflow chat, or to configure their chat, their guide or their data.
+description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors or for building a chat from scratch.
 metadata:
   version: "0.3.0"
 ---
@@ -40,6 +40,19 @@ thing they have to do) and, in the same turn, without waiting for them to answer
 approval by itself for up to 90 s. The 5 in the table is the one from a `--wait` that expired without approval.
 
 ## 3. The order
+
+**Start from what the person asked.** Every row begins with `supcoflow config --json` (and with the login of point 2 if
+it exits 2); then:
+
+| The person asked | You do |
+|---|---|
+| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 9). Fix only what it names. No test, nothing is spent. |
+| Update the guide | Points 8 and 9 (step 6 below). Nothing else is asked. |
+| Change what the chat sees about their users | Only the first question of point 5, then `supcoflow data set`. No other question. |
+| Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
+| Install it, or `/supcoflow go` | The full order below, steps 1 to 9. |
+
+The full order:
 
 1. `supcoflow whoami --json` (with 2: `supcoflow login --start --json`, show the link and the code and right away
    `supcoflow login --wait --json`, until it exits 0).

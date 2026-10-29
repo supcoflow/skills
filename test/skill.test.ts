@@ -680,3 +680,53 @@ describe("el nivel 3 en la 0.3.0", () => {
     expect(P(prueba)).toMatch(/not 6 of 6, or not ready for a test[^.]*do not ask for money/);
   });
 });
+
+describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la descripción (A2)", () => {
+  const y = encabezadoYaml(skillMd);
+  const descripcion = y.description as string;
+
+  it("la descripción tiene la forma «Use when… / Do not use for…» con los momentos reales", () => {
+    expect(descripcion).toMatch(/\bUse when\b/);
+    expect(descripcion).toMatch(/add a support or help chat/);
+    expect(descripcion).toMatch(/users get stuck/);
+    expect(descripcion).toMatch(/why the support chat isn't showing/);
+    expect(descripcion).toContain('"chat de soporte"');
+    expect(descripcion).toContain('"/supcoflow go"');
+    expect(descripcion).toMatch(/Do not use for other chat vendors or for building a chat from scratch\./);
+    expect(descripcion.indexOf("Use when")).toBeLessThan(descripcion.indexOf("Do not use for"));
+    expect(descripcion.length).toBeLessThanOrEqual(1024);
+  });
+  it("la descripción no tiene «: » ni « #» (un YAML llano las leería como otra cosa)", () => {
+    expect(descripcion).not.toMatch(/: /);
+    expect(descripcion).not.toMatch(/ #/);
+  });
+
+  const s3 = seccion(skillMd, /^## 3\./m, /^## 4\./m);
+  const mapa = seccion(s3, /\*\*Start from what the person asked\.\*\*/, /The full order:/);
+  it("el mapa está arriba del orden completo y arranca siempre por `config`", () => {
+    expect(s3.indexOf("**Start from what the person asked.**")).toBeLessThan(s3.indexOf("The full order:"));
+    expect(s3.indexOf("The full order:")).toBeLessThan(s3.indexOf("1. `supcoflow whoami --json`"));
+    expect(P(mapa)).toMatch(/Every row begins with `supcoflow config --json`/);
+  });
+  it("cada pedido va a su camino (diagnose, guía, sólo la primera pregunta, prueba, orden completo)", () => {
+    const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
+    expect(filas).toHaveLength(5);
+    const fila = (re: RegExp) => P(filas.find((l) => re.test(l)) ?? "");
+    expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
+    expect(fila(/Update the guide/)).toMatch(/Points 8 and 9.*Nothing else is asked/);
+    expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, then `supcoflow data set`\. No other question/);
+    expect(fila(/Test it/)).toMatch(/referencias\/prueba\.md.*Level 3 spends: only with its own yes/);
+    expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 9/);
+  });
+  it("el mapa no abre ningún camino que gaste ni nombra el flag de gasto", () => {
+    expect(mapa).not.toContain("--authorize-spend");
+    expect(P(mapa)).not.toMatch(/supcoflow test/);
+  });
+  it("lo que el mapa señala existe: puntos 8 y 9, la primera pregunta del 5 y el paso 9 del orden", () => {
+    expect(skillMd).toMatch(/^## 8\. The guide/m);
+    expect(skillMd).toMatch(/^## 9\. Publish the guide/m);
+    expect(skillMd).toMatch(/^## 5\. What you ALWAYS ask the person/m);
+    expect(s3).toMatch(/^9\. `supcoflow diagnose --json`/m);
+    expect(s3).toMatch(/^6\. `git status/m);
+  });
+});
