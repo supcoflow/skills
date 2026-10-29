@@ -33,13 +33,13 @@ imports, then `nextjs.archivos_anteriores`) and update that file in place; two c
   where who they are is known.
 
 ```tsx
-import { SupportChat } from "./_supcoflow/support-chat";
+import { ChatDeSoporte } from "./_supcoflow/support-chat";
 // inside the <body>, after the children:
-<SupportChat usuario={{ id: user.id, rol: user.role }} />
+<ChatDeSoporte usuario={{ id: user.id, rol: user.role }} />
 ```
 
-(Adjust the import path to the layout's. The component name and the import come from `nextjs.uso` and
-`nextjs.contenido`; `{ id, rol }` is just an example: pass only the fields the person accepted.)
+(Adjust the import path to the layout's. The component is still called `ChatDeSoporte` even though the new file is
+`support-chat.tsx`, so the import an older layout already has keeps working; `nextjs.uso` and `nextjs.contenido` are the reference; `{ id, rol }` is just an example: pass only the fields the person accepted.)
 
 ## The user, from the server side
 

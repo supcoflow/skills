@@ -72,24 +72,23 @@ out as `line N: reason`. Fix ALL the lines of the list and run it again; repeat 
 
 | Reason (`motivo`) | What to do |
 |---|---|
-| `the guide can't contain < or >` | Rewrite that line without `<` or `>`. |
-| `there is text before the first section («## Name»)` | Delete that text or move it inside a section; only the `# ` title can go before. |
-| `the guide has no sections («## Name»)` | Add at least one section that starts with `## `. |
-| `the guide has more than 60 sections` | Merge similar screens until you have 60 or fewer. |
-| `the section has no name` | Put a short name after `## `. |
-| `the name is over 120 characters` | Put a short name after `## `. |
-| `… is missing in the section «X»` | Add that label with text to section X (the reported line is the `## X` one). |
-| `the label … is repeated in the section` | Keep the label only once in that section. |
-| `text in the section that doesn't belong to any label` | Put a label before that text, or delete it. |
-| `common problems go with «- » at the start of each line` | Start each problem with «- ». |
-| `… is over 600 characters` | Shorten the text of that line. |
 | `a common problem is over 300 characters` | Shorten the text of that line. |
 | `at most 10 common problems per section` | Keep the 10 most important. |
-| `a common problem is empty` | Write the problem after «- » or delete the line. |
-| `«Where:» must be a path that starts with /` | Write a real route of the app, like `/settings/billing`, or delete the line. |
-| `«Where:» is over 200 characters` | Shorten the route. |
-| `«Where:» can't contain spaces` | Write the route without spaces. |
+| `common problems go with «- » at the start of each line` | Start each problem with «- ». |
+| `text in the section that doesn't belong to any label` | Put a label before that text, or delete it. |
+| `the guide can't contain < or >` | Rewrite that line without `<` or `>`. |
 | `the guide doesn't have the expected shape` | Check the whole format against the example. |
+| `the guide has more than 60 sections` | Merge similar screens until you have 60 or fewer. |
+| `the guide has no sections («## Name»)` | Add at least one section that starts with `## `. |
+| `the label … is repeated in the section` | Keep the label only once in that section. |
+| `the name is over 120 characters` | Put a short name after `## `. |
+| `there is text before the first section («## Name»)` | Delete that text or move it inside a section; only the `# ` title can go before. |
+| `«What it's for:» is missing in the section «X»` | Add that label with text to section X (the reported line is the `## X` one). |
+| `«What users can do:» is missing in the section «X»` | Add that label with text to section X (the reported line is the `## X` one). |
+| `«Where:» can't contain spaces` | Write the route without spaces. |
+| `«Where:» is over 200 characters` | Shorten the route. |
+| `«Where:» must be a path that starts with /` | Write a real route of the app, like `/settings/billing`, or delete the line. |
+| `… is over 600 characters` | Shorten the text of that line. |
 
 Other codes of `guide check`, all with exit 3: `falta_guia` (there is no `.supcoflow/guide.md` at the root of the repo:
 write it), `guia_muy_grande` (over 64 KB: shorten it) and `guia_ilegible` (it cannot be read, e.g. invalid UTF-8: save
