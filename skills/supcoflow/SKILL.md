@@ -1,178 +1,248 @@
 ---
 name: supcoflow
-description: Instala y configura el chat de soporte de Supcoflow en una app (Next.js probado) con la terminal `supcoflow`. Usala cuando la persona pida "/supcoflow go", instalar el chat de Supcoflow, o configurar su chat, su guía o sus datos.
+description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors or for building a chat from scratch.
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Supcoflow go
 
-Hablale a la persona en el idioma en que ella te habla.
+Talk to the person in the language they use.
 
-## 1. Para qué
+## 1. What it is for
 
-Dejar el chat de Supcoflow funcionando en esta app: que aparezca donde los usuarios se traban, que sepa de qué
-trata la app (la guía) y que lo que reporten termine donde la persona eligió.
+Leave the Supcoflow chat working in this app: it shows up where users get stuck, it knows what the app is about (the
+guide) and what they report ends up where the person chose.
 
-## 2. Cómo se habla con Supcoflow
+## 2. How to talk to Supcoflow
 
-- Siempre por la terminal y con `--json`. Primero `supcoflow describir --json`: si dice `"version":"0.7.0"`, usá
-  `supcoflow` a secas en todo lo que sigue. Sólo si no está instalada o es otra versión, corré cada comando fijado:
-  `npx -y supcoflow@0.7.0 describir --json`. Nunca `@latest` ni otra versión.
-- Un comando de la terminal por llamada, tal cual: sin `;`, `&&` ni pipes, y sin agregar `echo $?`. El código de
-  salida lo leés del resultado del propio comando.
-- Nunca inventes un comando ni un flag: leelos de `describir --json` al empezar. Abajo, `supcoflow` quiere decir
-  la terminal fijada.
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.0"`,
+  use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.0 describe --json`. Never `@latest` and
+  never another version.
+- One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
+  command's own result.
+- Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
+  terminal.
 
-| Código | Qué hacés |
+| Code | What you do |
 |---|---|
-| 0 | sigue |
-| 1 | algo falló: contáselo a la persona con el mensaje y no reintentes más de una vez |
-| 2 | falta sesión: `login --start` y `login --wait` |
-| 3 | mandaste algo mal: corregilo vos con el mensaje |
-| 4 | hace falta una persona: contale qué hay que decidir o hacer y esperá su respuesta |
-| 5 | esperando a una persona: decile qué tiene que hacer y volvé a correr el mismo comando cuando te avise |
-| 6 | tope alcanzado: no reintentes; contale el tope. |
+| 0 | go on |
+| 1 | something failed: tell the person the message and do not retry more than once |
+| 2 | no session: `login --start` and `login --wait` |
+| 3 | you sent something wrong: fix it yourself with the message |
+| 4 | a person is needed: tell them what has to be decided or done and wait for the answer |
+| 5 | waiting for a person: tell them what to do and run the same command again when they let you know |
+| 6 | cap reached: do not retry; tell them the cap |
 
-El 5 de un `--start` (`login`, `repo conectar`) es lo normal: mostrale a la persona el enlace y el código (lo único
-que tiene que hacer) y, en el mismo turno, sin esperar que te conteste, corré el `--wait`; él solo espera la
-aprobación hasta 90 s. El 5 de la tabla es el del `--wait` que venció sin aprobación.
+The 5 of a `--start` (`login`, `repo connect`) is the normal one: show the person the link and the code (the only
+thing they have to do) and, in the same turn, without waiting for them to answer, run the `--wait`; it waits for the
+approval by itself for up to 90 s. The 5 in the table is the one from a `--wait` that expired without approval.
 
-## 3. El orden
+## 3. The order
 
-1. `supcoflow quien-soy --json` (con 2: `supcoflow login --start --json`, mostrás el enlace y el código y enseguida
-   `supcoflow login --wait --json`, hasta que salga 0).
-2. `supcoflow proyecto ver --json`; si no hay proyecto: `supcoflow repo conectar --start --json` →
-   `supcoflow repo conectar --wait --json` → `supcoflow proyecto crear --json`.
-3. `supcoflow configuracion --json`: lo que ya está fijado no se vuelve a preguntar. Sólo cuenta lo fijado:
-   `acuerdo: null` o `politica.fijada_en: null` es sin fijar (aunque diga `modo: "relevar"`) → preguntalo, con el
-   aviso de que relevar gasta.
-4. Leer el código → propuesta → preguntas (punto 5) → aplicar la configuración (`supcoflow datos fijar`,
-   `supcoflow politica fijar`).
-5. `git status --porcelain --ignored -- .supcoflow/guia.md` (punto 7, antes de escribir) → escribir
-   `.supcoflow/guia.md` en una llamada → `supcoflow guia revisar --json` en otra → pedir el sí para el commit local →
-   `supcoflow guia publicar --json`.
-6. `supcoflow sitios agregar --sitio <origen de la app> --json` (el sitio donde la usan sus usuarios, p. ej. su
-   dominio público; `http://localhost:3000` sólo para una prueba local; si el código no lo dice, preguntalo) →
-   `supcoflow chat prender --json` → `supcoflow widget --json` → poner el componente. La app se toca recién acá,
-   con la guía ya publicada y el sitio agregado.
-7. `supcoflow instalacion anotar --skill <metadata.version de esta skill> --json` (el número es el `metadata.version`
-   del encabezado YAML de este SKILL.md: si no lo tenés a la vista, abrí el archivo; nunca escrito aparte;
-   `--app <carpeta>` si la app no está en la raíz) → resumen.
+**Start from what the person asked.** Every row begins with `supcoflow config --json` (with exit 2, the login of
+point 2 first). If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to
+install, go on to step 2 of the order (connect the repo, create the project) and read `config` again. For any other row,
+tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request.
+Any other exit 4 is a decision for a person: stop, as the table of point 2 says. Then:
 
-8. Probar (opcional, nunca sin preguntar): ofrecele a la persona los niveles de
-   [`referencias/prueba.md`](referencias/prueba.md). El 1 (`supcoflow diagnosticar --json`) es gratis; el 2 usa un
-   navegador y conversa con la IA del chat; el 3 **gasta** y se lo preguntás a la persona antes, con el techo y el
-   saldo que dio `supcoflow probar --json`.
+| The person asked | You do |
+|---|---|
+| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 9). Fix only what it names. No test, nothing is spent. |
+| Update the guide | Points 8 and 9 (step 6 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
+| Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
+| Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
+| Install it, or `/supcoflow go` | The full order below, steps 1 to 9. |
 
-Cada paso se puede retomar: si la sesión se corta, `/supcoflow go` empieza por `configuracion` y sigue desde lo que falta.
+The full order:
 
-## 4. Lo que decidís vos
+1. `supcoflow whoami --json` (with 2: `supcoflow login --start --json`, show the link and the code and right away
+   `supcoflow login --wait --json`, until it exits 0).
+2. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`. When it asks for
+   the GitHub App, say: "The Supcoflow GitHub App isn't on <owner/repo> yet. Approve it in the browser." (the
+   `owner/repo` is the one from `git remote get-url origin`). Then `supcoflow repo connect --wait --json` →
+   `supcoflow project create --json`, and say: "Connected. Created the project <slug>."
+3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
+   `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
+   investigating spends.
+4. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
+   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question.
+5. Read the code → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
+   files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
+   list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
+   `supcoflow policy set`).
+6. `git status --porcelain --ignored -- .supcoflow/guide.md` (point 7, before writing) → write `.supcoflow/guide.md`
+   in one call → `supcoflow guide check --json` in another → show the diff and ask for the yes to the local commit
+   (point 9) → `supcoflow guide publish --json`.
+7. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
+   `http://localhost:3000` only for a local test; if the code does not say, ask) → `supcoflow chat on --json` →
+   `supcoflow widget --json` → put the component (point 10). The app is touched only here, with the guide already
+   published and the site added.
+8. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
+   (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
+   file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file.
+9. `supcoflow diagnose --json`. Say the line the terminal prints: "Checked sign-in, repo, GitHub App, allowed sites,
+   chat and guide: N of 6, at no cost." If it is not 6 of 6, or it says it is not ready for a test, say so and nothing
+   is spent. If it is, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
+   in a call of its own, then `supcoflow test --wait --json` (details in
+   [`referencias/prueba.md`](referencias/prueba.md), level 3). Then the summary (point 13).
 
-Lo técnico reversible: dónde aparece el chat, posición, título, saludo, colores (`supcoflow chat marca`), idioma,
-qué pantallas cubre la guía. Se dice en el resumen; no se pregunta.
+Testing beyond that (optional, never without asking): offer the person the levels of
+[`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
+browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling and the balance
+that `supcoflow test --json` gave.
 
-## 5. Lo que le preguntás SIEMPRE a la persona
+Every step can be resumed: if the session is cut, `/supcoflow go` starts with `config` and goes on from what is missing.
 
-Estas tres, no lo decidas vos aunque el código lo sugiera:
+## 4. What you decide
 
-- **Qué datos de sus usuarios ve el chat** (id, rol, atributos, página y navegador, capturas, elementos señalados,
-  mail). Antes de preguntar, explicale el alcance real: el acuerdo frena lo que se GUARDA en Supcoflow y lo que lee la
-  IA que releva, no lo que ve la IA del chat mientras conversa; y este chat les ofrece siempre a los usuarios las
-  capturas y el señalar elementos (no se apagan en el código: si los rechaza, se descartan al guardar).
-  Cada respuesta va a su mecanismo, todos a la vez, con UN `supcoflow datos fijar --permitir <lista>` (o `nada`):
+The technical and reversible: where the chat shows up, position, title, greeting, colors (`supcoflow chat brand`),
+language, which screens the guide covers. It is said in the summary; it is not asked.
 
-  | Dato | En Supcoflow (`--permitir`) | En el código de la app |
-  |---|---|---|
-  | id, rol, atributos | `usuario_id`, `usuario_rol`, `atributo:<nombre>` | sólo esos campos en `usuario` |
-  | página y navegador | `pagina_y_navegador` | si lo rechaza: `contextoAutomatico={false}` y sin `contexto.versionApp` |
-  | capturas, elementos, mail | `capturas`, `elementos`, `email` | — (no hay opción en el chat 2.2.1; se dice) |
+## 5. What you ALWAYS ask the person
 
-- **Qué pasa con cada problema**: guardarlo, o relevarlo y abrir un issue (`supcoflow politica fijar --modo guardar`
-  o `--modo relevar`). Decile que relevar **gasta**, dentro del tope mensual del equipo, y que con «guardar» una
-  persona puede pedir el relevamiento después.
-- **Si hay reglas de su negocio** (plazos, reintegros, precios, compromisos) que el chat tenga que saber. **Nunca
-  las deduzcas del código**; si no hay, la guía no las lleva.
+These three, in one panel with exactly these words, in the full order and for whatever is still unset (a request to change only the data uses the first one: see the map of point 3). Do not decide them yourself even if the code suggests it. Before
+asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the investigating AI
+reads, not what the chat's AI sees while it talks; and this chat always offers users screenshots and pointing at
+elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved).
 
-## 6. Mostrar antes de aplicar
+> **What can the chat see about your users?**
+> 1. Who they are, the page, and screenshots
+> 2. Only the page and browser
+> 3. Only what they type
+>
+> **What happens when someone reports a problem?**
+> 1. Look into it right away
+> 2. Save it for me to review
+>
+> **Run one real test now?**
+> 1. Yes, run one test — up to US$ <ceiling> of your team's US$ <cap> monthly cap (US$ <balance> left)
+> 2. Not now
 
-Mostrale la propuesta de configuración y la lista de archivos que vas a crear o cambiar antes de `datos fijar`,
-`politica fijar` y de tocar archivos.
+Fill the numbers from the `supcoflow test --json` of step 4 and print them as numbers, not as placeholders. Each answer
+goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>` (or `nothing`):
 
-## 7. No pisar
+| Answer to the first question | In Supcoflow | In the app's code |
+|---|---|---|
+| 1. Who they are, the page, and screenshots | `supcoflow data set --allow user_id,user_role,attribute:<name>,page_and_browser,screenshots,elements` (one `attribute:<name>` for each attribute you pass in `usuario`) | pass only those fields in `usuario` |
+| 2. Only the page and browser | `supcoflow data set --allow page_and_browser` | pass no `usuario` |
+| 3. Only what they type | `supcoflow data set --allow nothing` | pass no `usuario`; `contextoAutomatico={false}` and no `contexto.versionApp` |
 
-Antes de crear o escribir un archivo (también `.supcoflow/guia.md`), nunca después:
-`git status --porcelain --ignored -- <archivo>`. Si tiene cambios sin commit, está
-borrado sin commit, o existe sin estar versionado (también si git lo ignora), no lo toques: mostrá lo que harías y
-preguntá, salvo los archivos que creaste o cambiaste vos en esta sesión (la guía entre rondas de `guia revisar`, un
-layout que ya tocaste). Nunca `--force`, nunca borrar archivos de la app.
+`email` is allowed only if the person asks for it by name. Never `usuario.nombre`.
 
-## 8. La guía
+- **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
+  `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends**, within the
+  team's monthly cap, and that with "save" a person can ask for the investigation later.
+- **Third question**: a yes to numbers, not to a phrase. With "Save it for me to review", option 1 of the third
+  question says the test spends nothing (it stops at the saved problem). That yes authorizes ONE test with exactly the
+  ceiling you showed and the policy you offered: the final command is `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy>`
+  with the number you printed and the policy you offered. Never a number you re-read. `techo_distinto` or
+  `politica_distinta`: ask again with the new numbers.
 
-Formato y ejemplo en [`referencias/guia.md`](referencias/guia.md). Leé el código y, si existe, el `CLAUDE.md`/`README`
-para entender las pantallas; una sección por pantalla o función que un usuario usa; «Problemas comunes» sólo de algo
-visible (un issue, un TODO, el README) o dictado por la persona. Sólo lo que existe en el código y un usuario usa
-de verdad: nada de una sección «Inicio» por una página de plantilla, ni enlaces o botones que el código no tiene. `supcoflow guia revisar --json` hasta que salga 0.
+The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
+together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does
+not carry them.
 
-## 9. Publicar la guía
+## 6. Show before applying
 
-Nunca `git push`, ni a la rama principal ni a otra.
+Show the person the configuration proposal and the list of files you will create or change before `data set`,
+`policy set` and before touching files.
 
-1. Si `git status --porcelain --ignored -- .supcoflow/guia.md` dice que git la ignora (`!!`), no se puede commitear:
-   decile que el commit declarado no la va a contener. Si no, y la salida no está vacía (nueva o cambiada), en UN
-   mismo mensaje mostrale el diff de ESE archivo (nueva, `??`: el archivo entero; cambiada:
-   `git diff -- .supcoflow/guia.md`), el mensaje de commit exacto que vas a usar, y preguntale si lo deja en un
-   commit local («queda guardado en tu repo; no lo subo a GitHub»). El sí va ANTES del commit.
-2. Con un sí: `git add -- .supcoflow/guia.md` (si es nuevo, sin esto el commit falla) y después
-   `git commit -m "<mensaje>" -- .supcoflow/guia.md`, con EXACTAMENTE el mensaje que le mostraste: sin agregarle
-   nada (ni un `Co-Authored-By` ni otra atribución); si tu entorno agrega una sola, ponela en el mensaje que le
-   mostrás. Con la ruta, lo que la persona tenga en el índice queda ahí, sin
-   commitear. Nunca `git add .` ni `git commit -a`. Verificá con `git show --name-only HEAD` que el commit nuevo toca
-   sólo ese archivo. Con un no: no commitees, y decile que la guía se publica igual pero el commit que queda anotado
-   es uno que todavía no la contiene. También acá, con un no, va el aviso del paso 4.
-3. `supcoflow guia publicar --json`, sin `--desde-github`. Repetirlo con la misma guía devuelve la misma publicación
-   (`ya_publicada`): una sesión cortada se retoma sin duplicar.
-4. SIEMPRE, haya dicho sí o no al commit, en el mismo mensaje en que le contás que la guía se publicó, decile en una
-   línea: «Subir la guía a GitHub queda en tus manos».
+## 7. Do not overwrite
 
-## 10. Poner el chat
+Before creating or writing a file (also `.supcoflow/guide.md`), never after: `git status --porcelain --ignored -- <file>`.
+If it has uncommitted changes, is registered but deleted without a commit, is a symlink, or is not versioned
+(it exists but git does not track it, also if git ignores it), do not touch it: show what you would do and ask, except for the files you created
+or changed yourself in this session (the guide between rounds of `guide check`, a layout you already touched). Never
+`--force`, never delete files of the app.
 
-Camino probado en [`referencias/nextjs.md`](referencias/nextjs.md).
+## 8. The guide
 
-- Instalá el paquete con el gestor de la app y la versión exacta de `supcoflow widget --json` (`instalar`, traducido
-  al gestor).
-- El archivo envoltorio con `nextjs.contenido` tal cual, SIN reescribir los ids, en `nextjs.archivo_sugerido` (la ruta
-  sugerida, relativa a la carpeta de la app —la de `--app`, si no está en la raíz—; podés elegir otra si la app lo
-  pide). Si la app usa `src/app`, va dentro de `src/app`: nunca crees un `app/` al lado, porque Next ignoraría
-  `src/app` y todas las rutas darían 404. Usalo (`nextjs.uso`) en el layout
-  que cubre las pantallas donde se traban los usuarios; pasale `usuario` y `contextoAutomatico` según la tabla del
-  punto 5.
-- **CSP**: una segunda directiva `connect-src` se ignora, y reemplazar la que hay borra destinos que la app necesita.
-  - Si ya tiene `connect-src`, agregale el origen del chat conservando todo lo que tiene.
-  - Si no tiene `connect-src` pero sí `default-src`, creá `connect-src` con las fuentes de `default-src` más el chat.
-  - Si no tiene CSP, no agregues ninguna.
-  - La línea `csp` de `widget --json` es la referencia para una CSP nueva, no para pegar al lado de otra.
-- La línea de `<script>` no es para Next.js.
+Format and example in [`referencias/guia.md`](referencias/guia.md). The file is `.supcoflow/guide.md`. If the repo
+only has the old `.supcoflow/guia.md`, tell the person it is the old name and offer to write `guide.md`; never rename
+or delete theirs. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
+screen or function a user uses; "Common problems" only from something visible (an issue, a TODO, the README) or
+dictated by the person. Only what exists in the code and a user really uses: no "Home" section because of a template
+page, no links or buttons the code does not have. Add `Where:` with the route only if that route exists in the code.
+`supcoflow guide check --json` until it exits 0.
 
-## 11. Lo que no hacés
+## 9. Publish the guide
 
-Gastar por tu cuenta: la única prueba que gasta es el nivel 3 de [`referencias/prueba.md`](referencias/prueba.md), y
-sólo con el sí explícito de la persona a los números que dio `supcoflow probar --json`; nunca agregás
-`--autorizo-gasto` sin ese sí, ni repetís un sí viejo para otra prueba. Tampoco: subir el tope, relanzar un
-`arranque_incierto` (se relanza desde la bandeja de la consola), borrar el proyecto, encender la fábrica, dar acceso
-a personas (la API los rechaza por clave: son de la consola). Nunca muestres ni copies una clave `scf_`.
+Never `git push`, neither to the main branch nor to another.
 
-## 12. Sin red
+1. If `git status --porcelain --ignored -- .supcoflow/guide.md` says git ignores it (`!!`), it cannot be committed: tell
+   them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), in ONE
+   message show them the diff of THAT file (new, `??`: the whole file; changed: `git diff -- .supcoflow/guide.md`),
+   the exact commit message you will use, and the question about their business: "Anything about your business the
+   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask whether you leave it in a
+   local commit ("it stays in your repo; I don't push it to GitHub"). The yes comes BEFORE the commit.
+   If they answer with rules, add them to the guide, run `supcoflow guide check --json` again and show the diff again
+   before the commit.
+2. With a yes: `git add -- .supcoflow/guide.md` (if it is new, without this the commit fails) and then
+   `git commit -m "<message>" -- .supcoflow/guide.md`, with EXACTLY the message you showed: adding nothing (no
+   `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show. With the
+   path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check with
+   `git show --name-only HEAD` that the new commit touches only that file. With a no: do not commit, and tell them the
+   guide is published anyway but the commit that stays recorded is one that does not contain it yet. Here too, with a
+   no, the notice of point 4 goes.
+3. `supcoflow guide publish --json`, without `--from-github`. Repeating it with the same guide returns the same
+   publication (`ya_publicada`): a cut session is resumed without duplicating. If it warns that `guia.md` is the old
+   name, pass the warning on to the person.
+4. ALWAYS, whether they said yes or no to the commit, in the same message where you tell them the guide was published,
+   say in one line: "Pushing the guide to GitHub is up to you".
 
-Si un comando sale 1 con un error de red, decíselo en una línea («desde acá no llego a Supcoflow; corré esto en tu
-terminal») con el comando exacto, y no reintentes.
+## 10. Put the chat
 
-## 13. El resumen final
+Tested path in [`referencias/nextjs.md`](referencias/nextjs.md).
 
-Límite duro: **tres líneas como máximo**, con esta forma y sin listas de archivos:
+- Install the package with the app's manager and the exact version from `supcoflow widget --json` (`instalar`,
+  translated to the manager).
+- **One chat, never two.** Choose the file in this order (the first that applies):
+  1. The `archivo` recorded in `.supcoflow/instalacion.json`, if it exists and the file exists.
+  2. The file the layout imports, read from the code, not guessed. If more than one is mounted, stop and ask: there
+     are already two chats.
+  3. One of `nextjs.archivos_anteriores` (with or without `src/`), today `app/_supcoflow/chat-de-soporte.tsx`.
+  4. `nextjs.archivo_sugerido`, new, today `app/_supcoflow/support-chat.tsx`. If the app uses `src/app`, put `src/` in front of it.
 
-1. qué quedó configurado;
-2. dónde quedó el chat;
-3. qué falta, o «nada» (si probaste, el nivel y su resultado; si no, que se puede probar); si la guía no está en GitHub, esta línea incluye «subir la guía a GitHub queda en tus manos».
+  In 1–3 the file is updated in place, with the rules of point 7. In 4 the wrapper file goes in
+  `nextjs.archivo_sugerido` with `nextjs.contenido` as is, WITHOUT rewriting the ids (relative to the app's folder —the one in
+  `--app`, if it is not at the root—). If the app uses `src/app`, it goes inside `src/app`: never create an `app/` next to it,
+  because Next would ignore `src/app` and every route would give 404. Use it (`nextjs.uso`) in the layout that covers
+  the screens where users get stuck; pass it `usuario` and `contextoAutomatico` as in the table of point 5. At the end,
+  `supcoflow install record --skill <version> --file <the file you really used>`.
+- **CSP**: a second `connect-src` directive is ignored, and replacing the one that is there deletes destinations the
+  app needs.
+  - If it already has `connect-src`, add the chat's origin keeping everything it has.
+  - If it has no `connect-src` but has `default-src`, create `connect-src` with the sources of `default-src` plus the
+    chat.
+  - If it has no CSP, do not add any.
+  - The `csp` line of `widget --json` is the reference for a new CSP, not for pasting next to another.
+- The `<script>` line is not for Next.js.
 
-Nombrá sólo archivos que existen (si dudás, miralo antes). La persona corrige.
+## 11. What you do not do
+
+Spend on your own: the only test that spends is level 3 of [`referencias/prueba.md`](referencias/prueba.md), and only
+with the person's explicit yes to the numbers that `supcoflow test --json` gave; never add
+`--authorize-spend` without that yes, and never repeat an old yes for another test. Neither: raise the cap, relaunch
+an `arranque_incierto` (it is relaunched from the console inbox), delete the project, turn on the factory, give
+people access (the API rejects them by key: they belong to the console). Never show or copy a `scf_` key.
+
+## 12. No network
+
+If a command exits 1 with a network error, tell them in one line ("from here I can't reach Supcoflow; run this in your
+terminal") with the exact command, and do not retry.
+
+## 13. The final summary
+
+Hard limit: **three lines at most**, in English unless the person writes in another language, with this shape and no
+lists of files:
+
+1. "Done. The chat is a bubble on N pages, in English." and the sentence of the policy: with "Look into it right away",
+   "Each problem gets looked into and ends up as an issue."; with "Save it for me to review", "Each problem is saved
+   for you to review.";
+2. where the chat lives (the file and the layout);
+3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); if the guide
+   is not on GitHub, this line includes "pushing the guide to GitHub is up to you".
+
+Name only files that exist (if in doubt, look first). The person corrects.

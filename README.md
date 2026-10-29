@@ -21,11 +21,16 @@ puede copiar la carpeta `skills/supcoflow/` de este repo a `.claude/skills/supco
 
 ## Versiones
 
-- La skill es la `0.2.1` (`metadata.version` en `skills/supcoflow/SKILL.md`). El texto que recibe la persona
-  (`SKILL.md` y `referencias/`) y esa versión están atados por una huella: cambiar el texto sin subir la versión
-  deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.7.0`. Hasta que esa versión se publique, la skill no funciona en
-  producción.
+- La skill es la `0.3.0` (`metadata.version` en `skills/supcoflow/SKILL.md`). El texto que recibe la persona
+  (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una huella: cambiar el texto sin subir la
+  versión deja un test en rojo (`npm run huella` la imprime).
+- Fija la terminal en `npx -y supcoflow@0.8.0`. Hasta que esa versión se publique, y el motor y el backend del chat
+  de la etapa 1, la skill no funciona en producción. La 0.2.1 sigue fijada a la terminal 0.7.0.
+- Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
+  `describe-0.8.0.json` (la salida de `supcoflow describe --json` de la terminal 0.8.0), `guia-de-ejemplo.md` (la
+  guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,
+  byte a byte) y `motivos-de-la-guia.json` (esos mismos `motivo`, más el `queHacer` propio de la skill). No se
+  escriben a mano: el motor es la fuente de la guía y los `motivo`; la terminal construida, la de `describe`.
 
 ## Probar
 
@@ -36,8 +41,8 @@ npm test
 
 ## Lo que esta versión NO hace
 
-- No gasta por su cuenta: la prueba paga (`probar`, nivel 3) sólo se pide con el sí de la persona a los números
-  que dio el motor (techo y saldo).
+- No gasta por su cuenta: la prueba paga (`test`, nivel 3) sólo se pide con el sí de la persona a los números
+  que dio el motor (techo y saldo), y viaja con ese techo y esa política (`--ceiling`, `--expect-policy`).
 - No relanza desde la terminal un relevamiento de arranque incierto: eso es de la consola.
 - No hace `git push`.
 - No tiene camino para quien no usa un asistente de código.

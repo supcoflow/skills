@@ -1,0 +1,19 @@
+[
+  "a common problem is over 300 characters",
+  "at most 10 common problems per section",
+  "common problems go with «- » at the start of each line",
+  "text in the section that doesn't belong to any label",
+  "the guide can't contain < or >",
+  "the guide doesn't have the expected shape",
+  "the guide has more than 60 sections",
+  "the guide has no sections («## Name»)",
+  "the label … is repeated in the section",
+  "the name is over 120 characters",
+  "there is text before the first section («## Name»)",
+  "«What it's for:» is missing in the section «X»",
+  "«What users can do:» is missing in the section «X»",
+  "«Where:» can't contain spaces",
+  "«Where:» is over 200 characters",
+  "«Where:» must be a path that starts with /",
+  "… is over 600 characters"
+]

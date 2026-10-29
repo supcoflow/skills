@@ -1,93 +1,103 @@
-# Probar la instalación
+# Test the installation
 
-Tres niveles, de menos a más. Se sube de nivel sólo si la persona lo pide o acepta; ninguno es obligatorio para
-dar el chat por instalado.
+Three levels, from less to more. You go up a level only if the person asks or accepts; none is mandatory to consider
+the chat installed.
 
-| Nivel | Qué prueba | Gasta |
+| Level | What it tests | Spends |
 |---|---|---|
-| 1 | Que el motor vea todo listo (`supcoflow diagnosticar --json`) | No |
-| 2 | Que el chat ande de verdad en un navegador, sobre la app corriendo | La IA del chat (poco; no se mide acá) |
-| 3 | Que un problema llegue hasta un issue en el repo (`supcoflow probar`) | Sí: un relevamiento, hasta un techo |
+| 1 | That Supcoflow sees everything ready (`supcoflow diagnose --json`) | No |
+| 2 | That the chat really works in a browser, on the running app | The chat's AI (little; not measured here) |
+| 3 | That a problem gets all the way to an issue in the repo (`supcoflow test`) | Yes: one investigation, up to a ceiling |
 
-## Nivel 1: el diagnóstico
+## Level 1: the diagnosis
 
-`supcoflow diagnosticar --json`: gratis y sin escribir nada. Sale 0 si está todo listo y 4 si algo hay que
-arreglar. Cada punto de la lista que trae es una cosa que arreglar o saber: **no tengas una lista de puntos en la
-cabeza**, leé los que vengan (puede haber puntos nuevos) y contale a la persona cada uno con sus palabras. Si es
-algo que la skill ya sabe resolver (un sitio sin agregar, el chat apagado), proponelo y, con su sí, resolvelo; lo
-demás se lo decís y no lo tocás.
+`supcoflow diagnose --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
+fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat and guide: N of 6, at no cost."
+and, apart, whether it is ready for a test. Each point on the list it brings is something to fix or know: **do not
+keep a list of points in your head**, read the ones that come (there may be new points) and tell the person each one
+in your own words. If it is something the skill already knows how to solve (a site not added, the chat off), propose it
+and, with their yes, solve it; the rest you tell them and do not touch.
 
-## Nivel 2: el chat en un navegador
+## Level 2: the chat in a browser
 
-Antes, **avisale a la persona**: probar el chat es conversar con la IA del chat, y eso tiene un costo chico que
-paga Supcoflow con su propia clave y no pasa por el tope de la persona; no crea ningún issue ni gasta un
-relevamiento. Con su sí, seguí.
+First, **warn the person**: testing the chat is talking to the chat's AI, and that has a small cost that Supcoflow pays
+with its own key and does not go through the person's cap; it creates no issue and spends no investigation. With their
+yes, go on.
 
-Necesitás la app corriendo (la persona la levanta, o le pedís el comando) y un navegador que puedas manejar
-(Playwright, un navegador de tu entorno). Si no tenés ninguno, decilo y salteá el nivel: no lo simules.
+You need the app running (the person starts it, or you ask for the command) and a browser you can drive (Playwright, a
+browser from your environment). If you have none, say so and skip the level: do not simulate it.
 
-El sitio desde el que abrís la app tiene que estar en `sitios` (`supcoflow sitios agregar --sitio
-http://localhost:3000` para una prueba local, con la persona de acuerdo). Después, mirando lo que de verdad pasa
-en la página, comprobá y contá cada una por separado:
+The site you open the app from has to be in the allowed sites (`supcoflow sites add --site http://localhost:3000` for a
+local test, with the person's agreement). Then, looking at what really happens on the page, check and report each one
+separately:
 
-1. **Monta**: el chat aparece donde lo pusiste. No supongas selectores: buscalo en la página que corre.
-2. **Pasa las protecciones**: abrí el chat y mandá un saludo; tiene que contestar. Si no contesta, mirá la consola
-   del navegador y la red: una política CSP que bloquea la conexión (`connect-src`), o un sitio que el motor no
-   admite (el origen que abriste no está en `sitios`) son las dos causas que ya conocemos. Si no sabés cuál es,
-   decilo así; no la adivines.
-3. **Toma el usuario**: con una sesión iniciada en la app, el chat tiene que saber quién es en los campos que la
-   persona autorizó (`usuario` del punto 5 de la skill) y nada de los que rechazó. Si la app no tiene sesión que
-   puedas iniciar, decí que esto no lo pudiste probar.
-4. **Sobrevive a navegar**: pasá a otra pantalla de la app sin recargar a mano; el chat sigue ahí y la
-   conversación se mantiene.
-5. **Sube una captura**: adjuntá una captura desde el propio chat. Contá si se subió o qué error dio.
+1. **It mounts**: the chat shows up where you put it. Do not assume selectors: find it on the page that runs.
+2. **It passes the protections**: open the chat and send a greeting; it has to answer. If it does not answer, look at
+   the browser console and the network: a CSP policy that blocks the connection (`connect-src`), or a site Supcoflow
+   does not admit (the origin you opened is not in the allowed sites) are the two causes we already know. If you do not
+   know which it is, say so; do not guess.
+3. **It takes the user**: with a session started in the app, the chat has to know who they are in the fields the person
+   authorized (`usuario` of point 5 of the skill) and nothing of the ones they refused. If the app has no session you
+   can start, say you could not test this.
+4. **It survives navigating**: go to another screen of the app without reloading by hand; the chat is still there and
+   the conversation is kept.
+5. **It uploads a screenshot**: only if the person allowed screenshots; attach one from the chat itself. Count whether
+   it uploaded or what error it gave. If they did not allow them, attach none to test. The chat's screenshot button can
+   still show up, and that is not a failure of this stage: the agreement acts when the report is SAVED and on the AI
+   that investigates, not on what the chat's AI sees while it talks. Do not report it as a privacy failure and do not
+   change the widget to hide it.
 
-Qué decirle a la persona: una línea por punto (anduvo, no anduvo, no pude probarlo), con la causa si la sabés.
-**Nunca digas «anduvo» de lo que no viste andar.** Si algo falla por el código de la app, mostrá el arreglo y
-preguntá antes de tocar archivos (punto 7 de la skill). No mandes reportes de verdad por el chat para probar: un
-problema escrito en el chat puede arrancar un relevamiento que gasta.
+What to tell the person: one line per point (worked, did not work, could not test it), with the cause if you know it.
+**Never say "it worked" about what you did not see work.** If something fails because of the app's code, show the fix
+and ask before touching files (point 7 of the skill). Do not send real reports through the chat to test: a problem
+written in the chat can start an investigation that spends.
 
-## Nivel 3: un problema que llega a un issue (gasta)
+## Level 3: a problem that gets to an issue (spends)
 
-Esta prueba **gasta dinero real**: un relevamiento, hasta el techo que dice el motor. Es la única cosa de la
-skill que gasta y **nunca agregás `--autorizo-gasto` por tu cuenta**.
+This test **spends real money**: one investigation, up to the ceiling that Supcoflow says. It is the only thing in the
+skill that spends and you **never add `--authorize-spend` on your own**.
 
-1. `supcoflow diagnosticar --json`. Si sale 4, arreglá o contale primero; no pidas dinero para una prueba que no
-   puede llegar.
-2. `supcoflow probar --json` (sin autorización: no manda nada). Siempre sale 4 con `falta_autorizacion` y trae el
-   techo, el saldo del mes, el tope, lo comprometido, la `politica` y `prueba_abierta`. Si `prueba_abierta` trae
-   un id, ya hay una prueba sin desenlace: no pidas dinero; seguila con el punto 5 y `--prueba <id>`.
-3. **Preguntale a la persona**, citando los números tal como los dio `probar`: «Esta prueba gasta un relevamiento,
-   hasta US$ <techo>. Te quedan US$ <saldo> este mes. Si el problema entra, se abre un issue de prueba, rotulado
-   como tal, en tu repo, y queda abierto (yo no lo cierro). ¿La hago?». Si la `politica` del mismo `probar --json`
-   es `guardar`, decile que la prueba llega sólo hasta guardar el problema y no gasta. Una respuesta que no sea un
-   sí claro es un no.
-4. Sólo con el sí, en una llamada aparte: `supcoflow probar --autorizo-gasto --json`. Sale 5 con el `prueba_id`:
-   andá directo al punto 5 (`--wait`), sin preguntar nada más. Para usar un texto propio, `--mensaje "…"`; sin él va
-   uno fijo del motor. Si no sale 5, mirá el campo `error`, no sólo el código:
-   - `intento_pendiente` (sale 1 o 4, y también lo da `--wait`): hay un pedido sin confirmar guardado. Repetí
-     `supcoflow probar --autorizo-gasto --json` **sin `--mensaje`** (retoma la misma prueba, no pide otra; es el
-     mismo sí de la persona) y después `--wait`.
-   - `prueba_en_curso` (4): ya hay una abierta; seguila con `supcoflow probar --wait --prueba <id>` (el id viene
-     en la respuesta).
-   - `tope_mensual` (6): no reintentes; contale el tope y lo comprometido. Subirlo no es cosa tuya.
-   - `techo_distinto` (4): cambió el techo; volvé al punto 2 y preguntá de nuevo con el número nuevo.
-   - `chat_deshabilitado` o `requiere_api_key` (4): contale el mensaje; no reintentes.
-   - exit 3 (entrada inválida): mandaste algo mal; corregilo con el mensaje. Exit 2: falta sesión
-     (`login --start` y `login --wait`). `idempotency_key_reusada` (1): no debería pasar; contalo y, si la persona
-     quiere, empezá de nuevo por el punto 2 (otra prueba pide otro sí).
-   - Cualquier otro exit 1: contalo con el mensaje; no reintentes más de una vez.
-5. `supcoflow probar --wait --json` (o con `--prueba <id>`): espera hasta 90 s por llamada.
-   - 5: sigue corriendo; en el mismo turno, volvé a correr el mismo comando. No le pidas nada a la persona.
-   - 0: llegó al desenlace. Con un issue, pasale el enlace. Con la política `guardar` es el caso guardado, no un
-     issue: decíselo así.
-   - 4 (con otro `error`, no `intento_pendiente`): hace falta que la persona mire la prueba en la consola; pasale el enlace a la bandeja y el motivo que
-     trae. **Un `arranque_incierto` no se relanza desde la terminal** (ni con otro `probar`): se relanza sólo
-     desde la bandeja de la consola; decíselo.
-6. **El cobro, como venga**: `leido` con el monto; `pendiente` o `perdido` se dicen como tales («todavía no se
-   conoce el gasto real; como mucho, el techo»). Nunca lo cuentes como 0. Si quedó `pendiente`, la prueba terminó
-   igual: más tarde, `supcoflow probar --wait --prueba <id> --json` lo vuelve a mirar.
+1. `supcoflow diagnose --json`. If it exits 4, or it is not 6 of 6, or not ready for a test, fix it or tell them
+   first; do not ask for money for a test that cannot get there.
+2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
+   brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
+   `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
+   point 5 and `--test-id <id>`.
+3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
+   <ceiling>. You have US$ <balance> left this month. If the problem gets in, a test issue, marked as such, opens in
+   your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
+   `guardar`, tell them the test goes only as far as saving the problem and spends nothing. An answer that is not a
+   clear yes is a no.
+4. Only with the yes, in a call of its own:
+   `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`, where `<ceiling>` is
+   exactly the number you showed and `<policy>` is `investigate` or `save` as you offered it (`relevar` is
+   `investigate`, `guardar` is `save`). Never a number or a policy you re-read. It exits 5 with the `prueba_id`: go
+   straight to point 5 (`--wait`), without asking anything else. To use your own text, `--message "…"`; without it a
+   fixed one from Supcoflow goes. If it does not exit 5, look at the `error` field, not only the code:
+   - `intento_pendiente` (exits 1 or 4, and `--wait` gives it too): there is an unconfirmed request saved. Repeat
+     `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json` **without `--message`**
+     (it resumes the same test, it does not ask for another; it is the same yes of the person) and then `--wait`.
+   - `prueba_en_curso` (4): there is already one open; follow it with `supcoflow test --wait --test-id <id>` (the id comes
+     in the answer).
+   - `tope_mensual` (6): do not retry; tell them the cap and what is committed. Raising it is not yours to do.
+   - `techo_distinto` or `politica_distinta` (4): the ceiling or the policy changed; go back to point 2 and ask again
+     with the new numbers (the new values come in the `--json`). The old yes does not carry over.
+   - `chat_deshabilitado` or `requiere_api_key` (4): tell them the message; do not retry.
+   - exit 3 (invalid input): you sent something wrong; fix it with the message. Exit 2: no session (`login --start`
+     and `login --wait`). `idempotency_key_reusada` (1): it should not happen; tell them and, if the person wants,
+     start again from point 2 (another test asks for another yes).
+   - Any other exit 1: tell them with the message; do not retry more than once.
+5. `supcoflow test --wait --json` (or with `--test-id <id>`): it waits up to 90 s per call.
+   - 5: still running; in the same turn, run the same command again. Ask the person nothing.
+   - 0: it reached the outcome. With an issue, pass them the link. With the `guardar` policy it is the saved case, not
+     an issue: tell them so.
+   - 4 (with another `error`, not `intento_pendiente`): the person has to look at the test in the console; pass them
+     the link to the inbox and the reason it brings. **An `arranque_incierto` is not relaunched from the terminal**
+     (not even with another `test`): it is relaunched only from the console inbox; tell them.
+6. **The charge, as it comes**: `leido` with the amount; `pendiente` or `perdido` are said as such ("the real spend
+   is not known yet; at most, the ceiling"). Never count it as 0. If it stayed `pendiente`, the test finished anyway:
+   later, `supcoflow test --wait --test-id <id> --json` looks at it again.
 
-Qué le contás al final: si hubo issue o caso guardado, el enlace, y el cobro tal como vino. El issue de la
-prueba queda abierto en el repo: es de la persona cerrarlo. El resultado dice que la instalación llega hasta el
-issue; no dice que el issue sea correcto.
+What you tell them at the end: if there was an issue or a saved case, the link, and the charge as it came. The test
+issue stays open in the repo: closing it is the person's. The result says the installation reaches the issue; it does
+not say the issue is correct.
