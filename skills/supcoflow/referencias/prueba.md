@@ -42,7 +42,10 @@ separately:
 4. **It survives navigating**: go to another screen of the app without reloading by hand; the chat is still there and
    the conversation is kept.
 5. **It uploads a screenshot**: only if the person allowed screenshots; attach one from the chat itself. Count whether
-   it uploaded or what error it gave. If they did not allow them, the chat must not offer to attach one: check that.
+   it uploaded or what error it gave. If they did not allow them, attach none to test. The chat's screenshot button can
+   still show up, and that is not a failure of this stage: the agreement acts when the report is SAVED and on the AI
+   that investigates, not on what the chat's AI sees while it talks. Do not report it as a privacy failure and do not
+   change the widget to hide it.
 
 What to tell the person: one line per point (worked, did not work, could not test it), with the cause if you know it.
 **Never say "it worked" about what you did not see work.** If something fails because of the app's code, show the fix

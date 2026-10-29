@@ -92,6 +92,18 @@ const FLAGS_CONOCIDOS = new Set(
     return m ? [m[1], ...(m[2] ? [m[2]] : [])] : [];
   }),
 );
+// Los flags de CADA comando (más los globales): la terminal real rechaza con `flag_no_aplica`
+// (salida 3) un flag que existe pero es de otro comando, p. ej. `widget --ceiling`.
+// `FLAGS_CONOCIDOS` (la unión) sólo vale para lo que no está dentro de una invocación.
+const nombresDeFlags = (lista: string[]): string[] =>
+  lista.flatMap((f) => {
+    const m = f.match(/^(--[a-z][a-z-]*)(?:,\s*(-[a-z]))?/);
+    return m ? [m[1], ...(m[2] ? [m[2]] : [])] : [];
+  });
+const FLAGS_GLOBALES = new Set(nombresDeFlags(describir.flags_globales));
+const FLAGS_POR_COMANDO = new Map<string, Set<string>>(
+  describir.comandos.map((c) => [c.nombre, new Set([...nombresDeFlags(c.flags), ...FLAGS_GLOBALES])]),
+);
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
 // --force está sólo para que la skill pueda PROHIBIRLO («Nunca `--force`»), no para usarlo.
@@ -154,18 +166,34 @@ export function comandosInventados(texto: string): string[] {
   return malos;
 }
 
-// Dentro de una invocación de supcoflow, el flag tiene que existir en describir (ni
-// siquiera vale uno ajeno conocido). Fuera de una invocación (npm, git, prosa) vale lo
-// de describir o la lista cerrada de ajenos: `npx skills add x --foo` falla.
+// El comando de una invocación (el nombre de describir: «widget», «guide check»), o null si
+// no es uno (eso lo dice `comandosInventados`, no éste).
+function comandoDe(tokens: string[]): string | null {
+  const [a, b] = tokens.filter((t) => !t.startsWith("-"));
+  if (a === undefined) return null;
+  if (SOLOS.has(a)) return a;
+  if (GRUPOS.has(a) && b !== undefined && NOMBRES.has(`${a} ${b}`)) return `${a} ${b}`;
+  return null;
+}
+
+// Dentro de una invocación de supcoflow, el flag tiene que ser de ESE comando (o global): uno
+// que existe en otro comando también falla, como en la terminal real. Si el comando no existe
+// no se mira (ya lo marca `comandosInventados`) y vale la unión. Fuera de una invocación (npm,
+// git, prosa) vale lo de describir o la lista cerrada de ajenos: `npx skills add x --foo` falla.
 export function flagsInventados(texto: string): string[] {
   const malos: string[] = [];
   const FLAG = /(?<![\w-])(--[a-z][a-z-]*)/g;
   for (const pedazo of pedazosDeCodigo(texto)) {
-    const rangos = invocacionesDe(pedazo);
+    const invocaciones = invocacionesDe(pedazo);
     for (const m of pedazo.matchAll(FLAG)) {
-      const dentro = rangos.some((r) => m.index! >= r.desde && m.index! < r.hasta);
-      const ok = FLAGS_CONOCIDOS.has(m[1]) || (!dentro && FLAGS_AJENOS.has(m[1]));
-      if (!ok) malos.push(m[1]);
+      const inv = invocaciones.find((r) => m.index! >= r.desde && m.index! < r.hasta);
+      if (!inv) {
+        if (!FLAGS_CONOCIDOS.has(m[1]) && !FLAGS_AJENOS.has(m[1])) malos.push(m[1]);
+        continue;
+      }
+      const comando = comandoDe(inv.tokens);
+      const propios = comando ? FLAGS_POR_COMANDO.get(comando)! : FLAGS_CONOCIDOS;
+      if (!propios.has(m[1])) malos.push(m[1]);
     }
   }
   for (const m of prosa(texto).matchAll(FLAG))
@@ -249,7 +277,15 @@ describe("los comandos y flags contra describir", () => {
     expect(flagsInventados("use --inventado in prose")).toEqual(["--inventado"]);
     expect(flagsInventados("`supcoflow test --autorizo-gasto`")).toEqual(["--autorizo-gasto"]); // alias oculto de la 0.7.0
     expect(flagsInventados("`supcoflow data set --permitir nada`")).toEqual(["--permitir"]);
+    // un flag real puesto en un comando que no es suyo: la terminal lo rechaza (flag_no_aplica)
+    expect(flagsInventados("`supcoflow widget --ceiling 2 --json`")).toEqual(["--ceiling"]);
+    expect(flagsInventados("`supcoflow guide check --authorize-spend --json`")).toEqual(["--authorize-spend"]);
+    expect(flagsInventados("`supcoflow --json guide check --authorize-spend`")).toEqual(["--authorize-spend"]);
+    expect(flagsInventados("`supcoflow test --allow nothing`")).toEqual(["--allow"]);
+    expect(flagsInventados("`supcoflow whoami && supcoflow widget --expect-policy save`")).toEqual(["--expect-policy"]);
     expect(flagsInventados("`supcoflow widget --json`")).toEqual([]);
+    expect(flagsInventados("`supcoflow guide check --json`")).toEqual([]);
+    expect(flagsInventados("`supcoflow data set --allow nothing`")).toEqual([]);
     expect(flagsInventados("`npm i @supcoflow/chat@2.3.0 --save-exact`")).toEqual([]);
     expect(flagsInventados("`supcoflow test --authorize-spend --ceiling 2.00 --expect-policy save`")).toEqual([]);
     expect(flagsInventados("`git status --porcelain`")).toEqual([]);
@@ -391,6 +427,12 @@ describe("lo que la skill no hace", () => {
 // ---------------------------------------------------------------------------------
 // Los textos se reparten en renglones al escribirlos: las frases se buscan con los espacios normalizados.
 const P = (t: string) => t.replace(/\s+/g, " ");
+// La promesa de 1B pide que el chat NO ofrezca capturas / señalar si el acuerdo las rechaza.
+// En 1A el botón sigue apareciendo; ninguna instrucción puede mandar a «comprobar» lo contrario.
+const PROMESA_DE_1B_EN_EL_BOTON: RegExp[] = [
+  /\b(?:chat|widget)\b[^.]{0,40}\b(?:must|should|shall|will)? ?not (?:offer|show|display|attach)\b/i,
+  /\b(?:does not|doesn't|do not|don't) (?:offer|show|display)\b[^.]{0,60}\b(?:screenshot|attach|pointing|point at)/i,
+];
 const seccion = (texto: string, desde: RegExp, hasta?: RegExp): string => {
   const i = texto.search(desde);
   expect(i, `no encuentro ${desde}`).toBeGreaterThanOrEqual(0);
@@ -491,7 +533,25 @@ describe("la escena de la landing (spec §10)", () => {
       expect(P(texto), ruta).not.toMatch(/does not see it either/);
       expect(P(texto), ruta).not.toMatch(/does not offer screenshots or pointing at elements/);
       expect(P(texto), ruta).not.toMatch(/unless they are allowed/);
+      expect(PROMESA_DE_1B_EN_EL_BOTON.some((r) => r.test(P(texto))), ruta).toBe(false);
     }
+  });
+  it("control: el detector de la promesa de 1B en el botón ve las formulaciones de «el chat no debe ofrecer»", () => {
+    const detecta = (t: string) => PROMESA_DE_1B_EN_EL_BOTON.some((r) => r.test(t));
+    expect(detecta("If they did not allow them, the chat must not offer to attach one: check that.")).toBe(true);
+    expect(detecta("the chat should not offer screenshots")).toBe(true);
+    expect(detecta("check that the chat does not show the screenshot button")).toBe(true);
+    expect(detecta("the chat must not show the pointing tool")).toBe(true);
+    expect(detecta("The chat's screenshot button can still show up, and that is not a failure of this stage.")).toBe(false);
+    expect(detecta("the chat always offers users screenshots and pointing at elements")).toBe(false);
+  });
+  it("la prueba de nivel 2 (captura) conserva la salvedad de 1A: sin permiso no se adjunta, el botón puede seguir", () => {
+    const prueba = leer(CARPETA, "referencias", "prueba.md");
+    const n2 = seccion(prueba, /^## Level 2\b/m, /^## Level 3\b/m);
+    expect(P(n2)).toMatch(/If they did not allow them, attach none to test/);
+    expect(P(n2)).toMatch(/screenshot button can still show up, and that is not a failure of this stage/);
+    expect(P(n2)).toMatch(/the agreement acts when the report is SAVED and on the AI that investigates, not on what the chat's AI sees while it talks/);
+    expect(P(n2)).toMatch(/Do not report it as a privacy failure and do not change the widget to hide it/);
   });
   it("la tercera es la prueba, no las reglas del negocio: «Save it» dice que no gasta", () => {
     const p5 = seccion(skillMd, /^## 5\./m, /^## 6\./m);
