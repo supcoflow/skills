@@ -26,7 +26,7 @@ type Describir = {
   flags_globales: string[];
 };
 // El vector es la salida de `supcoflow describe --json` de la terminal fijada. Se leen sus claves en inglés
-// (`commands`, `name`, `global_flags`) y, por si la 0.8.0 publicada conserva las del 0.7.0, las castellanas:
+// (`commands`, `name`, `global_flags`) y, por si la 0.8.1 publicada conserva las del 0.7.0, las castellanas:
 // al re-sincronizar el vector con la terminal real, esto es lo único que puede necesitar tocarse.
 function leerDescribe(archivo: string): Describir {
   const crudo = JSON.parse(leer(RAIZ, "test", "vectores", archivo));
@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.8.0.json");
+const describir: Describir = leerDescribe("describe-0.8.1.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -83,7 +83,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guide publish", "install record", "chat on"...). Los demás son de una
-// palabra ("whoami", "widget", "test"). En 0.8.0 ninguna palabra es a la vez grupo y comando.
+// palabra ("whoami", "widget", "test"). En 0.8.1 ninguna palabra es a la vez grupo y comando.
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -107,7 +107,7 @@ const FLAGS_POR_COMANDO = new Map<string, Set<string>>(
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
 // --force está sólo para que la skill pueda PROHIBIRLO («Nunca `--force`»), no para usarlo.
-const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force"]);
+const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force", "--show-current"]);
 
 function pedazosDeCodigo(texto: string): string[] {
   const salida: string[] = [];
@@ -132,7 +132,8 @@ function fencesDesbalanceadas(texto: string): boolean {
 // Una invocación va desde `supcoflow` (o `supcoflow@X`) hasta el próximo separador de
 // shell. `supcoflow` como nombre de otra cosa (@supcoflow/chat, .supcoflow/guide.md,
 // supcoflow-skills, chat.supcoflow.dev) no es invocación.
-const INVOCACION = /(?<![/\w@.-])supcoflow(?:@[\w.]+)?(?![\w/@-]|\.\w)([^&|;]*)/g;
+// `git remote add supcoflow <url>` nombra un remoto de git que se llama así: tampoco es una invocación (1A.1, 2a).
+const INVOCACION = /(?<![/\w@.-])(?<!git remote (?:add|set-url) )supcoflow(?:@[\w.]+)?(?![\w/@-]|\.\w)([^&|;]*)/g;
 function invocacionesDe(pedazo: string): { tokens: string[]; desde: number; hasta: number }[] {
   return [...pedazo.matchAll(INVOCACION)].map((m) => ({
     tokens: m[1].split(/\s+/).filter(Boolean),
@@ -202,7 +203,7 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.8.0 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.8.1 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
@@ -262,12 +263,16 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.8.0 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.8.1 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
     expect(comandosInventados("the chat of supcoflow installs; ask for `/supcoflow go`")).toEqual([]);
     expect(comandosInventados("`npm i @supcoflow/chat@2.3.0` and `.supcoflow/guide.md`")).toEqual([]);
+    // el remoto de git que se llama «supcoflow» no es una invocación de la terminal
+    expect(comandosInventados("`git remote add supcoflow https://github.com/o/r.git`")).toEqual([]);
+    expect(comandosInventados("`git remote set-url supcoflow https://github.com/o/r.git`")).toEqual([]);
+    expect(comandosInventados("`git remote add supcoflow x && supcoflow deploy`")).toEqual(["deploy"]);
   });
   it("control: flags inventados", () => {
     expect(flagsInventados("`supcoflow widget --magia`")).toEqual(["--magia"]);
@@ -308,6 +313,26 @@ describe("la versión de la terminal", () => {
       for (const f of texto.match(/(?<![/\w-])supcoflow@[^\s`'")]+/g) ?? [])
         expect(f).toBe(`supcoflow@${describir.version}`);
     }
+  });
+});
+
+describe("el vector de describe es el de la terminal 0.8.1 (1A.1, S5)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
+  const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
+  it("hay un único vector de describe y es el de la 0.8.1", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.8.1.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.8.1");
+  });
+  it("lo que la skill nombra de la 0.8.1 está en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
+    for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
+      expect(crudo, nombre).toContain(nombre);
+    for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "sin_repo"])
+      expect(textosDeLaSkill.some(({ texto }) => texto.includes(nombre)), `la skill no nombra ${nombre}`).toBe(true);
+  });
+  it("el vector no es el de la 0.8.0: `project show` trae `contexto` y `test` trae `maquina`", () => {
+    const d = JSON.parse(crudo) as { comandos: { nombre: string; resumen: string }[] };
+    expect(d.comandos.find((c) => c.nombre === "project show")!.resumen).toContain("`contexto`");
+    expect(d.comandos.find((c) => c.nombre === "test")!.resumen).toContain("`maquina`");
   });
 });
 
@@ -364,13 +389,13 @@ describe("--sin-subir-version", () => {
     });
     return { r, despues: readFileSync(archivo, "utf8"), registro };
   }
-  it("se niega si la versión registrada no es la sin publicar (0.3.0)", () => {
+  it("se niega si la versión registrada no es la sin publicar (0.3.1)", () => {
     const { r, despues, registro } = correr("1.0.0");
     expect(r.status).toBe(1);
     expect(despues).toBe(registro);
   });
-  it("con la 0.3.0 (sin publicar) reescribe", () => {
-    const { r, despues, registro } = correr("0.3.0");
+  it("con la 0.3.1 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.3.1");
     expect(r.status).toBe(0);
     expect(despues).not.toBe(registro);
   });
@@ -386,8 +411,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.8.0 project delete`",
-      "`npx -y supcoflow@0.8.0 proyecto borrar`",
+      "`npx -y supcoflow@0.8.1 project delete`",
+      "`npx -y supcoflow@0.8.1 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -396,7 +421,7 @@ describe("lo que la skill no hace", () => {
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.8.0 no tiene comandos de esas acciones", () => {
+  it("la terminal 0.8.1 no tiene comandos de esas acciones", () => {
     for (const nombre of NOMBRES) expect(nombre).not.toMatch(/\bcap\b|delete|factory|access|invite|tope|borrar|fabrica|acceso|invitar/);
   });
   it("--authorize-spend sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
@@ -458,13 +483,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.3.0 y fija la terminal 0.8.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.0");
-    expect(describir.version).toBe("0.8.0");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.8.0 describe --json");
+  it("la skill es la 0.3.1 y fija la terminal 0.8.1", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.1");
+    expect(describir.version).toBe("0.8.1");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.8.1 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.8.1"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.0.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
@@ -528,7 +554,7 @@ describe("la escena de la landing (spec §10)", () => {
     expect(P(p5)).toMatch(/this chat always offers users screenshots and pointing at elements/);
     expect(P(p5)).toMatch(/if the agreement rejects them, they are discarded when saved/);
   });
-  it("ninguna frase de la promesa de 1B (skill 0.3.1) en el texto", () => {
+  it("ninguna frase de la promesa de 1B (skill 0.3.2, tras 1A.1) en el texto", () => {
     for (const { ruta, texto } of textosDeLaSkill) {
       expect(P(texto), ruta).not.toMatch(/does not see it either/);
       expect(P(texto), ruta).not.toMatch(/does not offer screenshots or pointing at elements/);
@@ -635,6 +661,341 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
   });
 });
 
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 4: el commit de la guía cae en la rama que esté. La skill la mira y avisa.
+// ---------------------------------------------------------------------------------
+describe("la rama del commit de la guía (1A.1, fricción 4)", () => {
+  const p9 = () => P(seccion(skillMd, /^## 9\./m, /^## 10\./m));
+  const paso1 = () => P(seccion(seccion(skillMd, /^## 9\./m, /^## 10\./m), /^1\./m, /^2\./m));
+  // Comandos de git que cambian o crean ramas: la skill no puede nombrarlos en §9 (sólo `git branch --show-current`).
+  const CAMBIA_DE_RAMA = /git (?:checkout|switch)\b|git branch (?!--show-current)\S+|git (?:stash|reset)\b/;
+  it("antes de preguntar lee la rama con `git branch --show-current` y la compara con la `rama` del proyecto", () => {
+    expect(paso1()).toContain("`git branch --show-current`");
+    expect(paso1()).toMatch(/`rama`/);
+    expect(paso1()).toMatch(/`supcoflow project show --json`/);
+    expect(paso1().indexOf("`git branch --show-current`")).toBeLessThan(paso1().indexOf("ONE message"));
+  });
+  it("en la rama principal: la pregunta del commit nombra la rama", () => {
+    expect(paso1()).toMatch(/on the project's main branch[^.]*the question names the branch/i);
+    expect(paso1()).toContain("I'll leave it in a local commit on `<branch>`");
+  });
+  it("en otra rama: lo dice, recomienda no commitear ahí y ofrece dos opciones dentro de la misma pregunta", () => {
+    expect(paso1()).toMatch(/On another branch[^]*say so and recommend not committing there/);
+    expect(paso1()).toMatch(/commit anyway on that branch/);
+    expect(paso1()).toMatch(/do not commit now: the guide is published anyway, and it is committed on `<rama>` when they want/);
+    expect(paso1()).toMatch(/not a new question/i);
+  });
+  it("sin rama (HEAD suelto o salida vacía): recomienda no commitear, y si igual quiere, avisa que no queda en ninguna rama", () => {
+    expect(paso1()).toMatch(/No branch \(detached HEAD, empty output\)[^]*recommend not committing/);
+    expect(paso1()).toMatch(/the commit would stay on no branch/);
+  });
+  it("si no se puede leer la rama se trata como «sin rama»: lo seguro", () => {
+    expect(paso1()).toMatch(/If you cannot read the branch, treat it as no branch/);
+  });
+  it("nunca cambia de rama ni crea una: §9 no nombra checkout, switch ni `git branch <nombre>`", () => {
+    expect(p9()).toMatch(/Never change the branch or create one/);
+    expect(p9()).not.toMatch(CAMBIA_DE_RAMA);
+  });
+  it("control: el detector de comandos que cambian de rama atrapa los que importan y deja pasar --show-current", () => {
+    for (const mala of ["git checkout main", "git switch -c x", "git branch nueva", "git stash", "git reset --hard"])
+      expect(mala, mala).toMatch(CAMBIA_DE_RAMA);
+    expect("`git branch --show-current`").not.toMatch(CAMBIA_DE_RAMA);
+  });
+  it("el resumen (§13): sin commit, la línea 3 suma el comando para commitear en la rama del proyecto, sin pasar de tres líneas", () => {
+    const r = P(seccion(skillMd, /^## 13\./m));
+    expect(r).toMatch(/commit `\.supcoflow\/guide\.md` on `<rama>` when you want/);
+    expect(r).toMatch(/three lines at most/);
+  });
+  it("con un no (o la opción de no commitear) no se commitea, y el aviso del punto 4 sigue", () => {
+    expect(P(seccion(skillMd, /^## 9\./m, /^## 10\./m))).toMatch(/With a no[^.]*do not commit[^]*the notice of point 4 goes/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 5: se ve en qué paso va, sin JSON y sin grep/sed en pantalla.
+// ---------------------------------------------------------------------------------
+describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)", () => {
+  const s2 = () => P(seccion(skillMd, /^## 2\./m, /^## 3\./m));
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const s13 = () => P(seccion(skillMd, /^## 13\./m));
+  it("en el recorrido completo, cada paso empieza con una línea «Step N of 9: …»", () => {
+    expect(s2()).toMatch(/In the full order, start each step with one line: "Step N of 9: <what it is>"/);
+    expect(s2()).toContain('(for example "Step 3 of 9: your settings")');
+  });
+  it("el recorrido completo tiene exactamente nueve pasos (el «9» de la línea es cierto)", () => {
+    const orden = seccion(skillMd, /^The full order:/m, /^Testing beyond that/m);
+    const pasos = orden.split("\n").filter((l) => /^\d+\. /.test(l)).map((l) => Number(l.match(/^(\d+)\./)![1]));
+    expect(pasos).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+  it("las líneas de paso no se mezclan con el resumen: no cuentan en las tres líneas y no van en él", () => {
+    expect(s13()).toMatch(/The step lines of point 2 are not part of the summary/);
+    expect(s13()).toMatch(/three lines at most/);
+    for (const forma of s13().match(/\d\. "[^"]*"/g) ?? []) expect(forma).not.toMatch(/Step \d/);
+  });
+  it("nunca se pega el JSON de la terminal: se dice qué significa en una frase", () => {
+    expect(s2()).toContain("Never paste the terminal's JSON to the person: say what it means in one sentence.");
+  });
+  it("la app se lee con las herramientas de archivo y de búsqueda, no con pipelines de shell", () => {
+    expect(s2()).toContain(
+      "Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).",
+    );
+    expect(s3()).toMatch(/Read the code \(with your file tools, as point 2 says\)/);
+  });
+  it("el nivel 3 dice una línea por vuelta de `--wait`, con los minutos que lleva", () => {
+    const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
+    expect(prueba).toMatch(/5: still running; in the same turn, run the same command again\. Ask the person nothing, but say one line per round: how many minutes it has been running/);
+  });
+  it("no se inventa que la terminal diga el paso siguiente (eso es 0.9.0, no esta versión)", () => {
+    for (const { ruta, texto } of textosDeLaSkill) expect(P(texto), ruta).not.toMatch(/next step[^.]*terminal prints|terminal (?:tells|says) (?:you )?the next step/i);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 1: el comando sigue agnóstico; el README explica cómo elegir el asistente.
+// ---------------------------------------------------------------------------------
+describe("el README de la instalación (1A.1, fricción 1)", () => {
+  const readme = P(leer(RAIZ, "README.md"));
+  it("el comando es el agnóstico de hoy: sin `-y`, sin `--agent` y sin `--all`", () => {
+    expect(readme).toContain("npx skills add supcoflow/skills");
+    for (const pedazo of pedazosDeCodigo(leer(RAIZ, "README.md")).filter((p) => /skills add/.test(p)))
+      expect(pedazo).not.toMatch(/\s(?:-y|-a|--yes|--agent|--all)\b/);
+  });
+  it("ya no dice que el repo de GitHub no existe", () => {
+    expect(readme).not.toMatch(/todavía no existe/);
+    expect(readme).not.toMatch(/Mientras tanto, se puede copiar/);
+  });
+  it("dice las tres vías del instalador tal cual y una línea para la terminal instalada", () => {
+    expect(readme).toContain("In your own terminal, check the agents it selects: Claude Code isn't ticked the first time.");
+    expect(readme).toContain("If it first asks about Eve and you use another agent, answer no to get the list.");
+    expect(readme).toContain(
+      "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
+    );
+    expect(readme).toContain("npm i -g supcoflow@0.8.1");
+  });
+  it("no pide reiniciar Claude Code (no hay evidencia)", () => {
+    expect(readme).not.toMatch(/reinici|restart/i);
+  });
+  it("la versión es la 0.3.1 y avisa que 1B pasa a la 0.3.2", () => {
+    expect(readme).toMatch(/La skill es la `0\.3\.1`/);
+    expect(readme).toMatch(/1B.*pasa a la `0\.3\.2`/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 3: el aviso llega ANTES del sí al gasto (`maquina` e `intento_pendiente` de `test --json`).
+// ---------------------------------------------------------------------------------
+describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
+  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
+  const prueba = () => P(leer(CARPETA, "referencias", "prueba.md"));
+  const punto2 = () => P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  it("el paso 4 lee `maquina` e `intento_pendiente` de `test --json`", () => {
+    expect(paso4()).toContain("`maquina`");
+    expect(paso4()).toContain("`intento_pendiente`");
+  });
+  it("con `maquina.ok` en false dice por qué ANTES de las tres preguntas y en la tercera ofrece sólo «Not now»", () => {
+    expect(paso4()).toMatch(/If `maquina\.ok` is `false`, say why[^.]*BEFORE the three questions/);
+    expect(paso4()).toMatch(/in the third offer only "Not now"/);
+  });
+  it("con un `intento_pendiente` de otro techo u otra política: lo dice y ofrece retomar ESE pedido, sin un sí nuevo para otra prueba", () => {
+    expect(paso4()).toMatch(/If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request/);
+    expect(paso4()).toMatch(/not a new test/);
+  });
+  it("prueba.md punto 2: trae `maquina` e `intento_pendiente`, y lo que se muestra es sólo el techo y la política", () => {
+    expect(punto2()).toMatch(/`maquina` \{ ok, impedimentos \}/);
+    expect(punto2()).toMatch(/`intento_pendiente` \{ techo_usd, politica \}/);
+  });
+  it("prueba.md: con `maquina.ok` en false no se pide plata; en true significa «ningún impedimento», no una promesa", () => {
+    expect(punto2()).toMatch(/If `maquina\.ok` is `false`, do not ask for money: tell them each `detalle` first/);
+    expect(punto2()).toMatch(/`maquina\.ok: true` means no obstacle was found, not a promise that saving will work/);
+  });
+  it("prueba.md punto 2: el pedido pendiente se retoma por su propio camino, no por la pregunta de una prueba nueva", () => {
+    expect(punto2()).toMatch(/Follow \*\*Resuming a pending request\*\* below instead/);
+    expect(punto2()).toMatch(/a new test cannot start while a request is pending/);
+  });
+  it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 9 no gasta si no está listo", () => {
+    expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/`maquina`: whether this machine can save the test request/);
+    expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/not 6 of 6, or it says it is not ready for a test, say so and nothing\s+is spent/);
+  });
+  it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
+    expect(paso4()).not.toContain("--authorize-spend");
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// Revisión GPT, vuelta 1 (hallazgos 1 y 2): recuperar un pedido pendiente es OTRO camino que pedir una prueba nueva:
+// su propio sí, sus propios números, y el pedido antiguo sin política avisa que puede gastar hasta su techo.
+// ---------------------------------------------------------------------------------
+describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 1A.1, vuelta 1)", () => {
+  const pruebaMd = () => leer(CARPETA, "referencias", "prueba.md");
+  const retomar = () => P(seccion(pruebaMd(), /^### Resuming a pending request/m));
+  const punto2 = () => P(seccion(pruebaMd(), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  const punto4 = () => P(seccion(pruebaMd(), /^4\. Only with the yes/m, /^5\. /m));
+  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
+  const paso9 = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^9\. /m));
+
+  it("la sección existe, está antes del resumen y sus pasos van en orden: decir, pedir el sí a ESE pedido, correr el comando de recuperación", () => {
+    enOrden(retomar(), [
+      "There's a test request from before",
+      "A yes to point 3",
+      "is not a yes to this",
+      "the recovery command",
+      "without `--message`",
+      "go to point 5",
+    ]);
+  });
+  it("muestra el techo y la política del pendiente, y no abre una prueba nueva", () => {
+    expect(retomar()).toMatch(/up to US\$ <its ceiling>, policy <investigate\|save>/);
+    expect(retomar()).toMatch(/No new test is started/);
+    expect(retomar()).toMatch(/Show only its ceiling and its policy, never its message or its key/);
+  });
+  it("el comando de recuperación lleva el techo y la política DEL PENDIENTE, no los del diagnóstico actual ni los ofrecidos", () => {
+    expect(retomar()).toContain("`supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`");
+    expect(retomar()).toMatch(/its own ceiling and policy, not the ones of this `test --json` and not the ones you offered/);
+    expect(retomar()).toMatch(/`relevar` is `investigate`, `guardar` is `save`/);
+  });
+  it("techo distinto, política distinta y pendiente sin política (o con la máquina impedida) quedan cubiertos", () => {
+    expect(punto2()).toMatch(/when its ceiling or its policy differ from the ones of this `test --json`, or it has `politica: null`/);
+    expect(punto2()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume it/);
+    expect(paso4()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume/);
+  });
+  it("sin poder retomarlo (no lo quiere, o la máquina no puede) sólo se ofrece «Not now»: una prueba nueva no arranca con un pendiente", () => {
+    expect(punto2()).toMatch(/If the person does not want to resume it, offer only "Not now"/);
+  });
+  it("punto 4: ante `intento_pendiente` se repite con los números del PENDIENTE, y si el sí fue a otros números se vuelve a preguntar", () => {
+    expect(punto4()).toMatch(/`intento_pendiente`[^]*the yes you just got was to the numbers of that same pending request/);
+    expect(punto4()).toMatch(/other numbers or `politica: null`, the yes you have does not cover it: go to \*\*Resuming a pending request\*\* and ask again/);
+    expect(punto4()).toMatch(/do not repeat the command with the numbers you offered/);
+  });
+  it("«es el mismo sí» sólo vale para los mismos números que la persona acaba de aceptar", () => {
+    for (const m of P(pruebaMd()).matchAll(/same yes/g)) {
+      const alrededor = P(pruebaMd()).slice(Math.max(0, m.index! - 160), m.index! + 60);
+      expect(alrededor, alrededor).toMatch(/the numbers of that same pending request/);
+    }
+  });
+  it("pendiente SIN política (la 0.7.0): el aviso de gasto propio, sin prometer gratis aunque hoy diga `guardar`", () => {
+    expect(retomar()).toMatch(/`politica: null`[^.]*saved by the old 0\.7\.0 terminal[^.]*its policy was never fixed/);
+    expect(retomar()).toMatch(/recovering it may spend up to its ceiling, whatever the current policy says/);
+    expect(retomar()).toMatch(/even if the current policy is `guardar`/);
+    expect(retomar()).toMatch(/Never tell them it is free/);
+  });
+  it("pendiente sin política: un sí a una prueba gratis no sirve; si sólo autoriza eso, no se recupera", () => {
+    expect(retomar()).toMatch(/A yes to a test that spends nothing is not that yes/);
+    expect(retomar()).toMatch(/if they only authorize a test that spends nothing, stop: do not recover it/);
+  });
+  it("pendiente sin política: el comando es el que da la terminal tras «to recover that same request, repeat», y no se le inventa una política", () => {
+    expect(retomar()).toMatch(/run exactly the command that the `message` of this `test --json` gives after "to recover that same request, repeat"/);
+    expect(retomar()).toMatch(/Do not add a policy to it/);
+  });
+  it("las dos recetas de la recuperación sólo pasan a `--wait` con salida 5 y `prueba_id`; si no, se maneja el resultado como en el punto 4 (revisión vuelta 2, P3)", () => {
+    const pasos = retomar().split(/(?= [123]\. [A-Z])/).filter((t) => /^ [123]\. /.test(t));
+    expect(pasos).toHaveLength(3);
+    const recetas = pasos.filter((t) => /go to point 5/.test(t));
+    expect(recetas).toHaveLength(2);
+    for (const receta of recetas) {
+      expect(receta).toMatch(/Only with exit 5 and a `prueba_id`, go to point 5; otherwise handle the result as in point 4/);
+      expect(receta).not.toMatch(/Then point 5/);
+    }
+    expect(retomar()).toMatch(/`techo_distinto` or `politica_distinta`: go back to point 2 and ask again with the new numbers, before any new test/);
+  });
+  it("el paso 4 y el paso 9 de SKILL.md distinguen recuperar de pedir una prueba nueva y remiten a prueba.md", () => {
+    expect(paso4()).toMatch(/in place of option 1 of the third question/);
+    expect(paso4()).toMatch(/Resuming a pending request/);
+    expect(paso9()).toMatch(/If instead they said yes to resuming a pending request[^.]*do not use these values/);
+    expect(paso9()).toMatch(/Resuming a pending request/);
+  });
+  it("ningún texto escribe el alias viejo de la 0.7.0: sólo se remite a lo que la terminal imprime", () => {
+    for (const { ruta, texto } of textosDeLaSkill) expect(texto, ruta).not.toMatch(/autorizo-gasto|supcoflow probar/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// Revisión GPT, vuelta 1 (hallazgo 3): retomar una sesión cortada empieza como toda entrada.
+// ---------------------------------------------------------------------------------
+describe("retomar una sesión cortada empieza como toda entrada (revisión 1A.1, vuelta 1)", () => {
+  it("SKILL.md: la reanudación remite al comienzo común (`project show`, la línea de contexto, `config`), no sólo a `config`", () => {
+    expect(P(skillMd)).toMatch(/Every step can be resumed: if the session is cut, `\/supcoflow go` starts like every row \(`project show`, the context line, then `config`\)/);
+    expect(P(skillMd)).not.toMatch(/starts with `config`/);
+  });
+  it("el escenario 6 y su fila del índice empiezan por `project show` y la línea de contexto", () => {
+    const dir = join(RAIZ, "docs", "escenarios");
+    const e6 = P(leer(dir, "06-sesion-cortada.md"));
+    expect(e6).toMatch(/empieza por `supcoflow project show --json`, dice la línea de contexto/);
+    expect(e6).toMatch(/y luego `supcoflow config --json`/);
+    expect(P(leer(dir, "README.md"))).toMatch(/\| 6 \|[^|]*\|[^|]*retoma desde `project show` y `config`/);
+  });
+  it("el escenario 4 (pedido parcial) también empieza por `project show`", () => {
+    expect(P(leer(join(RAIZ, "docs", "escenarios"), "04-guia-sin-commitear.md"))).toMatch(/En \(i\) el asistente empieza por `supcoflow project show --json`, dice la línea de contexto/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 2a: un `origin` con alias de SSH se asocia con un remoto `supcoflow`, con el sí de la persona.
+// ---------------------------------------------------------------------------------
+describe("el remoto `supcoflow` para un origin con alias de SSH (1A.1, fricción 2a)", () => {
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const parrafo = () => s3().slice(s3().indexOf("If the first command that needs the repo"), s3().indexOf("| The person asked"));
+  it("ante `sin_repo` por un alias de SSH muestra el comando exacto del mensaje, dice que sólo toca la configuración de git de este clon y que nunca se trae nada", () => {
+    expect(parrafo()).toMatch(/exits 3 with `error: "sin_repo"`/);
+    expect(parrafo()).toContain("`git remote add supcoflow https://github.com/<owner>/<repo>.git`");
+    expect(parrafo()).toMatch(/show the person that exact command/);
+    expect(parrafo()).toMatch(/only touches this clone's git settings and is never fetched/);
+  });
+  it("lo corre sólo con el sí de la persona, y es un permiso como el del commit, no una cuarta pregunta", () => {
+    expect(parrafo()).toMatch(/run it only with their yes/);
+    expect(parrafo()).toMatch(/a permission like the commit's, not a fourth question/);
+  });
+  it("después sigue sin `--repo`, y si el mensaje no trae comando, frena", () => {
+    expect(parrafo()).toMatch(/go on without `--repo`/);
+    expect(parrafo()).toMatch(/If the message gives no command, tell the person what it says and stop/);
+  });
+  it("no corre `ssh` ni toca la configuración de SSH, y no usa el comando para traer nada", () => {
+    for (const { ruta, texto } of textosDeLaSkill) {
+      expect(P(texto), ruta).not.toMatch(/\bssh -G\b|\bssh-keyscan\b|git fetch|git pull|git remote update/);
+    }
+  });
+  it("sirve también para `falta_guia` y `sin_clon` (el mismo comando)", () => {
+    expect(parrafo()).toMatch(/`falta_guia` or `sin_clon`[^.]*same command/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 6: ¿este repo va con la cuenta en la que estoy? La terminal junta el contexto y frena; la skill lo dice.
+// ---------------------------------------------------------------------------------
+describe("el contexto del repo y la cuenta (1A.1, fricción 6)", () => {
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const intro = () => s3().slice(s3().indexOf("**Start from what the person asked.**"), s3().indexOf("If the first command that needs the repo"));
+  const paso2 = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^2\. /m, /^3\. /m));
+  it("todas las filas empiezan por `project show --json`, después del login y antes de `config`", () => {
+    expect(intro()).toMatch(/Every row begins with `supcoflow project show --json` \(with exit 2, the login of point 2 first\), then `supcoflow config --json`/);
+    expect(intro().indexOf("`supcoflow project show --json`")).toBeLessThan(intro().indexOf("`supcoflow config --json`"));
+  });
+  it("dice la línea de `contexto` en palabras, también cuando todo cierra", () => {
+    expect(intro()).toMatch(/The `contexto` of `project show` says who the person is, in which team, which repo and which project: say it in words, also when everything fits/);
+    expect(intro()).toContain("You're @<login> in team <team>; this repo <owner/repo>; its project <id> (existing)");
+    expect(intro()).toMatch(/no project yet/);
+  });
+  it("con 4 `contexto_incoherente` para, dice el mensaje tal cual y no crea, conecta ni publica nada", () => {
+    expect(intro()).toMatch(/exits 4 with `error: "contexto_incoherente"`[^]*stop, say its message as is, and create, connect and publish nothing/);
+    expect(intro()).toMatch(/do not retry or work around it/);
+  });
+  it("nunca borra ni edita el `.supcoflow/proyecto.json` por su cuenta", () => {
+    expect(intro()).toMatch(/never delete or edit `\.supcoflow\/proyecto\.json` on your own/);
+  });
+  it("el paso 2 del recorrido completo también frena si `project create` sale 4 `contexto_incoherente` (dueño distinto, sin GitHub): posible, no prueba", () => {
+    expect(paso2()).toMatch(/If `project show` \(before `repo connect`\) or `project create` exits 4 with `contexto_incoherente`[^.]*stop and say its message/);
+    expect(paso2()).toMatch(/a possible mismatch, not proof/);
+  });
+  it("el paso 2 sigue siendo `project show` y, sin proyecto, `repo connect`", () => {
+    expect(s3()).toMatch(/2\. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`/);
+  });
+  it("el nombre del equipo en vez del código no se promete (queda para más adelante)", () => {
+    expect(P(skillMd)).not.toMatch(/team name/i);
+  });
+  it("no se ofrece `--repo` ni borrar el archivo del clon para salir de un `contexto_incoherente`", () => {
+    expect(intro()).not.toMatch(/pass `--repo`|use `--repo`|delete `\.supcoflow\/proyecto\.json`/);
+  });
+});
+
 describe("no dos chats (R7, spec §10.3)", () => {
   const p10 = () => seccion(skillMd, /^## 10\./m, /^## 11\./m);
   it("el orden para elegir el archivo", () => {
@@ -703,10 +1064,10 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
 
   const s3 = seccion(skillMd, /^## 3\./m, /^## 4\./m);
   const mapa = seccion(s3, /\*\*Start from what the person asked\.\*\*/, /The full order:/);
-  it("el mapa está arriba del orden completo y arranca siempre por `config`", () => {
+  it("el mapa está arriba del orden completo y arranca siempre por `project show` y después `config`", () => {
     expect(s3.indexOf("**Start from what the person asked.**")).toBeLessThan(s3.indexOf("The full order:"));
     expect(s3.indexOf("The full order:")).toBeLessThan(s3.indexOf("1. `supcoflow whoami --json`"));
-    expect(P(mapa)).toMatch(/Every row begins with `supcoflow config --json`/);
+    expect(P(mapa)).toMatch(/Every row begins with `supcoflow project show --json` \(with exit 2, the login of point 2 first\), then `supcoflow config --json`/);
   });
   it("cada pedido va a su camino (diagnose, guía, sólo la primera pregunta, prueba, orden completo)", () => {
     const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
@@ -726,7 +1087,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
   });
   it("si `config` sale 4 `sin_proyecto`: al instalar se sigue por el paso 2; en un pedido parcial se ofrece la instalación y no se crea nada; otro 4 se detiene", () => {
     const intro = P(seccion(s3, /\*\*Start from what the person asked\.\*\*/, /\| The person asked/));
-    expect(intro).toMatch(/If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
+    expect(intro).toMatch(/If `project show` brings `proyecto: null` or `config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
     expect(intro).toMatch(/When the person asked to install, go on to step 2 of the order \(connect the repo, create the project\) and read `config` again/);
     expect(intro).toMatch(/For any other row, tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request/);
     expect(intro).toMatch(/Any other exit 4 is a decision for a person: stop/);
@@ -750,7 +1111,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
   const indice = leer(dir, "README.md");
 
-  it("son seis, los seis casos pedidos, y el índice los enlaza a todos", () => {
+  it("son siete, los casos pedidos, y el índice los enlaza a todos", () => {
     expect(archivos).toEqual([
       "01-src-app.md",
       "02-csp.md",
@@ -758,6 +1119,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
       "04-guia-sin-commitear.md",
       "05-no-a-la-prueba.md",
       "06-sesion-cortada.md",
+      "07-otra-rama.md",
     ]);
     for (const f of archivos) expect(indice, f).toContain(`(${f})`);
   });
@@ -779,6 +1141,16 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   it("dicen que están escritos y no corridos; viven fuera de skills/ (no cambian la huella)", () => {
     expect(indice).toMatch(/escritos, no corridos/);
     expect(dir.startsWith(CARPETA)).toBe(false);
+  });
+});
+
+describe("el escenario 7 (1A.1, fricción 4): la rama del commit", () => {
+  const t = leer(join(RAIZ, "docs", "escenarios"), "07-otra-rama.md");
+  it("cubre la rama principal, otra rama y HEAD suelto, y que el asistente nunca cambia de rama", () => {
+    expect(P(t)).toMatch(/\(a\)[^]*\(b\)[^]*\(c\)/);
+    expect(P(t)).toMatch(/recomienda no commitear/);
+    expect(P(t)).toMatch(/Nunca\*\* cambia de rama ni crea una/);
+    expect(P(t)).toContain("`git branch --show-current`");
   });
 });
 

@@ -11,14 +11,14 @@
 // test/vectores/huella-de-la-skill.json. Se NIEGA a escribir si el texto cambió y la
 // versión es la ya registrada: hay que subir metadata.version primero. Una skill sin
 // publicar puede rehacer su huella con `--escribir --sin-subir-version` (a propósito
-// largo: que se vea en el commit que se decidió). Hoy la versión sin publicar es la 0.3.0 (la 0.2.1 ya salió).
+// largo: que se vea en el commit que se decidió). Hoy la versión sin publicar es la 0.3.1 (la 0.3.0 ya salió).
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // La única versión que puede rehacer su huella: la que todavía no se publicó. Al publicarla, pasar a la siguiente.
-const SIN_PUBLICAR = "0.3.0";
+const SIN_PUBLICAR = "0.3.1";
 
 // HUELLA_RAIZ sólo existe para que el test pruebe las negativas sobre una copia.
 const RAIZ = process.env.HUELLA_RAIZ ?? join(dirname(fileURLToPath(import.meta.url)), "..");

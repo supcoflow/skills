@@ -13,7 +13,7 @@ Corré el escenario dos veces: **(i)** «actualizá la guía» (pedido parcial: 
 no instala nada) y **(ii)** `/supcoflow go` (recorrido completo).
 
 ## Lo esperado
-- En (i) el asistente empieza por `supcoflow config --json`, sigue por los puntos 8 y 9 y **no hace** las preguntas de
+- En (i) el asistente empieza por `supcoflow project show --json`, dice la línea de contexto y luego `supcoflow config --json`, sigue por los puntos 8 y 9 y **no hace** las preguntas de
   datos, política ni prueba. Las consultas de abajo (no pisar, reglas del negocio, el sí al commit) **sí** se hacen. El
   chat queda como estaba: uno solo, sin instalar otro.
 - Antes de escribir, el asistente corre `git status --porcelain --ignored -- .supcoflow/guide.md`, ve el cambio y

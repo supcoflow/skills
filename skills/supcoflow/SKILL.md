@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors or for building a chat from scratch.
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Supcoflow go
@@ -16,14 +16,18 @@ guide) and what they report ends up where the person chose.
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.0"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.1"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.0 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.1 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result.
 - Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
   terminal.
+- In the full order, start each step with one line: "Step N of 9: <what it is>" (for example "Step 3 of 9: your
+  settings"), so the person sees where you are.
+- Never paste the terminal's JSON to the person: say what it means in one sentence.
+- Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).
 
 | Code | What you do |
 |---|---|
@@ -41,11 +45,24 @@ approval by itself for up to 90 s. The 5 in the table is the one from a `--wait`
 
 ## 3. The order
 
-**Start from what the person asked.** Every row begins with `supcoflow config --json` (with exit 2, the login of
-point 2 first). If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to
-install, go on to step 2 of the order (connect the repo, create the project) and read `config` again. For any other row,
-tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request.
-Any other exit 4 is a decision for a person: stop, as the table of point 2 says. Then:
+**Start from what the person asked.** Every row begins with `supcoflow project show --json` (with exit 2, the login of
+point 2 first), then `supcoflow config --json`. The `contexto` of `project show` says who the person is, in which team,
+which repo and which project: say it in words, also when everything fits ("You're @<login> in team <team>; this repo
+<owner/repo>; its project <id> (existing)", or "…; no project yet", or that they are signed in with email or with a
+read-only key). If `project show` exits 4 with `error: "contexto_incoherente"`, this clone and the account do not fit
+(the `motivo` says how): stop, say its message as is, and create, connect and publish nothing; do not retry or work
+around it, and never delete or edit `.supcoflow/proyecto.json` on your own. If `project show` brings `proyecto: null` or
+`config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to install, go on to
+step 2 of the order (connect the repo, create the project) and read `config` again. For any other row, tell them the
+installation is missing and offer the full order; create nothing for a diagnosis or a partial request. Any other exit 4
+is a decision for a person: stop, as the table of point 2 says.
+
+If the first command that needs the repo exits 3 with `error: "sin_repo"` because the "origin" is an SSH alias (the
+message says so and gives `git remote add supcoflow https://github.com/<owner>/<repo>.git`, or the same with
+`set-url`), show the person that exact command, say it only touches this clone's git settings and is never fetched, and
+run it only with their yes (a permission like the commit's, not a fourth question). Then go on without `--repo`. The
+`falta_guia` or `sin_clon` of an alias gives the same command. If the message gives no command, tell the person what it
+says and stop. Then:
 
 | The person asked | You do |
 |---|---|
@@ -62,13 +79,21 @@ The full order:
 2. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`. When it asks for
    the GitHub App, say: "The Supcoflow GitHub App isn't on <owner/repo> yet. Approve it in the browser." (the
    `owner/repo` is the one from `git remote get-url origin`). Then `supcoflow repo connect --wait --json` →
-   `supcoflow project create --json`, and say: "Connected. Created the project <slug>."
+   `supcoflow project create --json`, and say: "Connected. Created the project <slug>." If `project show` (before
+   `repo connect`) or `project create` exits 4 with `contexto_incoherente` (the repo's owner is not the GitHub account
+   of your key, or the account has no GitHub), stop and say its message: it is a possible mismatch, not proof.
 3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
    `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
    investigating spends.
 4. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
-   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question.
-5. Read the code → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
+   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
+   things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
+   `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
+   words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
+   then. If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and
+   offer to resume that same request, not a new test, in place of option 1 of the third question and with its own yes
+   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)).
+5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
    `supcoflow policy set`).
@@ -86,14 +111,15 @@ The full order:
    chat and guide: N of 6, at no cost." If it is not 6 of 6, or it says it is not ready for a test, say so and nothing
    is spent. If it is, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
    in a call of its own, then `supcoflow test --wait --json` (details in
-   [`referencias/prueba.md`](referencias/prueba.md), level 3). Then the summary (point 13).
+   [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
+   not use these values: follow "Resuming a pending request" in the same file. Then the summary (point 13).
 
 Testing beyond that (optional, never without asking): offer the person the levels of
 [`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
 browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling and the balance
 that `supcoflow test --json` gave.
 
-Every step can be resumed: if the session is cut, `/supcoflow go` starts with `config` and goes on from what is missing.
+Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
 
 ## 4. What you decide
 
@@ -169,23 +195,34 @@ page, no links or buttons the code does not have. Add `Where:` with the route on
 
 ## 9. Publish the guide
 
-Never `git push`, neither to the main branch nor to another.
+Never `git push`, neither to the main branch nor to another. Never change the branch or create one.
 
 1. If `git status --porcelain --ignored -- .supcoflow/guide.md` says git ignores it (`!!`), it cannot be committed: tell
-   them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), in ONE
-   message show them the diff of THAT file (new, `??`: the whole file; changed: `git diff -- .supcoflow/guide.md`),
+   them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), first read
+   where the commit would land: `git branch --show-current` and the project's main branch, the `rama` of
+   `supcoflow project show --json` (`proyecto.rama`). If you cannot read the branch, treat it as no branch. Then, in
+   ONE message show them the diff of THAT file (new, `??`: the whole file; changed: `git diff -- .supcoflow/guide.md`),
    the exact commit message you will use, and the question about their business: "Anything about your business the
-   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask whether you leave it in a
-   local commit ("it stays in your repo; I don't push it to GitHub"). The yes comes BEFORE the commit.
+   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask about the commit, inside that
+   same question (not a new question), according to where it would land:
+   - On the project's main branch: the question names the branch. "I'll leave it in a local commit on `<branch>`; it
+     stays in your repo, I don't push it to GitHub."
+   - On another branch: say so and recommend not committing there: "You're on `<branch>`, not on the project's main
+     branch (`<rama>`)." Two options: commit anyway on that branch, or do not commit now: the guide is published anyway,
+     and it is committed on `<rama>` when they want.
+   - No branch (detached HEAD, empty output): recommend not committing, and say nothing about a branch. If they still
+     want it, tell them the commit would stay on no branch.
+
+   The yes comes BEFORE the commit.
    If they answer with rules, add them to the guide, run `supcoflow guide check --json` again and show the diff again
    before the commit.
 2. With a yes: `git add -- .supcoflow/guide.md` (if it is new, without this the commit fails) and then
    `git commit -m "<message>" -- .supcoflow/guide.md`, with EXACTLY the message you showed: adding nothing (no
    `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show. With the
    path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check with
-   `git show --name-only HEAD` that the new commit touches only that file. With a no: do not commit, and tell them the
-   guide is published anyway but the commit that stays recorded is one that does not contain it yet. Here too, with a
-   no, the notice of point 4 goes.
+   `git show --name-only HEAD` that the new commit touches only that file. With a no, or the option of not committing
+   now: do not commit, and tell them the guide is published anyway but the commit that stays recorded is one that does
+   not contain it yet. Here too, with a no, the notice of point 4 goes.
 3. `supcoflow guide publish --json`, without `--from-github`. Repeating it with the same guide returns the same
    publication (`ya_publicada`): a cut session is resumed without duplicating. If it warns that `guia.md` is the old
    name, pass the warning on to the person.
@@ -243,6 +280,8 @@ lists of files:
    for you to review.";
 2. where the chat lives (the file and the layout);
 3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); if the guide
-   is not on GitHub, this line includes "pushing the guide to GitHub is up to you".
+   is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
+   also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
+The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.
