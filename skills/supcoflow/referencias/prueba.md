@@ -13,7 +13,7 @@ the chat installed.
 
 `supcoflow diagnose --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
 fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat and guide: N of 6, at no cost."
-and, apart, whether it is ready for a test. Each point on the list it brings is something to fix or know: **do not
+and, apart, whether it is ready for a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). Each point on the list it brings is something to fix or know: **do not
 keep a list of points in your head**, read the ones that come (there may be new points) and tell the person each one
 in your own words. If it is something the skill already knows how to solve (a site not added, the chat off), propose it
 and, with their yes, solve it; the rest you tell them and do not touch.
@@ -63,6 +63,16 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
    point 5 and `--test-id <id>`.
+   It also brings, checked before any yes and without writing anything: `maquina` { ok, impedimentos } and
+   `intento_pendiente` { techo_usd, politica } or `null`.
+   - If `maquina.ok` is `false`, do not ask for money: tell them each `detalle` first, in your words, and offer only "Not
+     now". `maquina.ok: true` means no obstacle was found, not a promise that saving will work: the terminal checks
+     again right before sending.
+   - If `intento_pendiente` is not `null`, there is a request waiting for confirmation. When its ceiling or its policy
+     differ from the ones of this `test --json`, say so and offer to resume that same request, with their yes, as point 4
+     says, instead of asking for another test. Show only its ceiling and its policy, never its message or its key. A
+     pending request with `politica: null` (saved by the old 0.7.0 terminal) is resumed as today: run exactly the command
+     that message gives when the terminal answers with `intento_pendiente`; do not make up a policy for it.
 3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
    <ceiling>. You have US$ <balance> left this month. If the problem gets in, a test issue, marked as such, opens in
    your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is

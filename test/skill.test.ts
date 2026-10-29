@@ -755,6 +755,48 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   });
 });
 
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 3: el aviso llega ANTES del sí al gasto (`maquina` e `intento_pendiente` de `test --json`).
+// ---------------------------------------------------------------------------------
+describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
+  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
+  const prueba = () => P(leer(CARPETA, "referencias", "prueba.md"));
+  const punto2 = () => P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  it("el paso 4 lee `maquina` e `intento_pendiente` de `test --json`", () => {
+    expect(paso4()).toContain("`maquina`");
+    expect(paso4()).toContain("`intento_pendiente`");
+  });
+  it("con `maquina.ok` en false dice por qué ANTES de las tres preguntas y en la tercera ofrece sólo «Not now»", () => {
+    expect(paso4()).toMatch(/If `maquina\.ok` is `false`, say why[^.]*BEFORE the three questions/);
+    expect(paso4()).toMatch(/in the third offer only "Not now"/);
+  });
+  it("con un `intento_pendiente` de otro techo u otra política: lo dice y ofrece retomar ESE pedido, sin un sí nuevo para otra prueba", () => {
+    expect(paso4()).toMatch(/If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request/);
+    expect(paso4()).toMatch(/not a new test/);
+  });
+  it("prueba.md punto 2: trae `maquina` e `intento_pendiente`, y lo que se muestra es sólo el techo y la política", () => {
+    expect(punto2()).toMatch(/`maquina` \{ ok, impedimentos \}/);
+    expect(punto2()).toMatch(/`intento_pendiente` \{ techo_usd, politica \}/);
+    expect(punto2()).toMatch(/Show only its ceiling and its policy, never its message or its key/);
+  });
+  it("prueba.md: con `maquina.ok` en false no se pide plata; en true significa «ningún impedimento», no una promesa", () => {
+    expect(punto2()).toMatch(/If `maquina\.ok` is `false`, do not ask for money: tell them each `detalle` first/);
+    expect(punto2()).toMatch(/`maquina\.ok: true` means no obstacle was found, not a promise that saving will work/);
+  });
+  it("prueba.md: retomar el pedido pendiente de otro techo; sin política (lo guardó la 0.7.0) se retoma como hoy, sin inventarle una", () => {
+    expect(punto2()).toMatch(/offer to resume that same request[^.]*with their yes, as point 4 says/);
+    expect(punto2()).toMatch(/`politica: null`[^.]*saved by the old 0\.7\.0 terminal[^.]*do not make up a policy for it/);
+    expect(prueba()).toMatch(/run exactly the command that message gives/);
+  });
+  it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 9 no gasta si no está listo", () => {
+    expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/`maquina`: whether this machine can save the test request/);
+    expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/not 6 of 6, or it says it is not ready for a test, say so and nothing\s+is spent/);
+  });
+  it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
+    expect(paso4()).not.toContain("--authorize-spend");
+  });
+});
+
 describe("no dos chats (R7, spec §10.3)", () => {
   const p10 = () => seccion(skillMd, /^## 10\./m, /^## 11\./m);
   it("el orden para elegir el archivo", () => {

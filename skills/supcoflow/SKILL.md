@@ -71,7 +71,12 @@ The full order:
    `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
    investigating spends.
 4. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
-   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question.
+   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
+   things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
+   `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
+   words) BEFORE the three questions, and in the third offer only "Not now". If `intento_pendiente` is not `null` and its
+   ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request, not a new
+   test.
 5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
