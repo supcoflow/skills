@@ -1,19 +1,74 @@
 [
-  { "motivo": "the guide can't contain < or >", "queHacer": "Rewrite that line without `<` or `>`." },
-  { "motivo": "there is text before the first section (\"## Name\")", "queHacer": "Delete that text or move it inside a section; only the `# ` title can go before." },
-  { "motivo": "the guide has no sections (\"## Name\")", "queHacer": "Add at least one section that starts with `## `." },
-  { "motivo": "the guide has more than 60 sections", "queHacer": "Merge similar screens until you have 60 or fewer." },
-  { "motivo": "the section has no name", "queHacer": "Put a short name after `## `." },
-  { "motivo": "the section name is over 120 characters", "queHacer": "Put a short name after `## `." },
-  { "motivo": "\"What it's for:\" is missing in the section \"X\"", "queHacer": "Add that label with text to section X (the reported line is the `## X` one)." },
-  { "motivo": "\"What users can do:\" is missing in the section \"X\"", "queHacer": "Add that label with text to section X (the reported line is the `## X` one)." },
-  { "motivo": "the label \"…\" appears twice in the section", "queHacer": "Keep the label only once in that section." },
-  { "motivo": "there is text in the section that belongs to no label", "queHacer": "Put a label before that text, or delete it." },
-  { "motivo": "common problems must start with \"- \" on each line", "queHacer": "Start each problem with \"- \"." },
-  { "motivo": "\"Where:\" must be a path that starts with \"/\" (up to 200 characters)", "queHacer": "Write a real route of the app, like `/settings/billing`, or delete the line." },
-  { "motivo": "… is over 600 characters", "queHacer": "Shorten the text of that line." },
-  { "motivo": "a common problem is over 300 characters", "queHacer": "Shorten the text of that line." },
-  { "motivo": "up to 10 common problems per section", "queHacer": "Keep the 10 most important." },
-  { "motivo": "a common problem is empty", "queHacer": "Write the problem after \"- \" or delete the line." },
-  { "motivo": "the guide doesn't have the expected shape", "queHacer": "Check the whole format against the example." }
+  {
+    "motivo": "the guide can't contain < or >",
+    "queHacer": "Rewrite that line without `<` or `>`."
+  },
+  {
+    "motivo": "there is text before the first section («## Name»)",
+    "queHacer": "Delete that text or move it inside a section; only the `# ` title can go before."
+  },
+  {
+    "motivo": "the guide has no sections («## Name»)",
+    "queHacer": "Add at least one section that starts with `## `."
+  },
+  {
+    "motivo": "the guide has more than 60 sections",
+    "queHacer": "Merge similar screens until you have 60 or fewer."
+  },
+  {
+    "motivo": "the section has no name",
+    "queHacer": "Put a short name after `## `."
+  },
+  {
+    "motivo": "the name is over 120 characters",
+    "queHacer": "Put a short name after `## `."
+  },
+  {
+    "motivo": "… is missing in the section «X»",
+    "queHacer": "Add that label with text to section X (the reported line is the `## X` one)."
+  },
+  {
+    "motivo": "the label … is repeated in the section",
+    "queHacer": "Keep the label only once in that section."
+  },
+  {
+    "motivo": "text in the section that doesn't belong to any label",
+    "queHacer": "Put a label before that text, or delete it."
+  },
+  {
+    "motivo": "common problems go with «- » at the start of each line",
+    "queHacer": "Start each problem with «- »."
+  },
+  {
+    "motivo": "… is over 600 characters",
+    "queHacer": "Shorten the text of that line."
+  },
+  {
+    "motivo": "a common problem is over 300 characters",
+    "queHacer": "Shorten the text of that line."
+  },
+  {
+    "motivo": "at most 10 common problems per section",
+    "queHacer": "Keep the 10 most important."
+  },
+  {
+    "motivo": "a common problem is empty",
+    "queHacer": "Write the problem after «- » or delete the line."
+  },
+  {
+    "motivo": "«Where:» must be a path that starts with /",
+    "queHacer": "Write a real route of the app, like `/settings/billing`, or delete the line."
+  },
+  {
+    "motivo": "«Where:» is over 200 characters",
+    "queHacer": "Shorten the route."
+  },
+  {
+    "motivo": "«Where:» can't contain spaces",
+    "queHacer": "Write the route without spaces."
+  },
+  {
+    "motivo": "the guide doesn't have the expected shape",
+    "queHacer": "Check the whole format against the example."
+  }
 ]

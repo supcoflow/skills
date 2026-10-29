@@ -28,7 +28,7 @@ Common problems:
   lines below (as "What users can do:" does in the block).
 - "Common problems:" is optional: up to 10, each from 1 to 300 characters.
 - "Where:" is optional: the route of the app where that section lives (`/settings/billing`). It starts with `/`, up to
-  200 characters, no `<` or `>`. Write it only if that route exists in the code. The chat uses it to give the user a link.
+  200 characters, no spaces and no `<` or `>`. Write it only if that route exists in the code. The chat uses it to give the user a link.
 - The labels are recognized at the start of the line, in any case. The Spanish labels of the old guides are still
   accepted; write the English ones.
 - A line that is not a label continues the previous field (joined with a space). Problems go one per line, with "- " at
@@ -42,27 +42,27 @@ Common problems:
 
 This one passes `guide check`; imitate its shape.
 
-# My Store guide
+# Guide to My Store
 
 ## Catalog
-What it's for: Show the available products and let people search them by name or by category.
-What users can do: Search for products, filter by category and open each product's page.
-Where: /catalog
+What it's for: Show the available products and let people search them by name or category.
+What users can do: Search products, filter by category and open each product's page.
 Common problems:
 - Search returns nothing even though the product exists.
-- The images on the product page don't load.
+- The product page images don't load.
+Where: /catalog
 
 ## Cart
-What it's for: Gather the products the person wants to buy before paying.
-What users can do: Add and remove products, change quantities and go to checkout.
-Where: /cart
+What it's for: Collect the products the person wants to buy before paying.
+What users can do: Add and remove products, change quantities and go to payment.
 Common problems:
 - The cart is empty after signing in.
-- The pay button does nothing.
+- The Pay button does nothing.
+Where: /cart
 
 ## My account
-What it's for: Let the person see and edit their personal details and their past orders.
-What users can do: Change their name and email, and check the status of their orders.
+What it's for: Let the person see and edit their personal data and past orders.
+What users can do: Change the name and email, and check the status of their orders.
 
 ## Reading the errors of `guide check`
 
@@ -73,21 +73,22 @@ out as `line N: reason`. Fix ALL the lines of the list and run it again; repeat 
 | Reason (`motivo`) | What to do |
 |---|---|
 | `the guide can't contain < or >` | Rewrite that line without `<` or `>`. |
-| `there is text before the first section ("## Name")` | Delete that text or move it inside a section; only the `# ` title can go before. |
-| `the guide has no sections ("## Name")` | Add at least one section that starts with `## `. |
+| `there is text before the first section («## Name»)` | Delete that text or move it inside a section; only the `# ` title can go before. |
+| `the guide has no sections («## Name»)` | Add at least one section that starts with `## `. |
 | `the guide has more than 60 sections` | Merge similar screens until you have 60 or fewer. |
 | `the section has no name` | Put a short name after `## `. |
-| `the section name is over 120 characters` | Put a short name after `## `. |
-| `"What it's for:" is missing in the section "X"` | Add that label with text to section X (the reported line is the `## X` one). |
-| `"What users can do:" is missing in the section "X"` | Add that label with text to section X (the reported line is the `## X` one). |
-| `the label "…" appears twice in the section` | Keep the label only once in that section. |
-| `there is text in the section that belongs to no label` | Put a label before that text, or delete it. |
-| `common problems must start with "- " on each line` | Start each problem with "- ". |
-| `"Where:" must be a path that starts with "/" (up to 200 characters)` | Write a real route of the app, like `/settings/billing`, or delete the line. |
+| `the name is over 120 characters` | Put a short name after `## `. |
+| `… is missing in the section «X»` | Add that label with text to section X (the reported line is the `## X` one). |
+| `the label … is repeated in the section` | Keep the label only once in that section. |
+| `text in the section that doesn't belong to any label` | Put a label before that text, or delete it. |
+| `common problems go with «- » at the start of each line` | Start each problem with «- ». |
 | `… is over 600 characters` | Shorten the text of that line. |
 | `a common problem is over 300 characters` | Shorten the text of that line. |
-| `up to 10 common problems per section` | Keep the 10 most important. |
-| `a common problem is empty` | Write the problem after "- " or delete the line. |
+| `at most 10 common problems per section` | Keep the 10 most important. |
+| `a common problem is empty` | Write the problem after «- » or delete the line. |
+| `«Where:» must be a path that starts with /` | Write a real route of the app, like `/settings/billing`, or delete the line. |
+| `«Where:» is over 200 characters` | Shorten the route. |
+| `«Where:» can't contain spaces` | Write the route without spaces. |
 | `the guide doesn't have the expected shape` | Check the whole format against the example. |
 
 Other codes of `guide check`, all with exit 3: `falta_guia` (there is no `.supcoflow/guide.md` at the root of the repo:

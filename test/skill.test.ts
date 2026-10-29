@@ -279,9 +279,9 @@ describe("la guía de ejemplo", () => {
   const ejemplo = leer(RAIZ, "test", "vectores", "guia-de-ejemplo.md");
   // Calculado una vez y comparado a mano con src/guia/vectores/guia-de-ejemplo.md del
   // motor (T2.3): si el motor cambia su ejemplo, este número y la copia se rehacen juntos.
-  // PENDIENTE DE RE-SINCRONIZAR: el de esta rama sale del contrato del plan (T2.3), no de la rama del motor.
+  // El vector es copia de `src/guia/vectores/guia-de-ejemplo.md` de fm/e1-motor (plan 1A, T4.1); V-K lo compara antes de publicar.
   const HUELLA_DE_LA_GUIA_DE_EJEMPLO =
-    "c046cd9570fd50c58ef0059dc10d3ea87e2e66a886ad547cfb4dbcc1d4f69f2e";
+    "5a3e96c98f5a7fe05791084bf56520f17cfcc696f135045584515024f9e897ad";
   it("el vector es el mismo que el del motor", () => {
     expect(createHash("sha256").update(readFileSync(join(RAIZ, "test/vectores/guia-de-ejemplo.md"))).digest("hex")).toBe(
       HUELLA_DE_LA_GUIA_DE_EJEMPLO,
@@ -328,13 +328,13 @@ describe("--sin-subir-version", () => {
     });
     return { r, despues: readFileSync(archivo, "utf8"), registro };
   }
-  it("se niega si la versión registrada no es la 0.1.0", () => {
+  it("se niega si la versión registrada no es la sin publicar (0.3.0)", () => {
     const { r, despues, registro } = correr("1.0.0");
     expect(r.status).toBe(1);
     expect(despues).toBe(registro);
   });
-  it("con la 0.1.0 (sin publicar) reescribe", () => {
-    const { r, despues, registro } = correr("0.1.0");
+  it("con la 0.3.0 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.3.0");
     expect(r.status).toBe(0);
     expect(despues).not.toBe(registro);
   });
@@ -432,7 +432,18 @@ describe("la tabla de errores de la guía sale de los motivos del motor", () => 
   type Motivo = { motivo: string; queHacer: string };
   const motivos: Motivo[] = JSON.parse(leer(RAIZ, "test", "vectores", "motivos-de-la-guia.json"));
   const guia = leer(CARPETA, "referencias", "guia.md");
+  // `motivos-del-motor.json` es copia byte a byte de `src/guia/vectores/motivos.json` del motor (plan 1A, T4.1);
+  // `motivos-de-la-guia.json` le suma `queHacer`, que es propio de la skill. El conjunto tiene que ser EXACTAMENTE el del motor.
+  const delMotor: string[] = JSON.parse(leer(RAIZ, "test", "vectores", "motivos-del-motor.json"));
   it("hay motivos", () => expect(motivos.length).toBeGreaterThan(10));
+  it("el conjunto de motivos de la skill es exactamente el del motor, sin repetidos", () => {
+    expect(new Set(delMotor).size).toBe(delMotor.length);
+    expect(motivos.map((m) => m.motivo).sort()).toEqual([...delMotor].sort());
+  });
+  it("cada motivo del motor tiene una fila en la tabla de errores de referencias/guia.md", () => {
+    const filas = guia.split("\n").filter((l) => l.startsWith("| `"));
+    for (const m of delMotor) expect(filas.filter((f) => f.startsWith(`| \`${m}\` |`)), m).toHaveLength(1);
+  });
   it.each(motivos)("$motivo", ({ motivo, queHacer }) => {
     expect(P(guia)).toContain(`\`${motivo}\``);
     expect(P(guia)).toContain(queHacer);
@@ -469,12 +480,18 @@ describe("la escena de la landing (spec §10)", () => {
     expect(P(p5)).toMatch(/`supcoflow data set --allow page_and_browser`/);
     expect(P(p5)).toMatch(/`supcoflow data set --allow nothing`/);
   });
-  it("la pregunta de datos dice la verdad entera: lo que no se permite tampoco lo ve la IA del chat", () => {
+  it("la pregunta de datos conserva la salvedad de hoy (1A): el acuerdo no frena lo que ve la IA del chat", () => {
     const p5 = seccion(skillMd, /^## 5\./m, /^## 6\./m);
-    expect(P(p5)).toMatch(/the chat's AI does not see it either/);
-    expect(P(p5)).toMatch(/does not offer screenshots or pointing at elements/);
-    expect(P(skillMd)).not.toMatch(/2\.2\.1/); // se borró la salvedad del chat 2.2.1
-    expect(P(skillMd)).not.toMatch(/does not cover what the chat's AI sees/);
+    expect(P(p5)).toMatch(/limits what is SAVED in Supcoflow and what the investigating AI reads, not what the chat's AI sees while it talks/);
+    expect(P(p5)).toMatch(/this chat always offers users screenshots and pointing at elements/);
+    expect(P(p5)).toMatch(/if the agreement rejects them, they are discarded when saved/);
+  });
+  it("ninguna frase de la promesa de 1B (skill 0.3.1) en el texto", () => {
+    for (const { ruta, texto } of textosDeLaSkill) {
+      expect(P(texto), ruta).not.toMatch(/does not see it either/);
+      expect(P(texto), ruta).not.toMatch(/does not offer screenshots or pointing at elements/);
+      expect(P(texto), ruta).not.toMatch(/unless they are allowed/);
+    }
   });
   it("la tercera es la prueba, no las reglas del negocio: «Save it» dice que no gasta", () => {
     const p5 = seccion(skillMd, /^## 5\./m, /^## 6\./m);
@@ -564,8 +581,8 @@ describe("no dos chats (R7, spec §10.3)", () => {
     enOrden(p10(), [
       "1. The `archivo` recorded in `.supcoflow/instalacion.json`",
       "2. The file the layout imports, read from the code",
-      "3. One of `archivos_anteriores`",
-      "4. `archivo_sugerido`",
+      "3. One of `nextjs.archivos_anteriores`",
+      "4. `nextjs.archivo_sugerido`",
     ]);
   });
   it("con más de un chat montado se para y se pregunta", () => {
@@ -582,6 +599,10 @@ describe("no dos chats (R7, spec §10.3)", () => {
     expect(invocaciones.length).toBeGreaterThan(0);
     for (const { ruta, p } of invocaciones) expect(p, ruta).toMatch(/--file /);
     expect(P(skillMd)).toMatch(/the file you really used/);
+  });
+  it("los dos nombres de archivo del motor aparecen tal cual en SKILL.md §10 (V-K, «el archivo del chat»)", () => {
+    expect(P(p10())).toContain("app/_supcoflow/support-chat.tsx");
+    expect(P(p10())).toContain("app/_supcoflow/chat-de-soporte.tsx");
   });
   it("la ruta sugerida es la de la 0.3.0 y la vieja se actualiza en su lugar", () => {
     expect(P(p10())).toMatch(/updated in place/);

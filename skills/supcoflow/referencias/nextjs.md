@@ -24,7 +24,7 @@ create an `app/` next to `src/app` (Next would ignore `src/app` and every route 
 
 **If the chat is already installed** (the 0.2.x skill put it in `app/_supcoflow/chat-de-soporte.tsx`): do not create the
 new file next to it. Follow the order of point 10 of SKILL.md (`.supcoflow/instalacion.json`, then what the layout
-imports, then `archivos_anteriores`) and update that file in place; two chats would mean two bubbles.
+imports, then `nextjs.archivos_anteriores`) and update that file in place; two chats would mean two bubbles.
 
 ## Where to put it
 

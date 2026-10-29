@@ -87,9 +87,9 @@ language, which screens the guide covers. It is said in the summary; it is not a
 ## 5. What you ALWAYS ask the person
 
 These three, in one panel with exactly these words. Do not decide them yourself even if the code suggests it. Before
-asking, say what is true: the data agreement limits what is SAVED in Supcoflow, what the investigating AI reads and
-what the chat's AI sees while it talks. What you do not allow, the chat's AI does not see it either, and the chat
-does not offer screenshots or pointing at elements unless they are allowed.
+asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the investigating AI
+reads, not what the chat's AI sees while it talks; and this chat always offers users screenshots and pointing at
+elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved).
 
 > **What can the chat see about your users?**
 > 1. Who they are, the page, and screenshots
@@ -186,11 +186,11 @@ Tested path in [`referencias/nextjs.md`](referencias/nextjs.md).
   1. The `archivo` recorded in `.supcoflow/instalacion.json`, if it exists and the file exists.
   2. The file the layout imports, read from the code, not guessed. If more than one is mounted, stop and ask: there
      are already two chats.
-  3. One of `archivos_anteriores` (with or without `src/`).
-  4. `archivo_sugerido`, new. If the app uses `src/app`, put `src/` in front of it.
+  3. One of `nextjs.archivos_anteriores` (with or without `src/`), today `app/_supcoflow/chat-de-soporte.tsx`.
+  4. `nextjs.archivo_sugerido`, new, today `app/_supcoflow/support-chat.tsx`. If the app uses `src/app`, put `src/` in front of it.
 
   In 1–3 the file is updated in place, with the rules of point 7. In 4 the wrapper file goes in
-  `archivo_sugerido` with `nextjs.contenido` as is, WITHOUT rewriting the ids (relative to the app's folder —the one in
+  `nextjs.archivo_sugerido` with `nextjs.contenido` as is, WITHOUT rewriting the ids (relative to the app's folder —the one in
   `--app`, if it is not at the root—). If the app uses `src/app`, it goes inside `src/app`: never create an `app/` next to it,
   because Next would ignore `src/app` and every route would give 404. Use it (`nextjs.uso`) in the layout that covers
   the screens where users get stuck; pass it `usuario` and `contextoAutomatico` as in the table of point 5. At the end,

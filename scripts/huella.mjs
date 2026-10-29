@@ -10,12 +10,15 @@
 // Uso: `npm run huella` imprime; `npm run huella -- --escribir` actualiza
 // test/vectores/huella-de-la-skill.json. Se NIEGA a escribir si el texto cambió y la
 // versión es la ya registrada: hay que subir metadata.version primero. Una skill sin
-// publicar puede rehacer su 0.1.0 con `--escribir --sin-subir-version` (a propósito
-// largo: que se vea en el commit que se decidió).
+// publicar puede rehacer su huella con `--escribir --sin-subir-version` (a propósito
+// largo: que se vea en el commit que se decidió). Hoy la versión sin publicar es la 0.3.0 (la 0.2.1 ya salió).
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+// La única versión que puede rehacer su huella: la que todavía no se publicó. Al publicarla, pasar a la siguiente.
+const SIN_PUBLICAR = "0.3.0";
 
 // HUELLA_RAIZ sólo existe para que el test pruebe las negativas sobre una copia.
 const RAIZ = process.env.HUELLA_RAIZ ?? join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -67,11 +70,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const previo = existsSync(ARCHIVO_DE_HUELLA)
       ? JSON.parse(readFileSync(ARCHIVO_DE_HUELLA, "utf8"))
       : null;
-    // Una versión publicada no se reescribe NUNCA: la 0.1.0 es la única sin publicar.
-    // Si se publica, esta excepción hay que sacarla junto con el 0.1.0 de acá.
-    if (args.includes("--sin-subir-version") && previo && previo.version !== "0.1.0") {
+    // Una versión publicada no se reescribe NUNCA: SIN_PUBLICAR es la única sin publicar.
+    // Si se publica, esta excepción hay que sacarla junto con SIN_PUBLICAR de acá.
+    if (args.includes("--sin-subir-version") && previo && previo.version !== SIN_PUBLICAR) {
       console.error(
-        `--sin-subir-version sólo vale para la 0.1.0 (sin publicar); la registrada es ${previo.version}: subí metadata.version.`,
+        `--sin-subir-version sólo vale para la ${SIN_PUBLICAR} (sin publicar); la registrada es ${previo.version}: subí metadata.version.`,
       );
       process.exit(1);
     }
