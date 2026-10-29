@@ -79,8 +79,9 @@ The full order:
 2. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`. When it asks for
    the GitHub App, say: "The Supcoflow GitHub App isn't on <owner/repo> yet. Approve it in the browser." (the
    `owner/repo` is the one from `git remote get-url origin`). Then `supcoflow repo connect --wait --json` →
-   `supcoflow project create --json`, and say: "Connected. Created the project <slug>." If `project create` exits 4 with `contexto_incoherente` (the repo's owner is not the GitHub account of your key, or
-   the account has no GitHub), stop and say its message: it is a possible mismatch, not proof.
+   `supcoflow project create --json`, and say: "Connected. Created the project <slug>." If `project show` (before
+   `repo connect`) or `project create` exits 4 with `contexto_incoherente` (the repo's owner is not the GitHub account
+   of your key, or the account has no GitHub), stop and say its message: it is a possible mismatch, not proof.
 3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
    `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
    investigating spends.
@@ -88,9 +89,10 @@ The full order:
    ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
    things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
    `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
-   words) BEFORE the three questions, and in the third offer only "Not now". If `intento_pendiente` is not `null` and its
-   ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request, not a new
-   test.
+   words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
+   then. If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and
+   offer to resume that same request, not a new test, in place of option 1 of the third question and with its own yes
+   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)).
 5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
@@ -109,14 +111,15 @@ The full order:
    chat and guide: N of 6, at no cost." If it is not 6 of 6, or it says it is not ready for a test, say so and nothing
    is spent. If it is, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
    in a call of its own, then `supcoflow test --wait --json` (details in
-   [`referencias/prueba.md`](referencias/prueba.md), level 3). Then the summary (point 13).
+   [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
+   not use these values: follow "Resuming a pending request" in the same file. Then the summary (point 13).
 
 Testing beyond that (optional, never without asking): offer the person the levels of
 [`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
 browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling and the balance
 that `supcoflow test --json` gave.
 
-Every step can be resumed: if the session is cut, `/supcoflow go` starts with `config` and goes on from what is missing.
+Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
 
 ## 4. What you decide
 

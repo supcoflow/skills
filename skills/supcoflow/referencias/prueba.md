@@ -68,11 +68,11 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    - If `maquina.ok` is `false`, do not ask for money: tell them each `detalle` first, in your words, and offer only "Not
      now". `maquina.ok: true` means no obstacle was found, not a promise that saving will work: the terminal checks
      again right before sending.
-   - If `intento_pendiente` is not `null`, there is a request waiting for confirmation. When its ceiling or its policy
-     differ from the ones of this `test --json`, say so and offer to resume that same request, with their yes, as point 4
-     says, instead of asking for another test. Show only its ceiling and its policy, never its message or its key. A
-     pending request with `politica: null` (saved by the old 0.7.0 terminal) is resumed as today: run exactly the command
-     that message gives when the terminal answers with `intento_pendiente`; do not make up a policy for it.
+   - If `intento_pendiente` is not `null`, there is a request waiting for confirmation from before. `maquina.ok: false`
+     goes first: while it is `false`, do not offer to resume it. Otherwise, when its ceiling or its policy differ from the
+     ones of this `test --json`, or it has `politica: null`, do not ask for a new test: a new test cannot start while a
+     request is pending. Follow **Resuming a pending request** below instead. If the person does not want to resume it,
+     offer only "Not now". With the same ceiling and policy as now, the yes of point 3 covers it and point 4 resumes it.
 3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
    <ceiling>. You have US$ <balance> left this month. If the problem gets in, a test issue, marked as such, opens in
    your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
@@ -84,9 +84,13 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    `investigate`, `guardar` is `save`). Never a number or a policy you re-read. It exits 5 with the `prueba_id`: go
    straight to point 5 (`--wait`), without asking anything else. To use your own text, `--message "…"`; without it a
    fixed one from Supcoflow goes. If it does not exit 5, look at the `error` field, not only the code:
-   - `intento_pendiente` (exits 1 or 4, and `--wait` gives it too): there is an unconfirmed request saved. Repeat
-     `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json` **without `--message`**
-     (it resumes the same test, it does not ask for another; it is the same yes of the person) and then `--wait`.
+   - `intento_pendiente` (exits 1 or 4, and `--wait` gives it too): there is an unconfirmed request saved. If the yes
+     you just got was to the numbers of that same pending request (its ceiling and policy, the ones this error or the
+     `intento_pendiente` of `test --json` shows), repeat
+     `supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json` **without
+     `--message`** (it resumes the same test, it does not ask for another; it is the same yes, to the numbers of that same
+     pending request) and then `--wait`. If it has other numbers or `politica: null`, the yes you have does not cover it: go to **Resuming a
+     pending request** and ask again; do not repeat the command with the numbers you offered (it gives the same error).
    - `prueba_en_curso` (4): there is already one open; follow it with `supcoflow test --wait --test-id <id>` (the id comes
      in the answer).
    - `tope_mensual` (6): do not retry; tell them the cap and what is committed. Raising it is not yours to do.
@@ -111,3 +115,25 @@ skill that spends and you **never add `--authorize-spend` on your own**.
 What you tell them at the end: if there was an issue or a saved case, the link, and the charge as it came. The test
 issue stays open in the repo: closing it is the person's. The result says the installation reaches the issue; it does
 not say the issue is correct.
+
+### Resuming a pending request
+
+Instead of points 3 and 4, when point 2 sent you here. It recovers a request that was saved on this machine and never
+got an answer: it is not a new test, and it has its own yes.
+
+1. Say: "There's a test request from before, waiting for confirmation: up to US$ <its ceiling>, policy
+   <investigate|save>. Shall I recover that same one? No new test is started." (`relevar` is `investigate`, `guardar` is
+   `save`.) Show only its ceiling and its policy, never its message or its key. A yes to point 3 (a new test, with any
+   numbers) is not a yes to this: ask this one. An answer that is not a clear yes is a no.
+2. With the yes, in a call of its own, run the recovery command:
+   `supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`, with its own ceiling
+   and policy, not the ones of this `test --json` and not the ones you offered, and without `--message`. The `message` of
+   this `test --json` gives the same command after "to recover that same request, repeat". Then point 5.
+3. A pending request with `politica: null` (saved by the old 0.7.0 terminal) has no policy to put in that command: its
+   policy was never fixed, so recovering it may spend up to its ceiling, whatever the current policy says. Say it: "This
+   old request has no fixed policy: recovering it may spend up to US$ <its ceiling>, even if the project is on save
+   now." Never tell them it is free, even if the current policy is `guardar`. Ask for a yes to exactly that. A yes to a
+   test that spends nothing is not that yes: if they only authorize a test that spends nothing, stop: do not recover it.
+   With the yes, run exactly the command that the `message` of this `test --json` gives after "to recover that same
+   request, repeat" (it carries no `--expect-policy`), adding `--json` and nothing else. Do not add a policy to it: that
+   would be another request. Then point 5.

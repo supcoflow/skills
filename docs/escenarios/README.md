@@ -14,7 +14,7 @@ al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
 | 3 | [03-chat-0-2-x.md](03-chat-0-2-x.md) | App con el chat de la 0.2.x ya puesto: se actualiza en su lugar, un solo chat |
 | 4 | [04-guia-sin-commitear.md](04-guia-sin-commitear.md) | `guide.md` con cambios sin commitear: no se pisa sin preguntar |
 | 5 | [05-no-a-la-prueba.md](05-no-a-la-prueba.md) | La persona dice «no» a la prueba paga: no se gasta nada |
-| 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `config` sin duplicar |
+| 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `project show` y `config` sin duplicar |
 | 7 | [07-otra-rama.md](07-otra-rama.md) | Parado en otra rama (o en HEAD suelto): el asistente lo dice, recomienda no commitear ahí y no cambia de rama |
 
 ## Si el repo todavía no tiene proyecto

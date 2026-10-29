@@ -803,16 +803,14 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
   it("prueba.md punto 2: trae `maquina` e `intento_pendiente`, y lo que se muestra es sólo el techo y la política", () => {
     expect(punto2()).toMatch(/`maquina` \{ ok, impedimentos \}/);
     expect(punto2()).toMatch(/`intento_pendiente` \{ techo_usd, politica \}/);
-    expect(punto2()).toMatch(/Show only its ceiling and its policy, never its message or its key/);
   });
   it("prueba.md: con `maquina.ok` en false no se pide plata; en true significa «ningún impedimento», no una promesa", () => {
     expect(punto2()).toMatch(/If `maquina\.ok` is `false`, do not ask for money: tell them each `detalle` first/);
     expect(punto2()).toMatch(/`maquina\.ok: true` means no obstacle was found, not a promise that saving will work/);
   });
-  it("prueba.md: retomar el pedido pendiente de otro techo; sin política (lo guardó la 0.7.0) se retoma como hoy, sin inventarle una", () => {
-    expect(punto2()).toMatch(/offer to resume that same request[^.]*with their yes, as point 4 says/);
-    expect(punto2()).toMatch(/`politica: null`[^.]*saved by the old 0\.7\.0 terminal[^.]*do not make up a policy for it/);
-    expect(prueba()).toMatch(/run exactly the command that message gives/);
+  it("prueba.md punto 2: el pedido pendiente se retoma por su propio camino, no por la pregunta de una prueba nueva", () => {
+    expect(punto2()).toMatch(/Follow \*\*Resuming a pending request\*\* below instead/);
+    expect(punto2()).toMatch(/a new test cannot start while a request is pending/);
   });
   it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 9 no gasta si no está listo", () => {
     expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/`maquina`: whether this machine can save the test request/);
@@ -820,6 +818,102 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
   });
   it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
     expect(paso4()).not.toContain("--authorize-spend");
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// Revisión GPT, vuelta 1 (hallazgos 1 y 2): recuperar un pedido pendiente es OTRO camino que pedir una prueba nueva:
+// su propio sí, sus propios números, y el pedido antiguo sin política avisa que puede gastar hasta su techo.
+// ---------------------------------------------------------------------------------
+describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 1A.1, vuelta 1)", () => {
+  const pruebaMd = () => leer(CARPETA, "referencias", "prueba.md");
+  const retomar = () => P(seccion(pruebaMd(), /^### Resuming a pending request/m));
+  const punto2 = () => P(seccion(pruebaMd(), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  const punto4 = () => P(seccion(pruebaMd(), /^4\. Only with the yes/m, /^5\. /m));
+  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
+  const paso9 = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^9\. /m));
+
+  it("la sección existe, está antes del resumen y sus pasos van en orden: decir, pedir el sí a ESE pedido, correr el comando de recuperación", () => {
+    enOrden(retomar(), [
+      "There's a test request from before",
+      "A yes to point 3",
+      "is not a yes to this",
+      "the recovery command",
+      "without `--message`",
+      "Then point 5",
+    ]);
+  });
+  it("muestra el techo y la política del pendiente, y no abre una prueba nueva", () => {
+    expect(retomar()).toMatch(/up to US\$ <its ceiling>, policy <investigate\|save>/);
+    expect(retomar()).toMatch(/No new test is started/);
+    expect(retomar()).toMatch(/Show only its ceiling and its policy, never its message or its key/);
+  });
+  it("el comando de recuperación lleva el techo y la política DEL PENDIENTE, no los del diagnóstico actual ni los ofrecidos", () => {
+    expect(retomar()).toContain("`supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`");
+    expect(retomar()).toMatch(/its own ceiling and policy, not the ones of this `test --json` and not the ones you offered/);
+    expect(retomar()).toMatch(/`relevar` is `investigate`, `guardar` is `save`/);
+  });
+  it("techo distinto, política distinta y pendiente sin política (o con la máquina impedida) quedan cubiertos", () => {
+    expect(punto2()).toMatch(/when its ceiling or its policy differ from the ones of this `test --json`, or it has `politica: null`/);
+    expect(punto2()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume it/);
+    expect(paso4()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume/);
+  });
+  it("sin poder retomarlo (no lo quiere, o la máquina no puede) sólo se ofrece «Not now»: una prueba nueva no arranca con un pendiente", () => {
+    expect(punto2()).toMatch(/If the person does not want to resume it, offer only "Not now"/);
+  });
+  it("punto 4: ante `intento_pendiente` se repite con los números del PENDIENTE, y si el sí fue a otros números se vuelve a preguntar", () => {
+    expect(punto4()).toMatch(/`intento_pendiente`[^]*the yes you just got was to the numbers of that same pending request/);
+    expect(punto4()).toMatch(/other numbers or `politica: null`, the yes you have does not cover it: go to \*\*Resuming a pending request\*\* and ask again/);
+    expect(punto4()).toMatch(/do not repeat the command with the numbers you offered/);
+  });
+  it("«es el mismo sí» sólo vale para los mismos números que la persona acaba de aceptar", () => {
+    for (const m of P(pruebaMd()).matchAll(/same yes/g)) {
+      const alrededor = P(pruebaMd()).slice(Math.max(0, m.index! - 160), m.index! + 60);
+      expect(alrededor, alrededor).toMatch(/the numbers of that same pending request/);
+    }
+  });
+  it("pendiente SIN política (la 0.7.0): el aviso de gasto propio, sin prometer gratis aunque hoy diga `guardar`", () => {
+    expect(retomar()).toMatch(/`politica: null`[^.]*saved by the old 0\.7\.0 terminal[^.]*its policy was never fixed/);
+    expect(retomar()).toMatch(/recovering it may spend up to its ceiling, whatever the current policy says/);
+    expect(retomar()).toMatch(/even if the current policy is `guardar`/);
+    expect(retomar()).toMatch(/Never tell them it is free/);
+  });
+  it("pendiente sin política: un sí a una prueba gratis no sirve; si sólo autoriza eso, no se recupera", () => {
+    expect(retomar()).toMatch(/A yes to a test that spends nothing is not that yes/);
+    expect(retomar()).toMatch(/if they only authorize a test that spends nothing, stop: do not recover it/);
+  });
+  it("pendiente sin política: el comando es el que da la terminal tras «to recover that same request, repeat», y no se le inventa una política", () => {
+    expect(retomar()).toMatch(/run exactly the command that the `message` of this `test --json` gives after "to recover that same request, repeat"/);
+    expect(retomar()).toMatch(/Do not add a policy to it/);
+  });
+  it("el paso 4 y el paso 9 de SKILL.md distinguen recuperar de pedir una prueba nueva y remiten a prueba.md", () => {
+    expect(paso4()).toMatch(/in place of option 1 of the third question/);
+    expect(paso4()).toMatch(/Resuming a pending request/);
+    expect(paso9()).toMatch(/If instead they said yes to resuming a pending request[^.]*do not use these values/);
+    expect(paso9()).toMatch(/Resuming a pending request/);
+  });
+  it("ningún texto escribe el alias viejo de la 0.7.0: sólo se remite a lo que la terminal imprime", () => {
+    for (const { ruta, texto } of textosDeLaSkill) expect(texto, ruta).not.toMatch(/autorizo-gasto|supcoflow probar/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// Revisión GPT, vuelta 1 (hallazgo 3): retomar una sesión cortada empieza como toda entrada.
+// ---------------------------------------------------------------------------------
+describe("retomar una sesión cortada empieza como toda entrada (revisión 1A.1, vuelta 1)", () => {
+  it("SKILL.md: la reanudación remite al comienzo común (`project show`, la línea de contexto, `config`), no sólo a `config`", () => {
+    expect(P(skillMd)).toMatch(/Every step can be resumed: if the session is cut, `\/supcoflow go` starts like every row \(`project show`, the context line, then `config`\)/);
+    expect(P(skillMd)).not.toMatch(/starts with `config`/);
+  });
+  it("el escenario 6 y su fila del índice empiezan por `project show` y la línea de contexto", () => {
+    const dir = join(RAIZ, "docs", "escenarios");
+    const e6 = P(leer(dir, "06-sesion-cortada.md"));
+    expect(e6).toMatch(/empieza por `supcoflow project show --json`, dice la línea de contexto/);
+    expect(e6).toMatch(/y luego `supcoflow config --json`/);
+    expect(P(leer(dir, "README.md"))).toMatch(/\| 6 \|[^|]*\|[^|]*retoma desde `project show` y `config`/);
+  });
+  it("el escenario 4 (pedido parcial) también empieza por `project show`", () => {
+    expect(P(leer(join(RAIZ, "docs", "escenarios"), "04-guia-sin-commitear.md"))).toMatch(/En \(i\) el asistente empieza por `supcoflow project show --json`, dice la línea de contexto/);
   });
 });
 
@@ -877,7 +971,7 @@ describe("el contexto del repo y la cuenta (1A.1, fricción 6)", () => {
     expect(intro()).toMatch(/never delete or edit `\.supcoflow\/proyecto\.json` on your own/);
   });
   it("el paso 2 del recorrido completo también frena si `project create` sale 4 `contexto_incoherente` (dueño distinto, sin GitHub): posible, no prueba", () => {
-    expect(paso2()).toMatch(/If `project create` exits 4 with `contexto_incoherente`[^.]*stop and say its message/);
+    expect(paso2()).toMatch(/If `project show` \(before `repo connect`\) or `project create` exits 4 with `contexto_incoherente`[^.]*stop and say its message/);
     expect(paso2()).toMatch(/a possible mismatch, not proof/);
   });
   it("el paso 2 sigue siendo `project show` y, sin proyecto, `repo connect`", () => {

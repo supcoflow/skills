@@ -10,7 +10,7 @@ componente y de `install record`, antes del resumen. Después se abre una sesió
 En la sesión nueva: `/supcoflow go`
 
 ## Lo esperado
-- La sesión nueva empieza por `supcoflow config --json` y **sigue desde lo que falta**: no repite preguntas ya
+- La sesión nueva empieza por `supcoflow project show --json`, dice la línea de contexto (quién es, el equipo, el repo y el proyecto) y luego `supcoflow config --json`, y **sigue desde lo que falta**: no repite preguntas ya
   contestadas (lo fijado en `config` no se pregunta de nuevo; `acuerdo: null` o `politica.fijada_en: null` sí).
 - No se crea un segundo proyecto ni se repite `repo connect` si el proyecto ya existe.
 - (b): `supcoflow guide publish` repetido devuelve `ya_publicada` y **no duplica** la publicación; el asistente lo
