@@ -45,18 +45,24 @@ approval by itself for up to 90 s. The 5 in the table is the one from a `--wait`
 
 ## 3. The order
 
-**Start from what the person asked.** Every row begins with `supcoflow config --json` (with exit 2, the login of
-point 2 first). If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to
-install, go on to step 2 of the order (connect the repo, create the project) and read `config` again. For any other row,
-tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request.
-Any other exit 4 is a decision for a person: stop, as the table of point 2 says. Then:
+**Start from what the person asked.** Every row begins with `supcoflow project show --json` (with exit 2, the login of
+point 2 first), then `supcoflow config --json`. The `contexto` of `project show` says who the person is, in which team,
+which repo and which project: say it in words, also when everything fits ("You're @<login> in team <team>; this repo
+<owner/repo>; its project <id> (existing)", or "…; no project yet", or that they are signed in with email or with a
+read-only key). If `project show` exits 4 with `error: "contexto_incoherente"`, this clone and the account do not fit
+(the `motivo` says how): stop, say its message as is, and create, connect and publish nothing; do not retry or work
+around it, and never delete or edit `.supcoflow/proyecto.json` on your own. If `project show` brings `proyecto: null` or
+`config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to install, go on to
+step 2 of the order (connect the repo, create the project) and read `config` again. For any other row, tell them the
+installation is missing and offer the full order; create nothing for a diagnosis or a partial request. Any other exit 4
+is a decision for a person: stop, as the table of point 2 says.
 
 If the first command that needs the repo exits 3 with `error: "sin_repo"` because the "origin" is an SSH alias (the
 message says so and gives `git remote add supcoflow https://github.com/<owner>/<repo>.git`, or the same with
 `set-url`), show the person that exact command, say it only touches this clone's git settings and is never fetched, and
 run it only with their yes (a permission like the commit's, not a fourth question). Then go on without `--repo`. The
 `falta_guia` or `sin_clon` of an alias gives the same command. If the message gives no command, tell the person what it
-says and stop.
+says and stop. Then:
 
 | The person asked | You do |
 |---|---|
@@ -73,7 +79,8 @@ The full order:
 2. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`. When it asks for
    the GitHub App, say: "The Supcoflow GitHub App isn't on <owner/repo> yet. Approve it in the browser." (the
    `owner/repo` is the one from `git remote get-url origin`). Then `supcoflow repo connect --wait --json` →
-   `supcoflow project create --json`, and say: "Connected. Created the project <slug>."
+   `supcoflow project create --json`, and say: "Connected. Created the project <slug>." If `project create` exits 4 with `contexto_incoherente` (the repo's owner is not the GitHub account of your key, or
+   the account has no GitHub), stop and say its message: it is a possible mismatch, not proof.
 3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
    `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
    investigating spends.

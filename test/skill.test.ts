@@ -832,6 +832,44 @@ describe("el remoto `supcoflow` para un origin con alias de SSH (1A.1, fricción
   });
 });
 
+// ---------------------------------------------------------------------------------
+// 1A.1, fricción 6: ¿este repo va con la cuenta en la que estoy? La terminal junta el contexto y frena; la skill lo dice.
+// ---------------------------------------------------------------------------------
+describe("el contexto del repo y la cuenta (1A.1, fricción 6)", () => {
+  const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+  const intro = () => s3().slice(s3().indexOf("**Start from what the person asked.**"), s3().indexOf("If the first command that needs the repo"));
+  const paso2 = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^2\. /m, /^3\. /m));
+  it("todas las filas empiezan por `project show --json`, después del login y antes de `config`", () => {
+    expect(intro()).toMatch(/Every row begins with `supcoflow project show --json` \(with exit 2, the login of point 2 first\), then `supcoflow config --json`/);
+    expect(intro().indexOf("`supcoflow project show --json`")).toBeLessThan(intro().indexOf("`supcoflow config --json`"));
+  });
+  it("dice la línea de `contexto` en palabras, también cuando todo cierra", () => {
+    expect(intro()).toMatch(/The `contexto` of `project show` says who the person is, in which team, which repo and which project: say it in words, also when everything fits/);
+    expect(intro()).toContain("You're @<login> in team <team>; this repo <owner/repo>; its project <id> (existing)");
+    expect(intro()).toMatch(/no project yet/);
+  });
+  it("con 4 `contexto_incoherente` para, dice el mensaje tal cual y no crea, conecta ni publica nada", () => {
+    expect(intro()).toMatch(/exits 4 with `error: "contexto_incoherente"`[^]*stop, say its message as is, and create, connect and publish nothing/);
+    expect(intro()).toMatch(/do not retry or work around it/);
+  });
+  it("nunca borra ni edita el `.supcoflow/proyecto.json` por su cuenta", () => {
+    expect(intro()).toMatch(/never delete or edit `\.supcoflow\/proyecto\.json` on your own/);
+  });
+  it("el paso 2 del recorrido completo también frena si `project create` sale 4 `contexto_incoherente` (dueño distinto, sin GitHub): posible, no prueba", () => {
+    expect(paso2()).toMatch(/If `project create` exits 4 with `contexto_incoherente`[^.]*stop and say its message/);
+    expect(paso2()).toMatch(/a possible mismatch, not proof/);
+  });
+  it("el paso 2 sigue siendo `project show` y, sin proyecto, `repo connect`", () => {
+    expect(s3()).toMatch(/2\. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`/);
+  });
+  it("el nombre del equipo en vez del código no se promete (queda para más adelante)", () => {
+    expect(P(skillMd)).not.toMatch(/team name/i);
+  });
+  it("no se ofrece `--repo` ni borrar el archivo del clon para salir de un `contexto_incoherente`", () => {
+    expect(intro()).not.toMatch(/pass `--repo`|use `--repo`|delete `\.supcoflow\/proyecto\.json`/);
+  });
+});
+
 describe("no dos chats (R7, spec §10.3)", () => {
   const p10 = () => seccion(skillMd, /^## 10\./m, /^## 11\./m);
   it("el orden para elegir el archivo", () => {
@@ -900,10 +938,10 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
 
   const s3 = seccion(skillMd, /^## 3\./m, /^## 4\./m);
   const mapa = seccion(s3, /\*\*Start from what the person asked\.\*\*/, /The full order:/);
-  it("el mapa está arriba del orden completo y arranca siempre por `config`", () => {
+  it("el mapa está arriba del orden completo y arranca siempre por `project show` y después `config`", () => {
     expect(s3.indexOf("**Start from what the person asked.**")).toBeLessThan(s3.indexOf("The full order:"));
     expect(s3.indexOf("The full order:")).toBeLessThan(s3.indexOf("1. `supcoflow whoami --json`"));
-    expect(P(mapa)).toMatch(/Every row begins with `supcoflow config --json`/);
+    expect(P(mapa)).toMatch(/Every row begins with `supcoflow project show --json` \(with exit 2, the login of point 2 first\), then `supcoflow config --json`/);
   });
   it("cada pedido va a su camino (diagnose, guía, sólo la primera pregunta, prueba, orden completo)", () => {
     const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
@@ -923,7 +961,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
   });
   it("si `config` sale 4 `sin_proyecto`: al instalar se sigue por el paso 2; en un pedido parcial se ofrece la instalación y no se crea nada; otro 4 se detiene", () => {
     const intro = P(seccion(s3, /\*\*Start from what the person asked\.\*\*/, /\| The person asked/));
-    expect(intro).toMatch(/If it exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
+    expect(intro).toMatch(/If `project show` brings `proyecto: null` or `config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
     expect(intro).toMatch(/When the person asked to install, go on to step 2 of the order \(connect the repo, create the project\) and read `config` again/);
     expect(intro).toMatch(/For any other row, tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request/);
     expect(intro).toMatch(/Any other exit 4 is a decision for a person: stop/);
