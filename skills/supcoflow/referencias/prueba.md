@@ -59,7 +59,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
 2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
    brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
-   point 5 and `--test <id>`.
+   point 5 and `--test-id <id>`.
 3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
    <ceiling>. You have US$ <balance> left this month. If the problem gets in, a test issue, marked as such, opens in
    your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
@@ -74,7 +74,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    - `intento_pendiente` (exits 1 or 4, and `--wait` gives it too): there is an unconfirmed request saved. Repeat
      `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json` **without `--message`**
      (it resumes the same test, it does not ask for another; it is the same yes of the person) and then `--wait`.
-   - `prueba_en_curso` (4): there is already one open; follow it with `supcoflow test --wait --test <id>` (the id comes
+   - `prueba_en_curso` (4): there is already one open; follow it with `supcoflow test --wait --test-id <id>` (the id comes
      in the answer).
    - `tope_mensual` (6): do not retry; tell them the cap and what is committed. Raising it is not yours to do.
    - `techo_distinto` or `politica_distinta` (4): the ceiling or the policy changed; go back to point 2 and ask again
@@ -84,7 +84,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      and `login --wait`). `idempotency_key_reusada` (1): it should not happen; tell them and, if the person wants,
      start again from point 2 (another test asks for another yes).
    - Any other exit 1: tell them with the message; do not retry more than once.
-5. `supcoflow test --wait --json` (or with `--test <id>`): it waits up to 90 s per call.
+5. `supcoflow test --wait --json` (or with `--test-id <id>`): it waits up to 90 s per call.
    - 5: still running; in the same turn, run the same command again. Ask the person nothing.
    - 0: it reached the outcome. With an issue, pass them the link. With the `guardar` policy it is the saved case, not
      an issue: tell them so.
@@ -93,7 +93,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      (not even with another `test`): it is relaunched only from the console inbox; tell them.
 6. **The charge, as it comes**: `leido` with the amount; `pendiente` or `perdido` are said as such ("the real spend
    is not known yet; at most, the ceiling"). Never count it as 0. If it stayed `pendiente`, the test finished anyway:
-   later, `supcoflow test --wait --test <id> --json` looks at it again.
+   later, `supcoflow test --wait --test-id <id> --json` looks at it again.
 
 What you tell them at the end: if there was an issue or a saved case, the link, and the charge as it came. The test
 issue stays open in the repo: closing it is the person's. The result says the installation reaches the issue; it does
