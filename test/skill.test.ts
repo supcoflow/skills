@@ -1520,7 +1520,7 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
   it("la referencia: ids en una constante copiada del JSON, portal y `words.close`, script `test` y vitest.config, y qué cubre lo saltado", () => {
     expect(propia()).toMatch(/in one constant \(or one environment variable\)[^|]*never typed from memory or invented/);
     expect(propia()).toMatch(/`root` is `document\.body`, and `words\.close` names the control/);
-    expect(propia()).toMatch(/add `"test": "vitest run"`, and a `vitest\.config\.ts` with the app's path alias/);
+    expect(propia()).toMatch(/add `"test": "vitest run"`, and a `vitest\.config\.mts`[^]*with the app's path alias/);
     expect(propia()).toMatch(/say what covers that instead/);
   });
   it("la referencia: el componente recibe las opciones como props opcionales y cada control tiene un nombre accesible distinto", () => {
@@ -1545,6 +1545,10 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/If the app has a CSP with `connect-src`, the fake server's address is blocked in development too/);
     expect(propia()).toMatch(/if the app has none, a plain element styled with the app's own styles and tokens, never the skeleton's unstyled one/);
     expect(propia()).not.toMatch(/Never leave its bare elements in the app/);
+  });
+  it("ronda 3: con «Save» la opción 1 lleva su línea literal de gasto cero; con un acuerdo cerrado el segundo panel queda con una pregunta", () => {
+    expect(p5()).toContain('print the option as written and add under it "This test spends nothing: it stops at the saved problem."');
+    expect(p5()).toMatch(/the second panel then has only its first question/);
   });
   it("la interfaz, sus pruebas y `instalacion.json` no se commitean", () => {
     expect(p10()).toMatch(/Do not commit the interface, its tests or `\.supcoflow\/instalacion\.json`/);

@@ -175,7 +175,8 @@ leave `user_id,user_role` out of the list of the first answer.
   `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends**, within the
   team's monthly cap, and that with "save" a person can ask for the investigation later.
 - **Third question**: a yes to numbers, not to a phrase. With "Save it for me to review", option 1 of the third
-  question says the test spends nothing (it stops at the saved problem). That yes authorizes ONE test with exactly the
+  question says the test spends nothing (it stops at the saved problem): print the option as written and add under it "This test
+  spends nothing: it stops at the saved problem." That yes authorizes ONE test with exactly the
   ceiling you showed and the policy you offered: the final command is `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy>`
   with the number you printed and the policy you offered. Never a number you re-read. `techo_distinto` or
   `politica_distinta`: ask again with the new numbers.
@@ -201,7 +202,7 @@ The second answer goes to the `capabilities` option of the chat and to nothing e
 data agreement rejects is not shown whatever they answer. So when the first answer was 2 or 3 (the agreement takes no
 screenshots, images or pointed elements: an image counts as a screenshot), do not ask the tools question: say "Your data
 agreement doesn't take screenshots, images or pointed elements, so the chat won't offer evidence tools." and declare all
-three `false`. How it opens is the person's decision, never yours.
+three `false`; the second panel then has only its first question. How it opens is the person's decision, never yours.
 
 The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
 together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does

@@ -132,7 +132,7 @@ real report to test.**
 1. Needs vitest, a DOM (happy-dom or jsdom) and Testing Library (`@testing-library/react`, which brings `@testing-library/dom`).
    If the app has no test runner, do not install one without the person's yes: it is a new dev dependency, and the proposal
    says so. Put the tests in the app's tests folder, or in `tests/support-chat/` if it has none (and say that its tsconfig
-   will include them). If the project has no `test` script, add `"test": "vitest run"`, and a `vitest.config.ts` with the
+   will include them). If the project has no `test` script, add `"test": "vitest run"`, and a `vitest.config.mts` (`.ts` warns in an app that is not `"type": "module"`) with the
    app's path alias if its imports use one; say both in the proposal. If the app already uses jest, vitest is still needed (the checks use `expect(value, message)`, which jest's does not accept):
    add it only for these tests, with the same yes. In the DOM of a test your CSS does not load, so a panel hidden only by a class
    (Tailwind's `hidden`) looks open to the checks: hide it with `hidden`, `inert` or by unmounting it. If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
