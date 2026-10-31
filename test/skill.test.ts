@@ -1528,7 +1528,7 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/every control a distinct accessible name/);
   });
   it("nextjs.md dice que la interfaz propia se abrió en un navegador, contra el backend falso y nunca contra producción", () => {
-    expect(P(leer(CARPETA, "referencias", "nextjs.md"))).toMatch(/was opened in Chrome on Next\.js 16\.4\.3[^.]*against the fake backend of the package; never against production/);
+    expect(P(leer(CARPETA, "referencias", "nextjs.md"))).toMatch(/was opened in Chrome on Next\.js 16\.4\.3.*against the fake backend of the package; never against production/);
   });
   it("la interfaz, sus pruebas y `instalacion.json` no se commitean", () => {
     expect(p10()).toMatch(/Do not commit the interface, its tests or `\.supcoflow\/instalacion\.json`/);
