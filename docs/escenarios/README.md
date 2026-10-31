@@ -1,7 +1,7 @@
 # Escenarios para correr a mano con un asistente real
 
-Siete casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.3.1), no sólo que el texto
-diga lo correcto. Están **escritos, no corridos**: nadie los ha corrido todavía. Los tests de `test/` miran el texto;
+Once casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.4.0), no sólo que el texto
+diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos (informe de la T9), no contra producción. Los tests de `test/` miran el texto;
 estos miran lo que el asistente hace.
 
 Cada escenario tiene tres partes: **App de ejemplo** (qué hay que preparar), **Pedido** (lo que la persona le escribe
@@ -16,6 +16,10 @@ al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
 | 5 | [05-no-a-la-prueba.md](05-no-a-la-prueba.md) | La persona dice «no» a la prueba paga: no se gasta nada |
 | 6 | [06-sesion-cortada.md](06-sesion-cortada.md) | Sesión cortada a mitad: `/supcoflow go` retoma desde `project show` y `config` sin duplicar |
 | 7 | [07-otra-rama.md](07-otra-rama.md) | Parado en otra rama (o en HEAD suelto): el asistente lo dice, recomienda no commitear ahí y no cambia de rama |
+| 8 | [08-interfaz-propia-con-src.md](08-interfaz-propia-con-src.md) | Interfaz propia en una app con `src/` y shadcn: se hace con los componentes y los íconos de la app, sin colores ni marca, y se verifica |
+| 9 | [09-interfaz-propia-sin-src.md](09-interfaz-propia-sin-src.md) | Interfaz propia sin `src/` y sin sistema de diseño: los tokens de la app, ninguna librería nueva, textos en el idioma de la app |
+| 10 | [10-sin-interfaz-propia.md](10-sin-interfaz-propia.md) | Sin camino de interfaz propia (motor de hoy, `sin_publicar`, otro stack, o lo pidió): el widget de siempre, y dice por qué |
+| 11 | [11-conformidad-en-rojo.md](11-conformidad-en-rojo.md) | La conformidad falla: se arregla la interfaz, no el check; y con un widget ya montado se frena y se pregunta |
 
 ## Si el repo todavía no tiene proyecto
 
