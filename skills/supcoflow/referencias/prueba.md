@@ -12,8 +12,8 @@ the chat installed.
 ## Level 1: the diagnosis
 
 `supcoflow diagnose --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
-fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat and guide: N of 6, at no cost."
-and, apart, whether it is ready for a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). Each point on the list it brings is something to fix or know: **do not
+fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost."
+and, apart, whether it is ready for a test (`listo`). The seventh point, the interface, is advice: it is marked `aviso` and lowers the count without stopping a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). Each point on the list it brings is something to fix or know: **do not
 keep a list of points in your head**, read the ones that come (there may be new points) and tell the person each one
 in your own words. If it is something the skill already knows how to solve (a site not added, the chat off), propose it
 and, with their yes, solve it; the rest you tell them and do not touch.
@@ -31,7 +31,7 @@ The site you open the app from has to be in the allowed sites (`supcoflow sites 
 local test, with the person's agreement). Then, looking at what really happens on the page, check and report each one
 separately:
 
-1. **It mounts**: the chat shows up where you put it. Do not assume selectors: find it on the page that runs.
+1. **It mounts**: the chat shows up where you put it (the widget's bubble, or the trigger of the own interface). Do not assume selectors: find it on the page that runs.
 2. **It passes the protections**: open the chat and send a greeting; it has to answer. If it does not answer, look at
    the browser console and the network: a CSP policy that blocks the connection (`connect-src`), or a site Supcoflow
    does not admit (the origin you opened is not in the allowed sites) are the two causes we already know. If you do not
@@ -41,7 +41,7 @@ separately:
    can start, say you could not test this.
 4. **It survives navigating**: go to another screen of the app without reloading by hand; the chat is still there and
    the conversation is kept.
-5. **It uploads a screenshot**: only if the person allowed screenshots; attach one from the chat itself. Count whether
+5. **It uploads a screenshot**: only if the person allowed screenshots (and, with an own interface, only if it offers them: it shows only the tools it offers); attach one from the chat itself. Count whether
    it uploaded or what error it gave. If they did not allow them, attach none to test. The chat's screenshot button can
    still show up, and that is not a failure of this stage: the agreement acts when the report is SAVED and on the AI
    that investigates, not on what the chat's AI sees while it talks. Do not report it as a privacy failure and do not
@@ -57,8 +57,8 @@ written in the chat can start an investigation that spends.
 This test **spends real money**: one investigation, up to the ceiling that Supcoflow says. It is the only thing in the
 skill that spends and you **never add `--authorize-spend` on your own**.
 
-1. `supcoflow diagnose --json`. If it exits 4, or it is not 6 of 6, or not ready for a test, fix it or tell them
-   first; do not ask for money for a test that cannot get there.
+1. `supcoflow diagnose --json`. If it exits 4, or it is not ready for a test, or a point that is not an `aviso` one fails, fix it or tell them
+   first; do not ask for money for a test that cannot get there. A failing `aviso` point (the interface one) lowers the count but does not stop the test: tell them what it says.
 2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
    brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with

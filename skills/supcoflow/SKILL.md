@@ -1,8 +1,8 @@
 ---
 name: supcoflow
-description: Installs and configures the Supcoflow support chat in an app (Next.js tested) with the `supcoflow` terminal. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors or for building a chat from scratch.
+description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors.
 metadata:
-  version: "0.3.1"
+  version: "0.4.0"
 ---
 
 # Supcoflow go
@@ -12,13 +12,14 @@ Talk to the person in the language they use.
 ## 1. What it is for
 
 Leave the Supcoflow chat working in this app: it shows up where users get stuck, it knows what the app is about (the
-guide) and what they report ends up where the person chose.
+guide) and what they report ends up where the person chose. In a Next.js app the chat is built with the app's own
+components, icons and styles (point 10): Supcoflow brings the engine, the rules and the tests, never a design.
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.8.1"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.9.0"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.8.1 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.9.0 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result.
@@ -95,21 +96,24 @@ The full order:
    (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)).
 5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
-   list of pages) → the three questions (point 5) → apply the configuration (`supcoflow data set`,
-   `supcoflow policy set`).
+   list of pages). If the app is Next.js (App Router), also run `supcoflow widget --json` here (it only reads) to decide
+   the form (point 10: own interface or widget) before the questions. → the three questions (point 5), and with an own
+   interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
 6. `git status --porcelain --ignored -- .supcoflow/guide.md` (point 7, before writing) → write `.supcoflow/guide.md`
    in one call → `supcoflow guide check --json` in another → show the diff and ask for the yes to the local commit
    (point 9) → `supcoflow guide publish --json`.
 7. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
    `http://localhost:3000` only for a local test; if the code does not say, ask) → `supcoflow chat on --json` →
-   `supcoflow widget --json` → put the component (point 10). The app is touched only here, with the guide already
+   `supcoflow widget --json` → put the chat, in the form decided in step 5 (point 10). The app is touched only here, with the guide already
    published and the site added.
 8. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
    (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
-   file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file.
+   file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file. For an own
+   interface add `--shape own-interface` and one `--file` for each file of the chat (point 10).
 9. `supcoflow diagnose --json`. Say the line the terminal prints: "Checked sign-in, repo, GitHub App, allowed sites,
-   chat and guide: N of 6, at no cost." If it is not 6 of 6, or it says it is not ready for a test, say so and nothing
-   is spent. If it is, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
+   chat, guide and interface: N of 7, at no cost." If it says it is not ready for a test, or a point that is not an `aviso` one fails,
+   say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
+   what it says. If it is ready, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
    in a call of its own, then `supcoflow test --wait --json` (details in
    [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
    not use these values: follow "Resuming a pending request" in the same file. Then the summary (point 13).
@@ -123,15 +127,19 @@ Every step can be resumed: if the session is cut, `/supcoflow go` starts like ev
 
 ## 4. What you decide
 
-The technical and reversible: where the chat shows up, position, title, greeting, colors (`supcoflow chat brand`),
-language, which screens the guide covers. It is said in the summary; it is not asked.
+The technical and reversible: which screens the guide covers and, for the widget, where it shows up, its position,
+title, greeting, colors (`supcoflow chat brand`) and language. It is said in the summary; it is not asked. With an own
+interface (point 10) none of the widget's look settings exist: you never ask about colors, fonts or icons and never run
+`supcoflow chat brand`; the chat takes the app's own look. What it does ask is how people open it (the second panel of
+point 5).
 
 ## 5. What you ALWAYS ask the person
 
 These three, in one panel with exactly these words, in the full order and for whatever is still unset (a request to change only the data uses the first one: see the map of point 3). Do not decide them yourself even if the code suggests it. Before
 asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the investigating AI
-reads, not what the chat's AI sees while it talks; and this chat always offers users screenshots and pointing at
-elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved).
+reads, not what the chat's AI sees while it talks; and with the widget, this chat always offers users screenshots and pointing at
+elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved); an own
+interface offers only the tools of its second panel.
 
 > **What can the chat see about your users?**
 > 1. Who they are, the page, and screenshots
@@ -155,6 +163,10 @@ goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>`
 | 2. Only the page and browser | `supcoflow data set --allow page_and_browser` | pass no `usuario` |
 | 3. Only what they type | `supcoflow data set --allow nothing` | pass no `usuario`; `contextoAutomatico={false}` and no `contexto.versionApp` |
 
+Those are the widget's props. In an own interface the same answers are the `user` option of the chat (only `id`, `role`
+and `attributes` the person accepted), `autoContext: false` where the table says `contextoAutomatico={false}`, and no
+`appVersion`.
+
 `email` is allowed only if the person asks for it by name. Never `usuario.nombre`.
 
 - **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
@@ -166,6 +178,26 @@ goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>`
   with the number you printed and the policy you offered. Never a number you re-read. `techo_distinto` or
   `politica_distinta`: ask again with the new numbers.
 
+**Own interface only: a second panel**, in the same message, after the three questions. Never colors, fonts or icons: the app
+already answers those. Fill option 1 of the first with what you read in the code and print it as words, not as placeholders:
+
+> **How should people open the chat?**
+> 1. <your proposal: the trigger and what it opens, built with the app's own components — for example a "Help" button in the header that opens a side sheet>
+> 2. A floating button in a corner that opens a panel
+> 3. Somewhere else (tell me where)
+>
+> **Which tools should it offer to add evidence?**
+> 1. Attach an image, take a screenshot and point at an element
+> 2. Only attach an image
+> 3. None
+
+The second answer goes to the `capabilities` option of the chat and to nothing else: 1 is
+`capabilities: { attachImage: true, screenshot: true, pickElement: true }`, 2 is
+`capabilities: { attachImage: true, screenshot: false, pickElement: false }` and 3 is
+`capabilities: { attachImage: false, screenshot: false, pickElement: false }`. `newConversation` stays on in all three
+(a person can always start another conversation after a report). The interface also follows `state.allows`, so a tool the
+data agreement rejects is not shown whatever they answer. How it opens is the person's decision, never yours.
+
 The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
 together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does
 not carry them.
@@ -173,7 +205,8 @@ not carry them.
 ## 6. Show before applying
 
 Show the person the configuration proposal and the list of files you will create or change before `data set`,
-`policy set` and before touching files.
+`policy set` and before touching files. For an own interface the proposal also says which trigger and where, which of the
+app's components and icons it reuses, which files it creates, which tools it offers and whether it adds test packages.
 
 ## 7. Do not overwrite
 
@@ -231,6 +264,14 @@ Never `git push`, neither to the main branch nor to another. Never change the br
 
 ## 10. Put the chat
 
+**Which form.** Run `supcoflow widget --json`. The chat is built with the app's own components (the own interface) when
+ALL of these hold: the app is Next.js with the App Router, `interfaz_propia` is there and its `estado` is `disponible`,
+and the person did not ask for the widget. Otherwise it is the widget. Say which form you chose and why in one line
+("Building the chat with your own components." or, for the widget, why not: another stack, no `interfaz_propia`, its
+`estado: sin_publicar` meaning the interface package is not published yet, or they asked for it).
+
+### The widget
+
 Tested path in [`referencias/nextjs.md`](referencias/nextjs.md).
 
 - Install the package with the app's manager and the exact version from `supcoflow widget --json` (`instalar`,
@@ -257,6 +298,27 @@ Tested path in [`referencias/nextjs.md`](referencias/nextjs.md).
   - The `csp` line of `widget --json` is the reference for a new CSP, not for pasting next to another.
 - The `<script>` line is not for Next.js.
 
+### An own interface
+
+The package, the contract and the tests come from Supcoflow; every pixel is the app's. Read
+[`referencias/interfaz-propia.md`](referencias/interfaz-propia.md) and follow it from step 1 (detect the app's design
+system) to step 6 (record).
+
+- Install the package with the app's manager and the exact version from the `instalar` of `interfaz_propia` (translated to
+  the manager). No code comes from the terminal to paste: you write the interface with the app's components, on top of
+  `useSupportChat` (`@supcoflow/chat/react`) and the helpers of `@supcoflow/chat/core`. Never copy a styled component, never
+  `ChatDeIntake`, never `supcoflow chat brand`, never add a component, icon or font library, and never a Supcoflow logo, name
+  or link.
+- **One chat, never two.** If the widget is already mounted (the `archivo` recorded in `.supcoflow/instalacion.json`, or a
+  layout that imports it), stop and ask whether to replace it; with their yes, take it out of the layout and never delete the
+  file yourself (point 7).
+- CSP: the same rule as the widget's (above), with the `csp` line of `interfaz_propia`.
+- Check it without spending: the conformance checks and the fake backend of the package spend nothing and touch no production.
+  Level 2 and level 3 of [`referencias/prueba.md`](referencias/prueba.md) stay the person's.
+- Record it: `supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`. The files are
+  the ones you created for the chat and the one that mounts it; the terminal writes the contract version from the installed
+  package.
+
 ## 11. What you do not do
 
 Spend on your own: the only test that spends is level 3 of [`referencias/prueba.md`](referencias/prueba.md), and only
@@ -282,6 +344,8 @@ lists of files:
 3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); if the guide
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
+
+With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
 
 The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.

@@ -26,7 +26,7 @@ type Describir = {
   flags_globales: string[];
 };
 // El vector es la salida de `supcoflow describe --json` de la terminal fijada. Se leen sus claves en inglés
-// (`commands`, `name`, `global_flags`) y, por si la 0.8.1 publicada conserva las del 0.7.0, las castellanas:
+// (`commands`, `name`, `global_flags`) y, por si la 0.9.0 publicada conserva las del 0.7.0, las castellanas:
 // al re-sincronizar el vector con la terminal real, esto es lo único que puede necesitar tocarse.
 function leerDescribe(archivo: string): Describir {
   const crudo = JSON.parse(leer(RAIZ, "test", "vectores", archivo));
@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.8.1.json");
+const describir: Describir = leerDescribe("describe-0.9.0.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -83,7 +83,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guide publish", "install record", "chat on"...). Los demás son de una
-// palabra ("whoami", "widget", "test"). En 0.8.1 ninguna palabra es a la vez grupo y comando.
+// palabra ("whoami", "widget", "test"). En 0.9.0 ninguna palabra es a la vez grupo y comando.
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -107,7 +107,7 @@ const FLAGS_POR_COMANDO = new Map<string, Set<string>>(
 // Flags de otras herramientas que la skill puede nombrar. Lista cerrada: un flag
 // ajeno nuevo se agrega acá a propósito; cualquier otro desconocido falla.
 // --force está sólo para que la skill pueda PROHIBIRLO («Nunca `--force`»), no para usarlo.
-const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force", "--show-current"]);
+const FLAGS_AJENOS = new Set(["--save-exact", "--porcelain", "--short", "--ignored", "--name-only", "--force", "--show-current", "--list"]);
 
 function pedazosDeCodigo(texto: string): string[] {
   const salida: string[] = [];
@@ -203,7 +203,7 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.8.1 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.9.0 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
@@ -263,7 +263,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.8.1 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.9.0 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
@@ -316,14 +316,14 @@ describe("la versión de la terminal", () => {
   });
 });
 
-describe("el vector de describe es el de la terminal 0.8.1 (1A.1, S5)", () => {
-  const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
+describe("el vector de describe es el de la terminal 0.9.0 (T9)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.9.0.json");
   const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
-  it("hay un único vector de describe y es el de la 0.8.1", () => {
-    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.8.1.json"]);
-    expect(JSON.parse(crudo).version).toBe("0.8.1");
+  it("hay un único vector de describe y es el de la 0.9.0", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.9.0.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.9.0");
   });
-  it("lo que la skill nombra de la 0.8.1 está en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
+  it("lo que la skill nombra de la 0.8.1 sigue en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
     for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
       expect(crudo, nombre).toContain(nombre);
     for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "sin_repo"])
@@ -333,6 +333,16 @@ describe("el vector de describe es el de la terminal 0.8.1 (1A.1, S5)", () => {
     const d = JSON.parse(crudo) as { comandos: { nombre: string; resumen: string }[] };
     expect(d.comandos.find((c) => c.nombre === "project show")!.resumen).toContain("`contexto`");
     expect(d.comandos.find((c) => c.nombre === "test")!.resumen).toContain("`maquina`");
+  });
+  it("lo que la skill 0.4 usa de la 0.9.0 está en lo que la terminal dice: interfaz_propia, --shape own-interface, --file repetible, total 7 y aviso", () => {
+    const d = JSON.parse(crudo) as { comandos: { nombre: string; flags: string[] }[] };
+    expect(d.comandos.find((c) => c.nombre === "widget")!.flags.join("\n")).toContain("interfaz_propia");
+    const registro = d.comandos.find((c) => c.nombre === "install record")!.flags.join("\n");
+    expect(registro).toMatch(/--shape widget\|own-interface/);
+    expect(registro).toMatch(/--file path:[^\n]*can be repeated/);
+    expect(d.comandos.find((c) => c.nombre === "diagnose")!.flags.join("\n")).toContain("total: 7");
+    for (const nombre of ["interfaz_propia", "own-interface", "aviso", "archivos", "forma", "contrato"])
+      expect(crudo, nombre).toContain(nombre);
   });
 });
 
@@ -389,13 +399,13 @@ describe("--sin-subir-version", () => {
     });
     return { r, despues: readFileSync(archivo, "utf8"), registro };
   }
-  it("se niega si la versión registrada no es la sin publicar (0.3.1)", () => {
+  it("se niega si la versión registrada no es la sin publicar (0.4.0)", () => {
     const { r, despues, registro } = correr("1.0.0");
     expect(r.status).toBe(1);
     expect(despues).toBe(registro);
   });
-  it("con la 0.3.1 (sin publicar) reescribe", () => {
-    const { r, despues, registro } = correr("0.3.1");
+  it("con la 0.4.0 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.4.0");
     expect(r.status).toBe(0);
     expect(despues).not.toBe(registro);
   });
@@ -411,8 +421,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.8.1 project delete`",
-      "`npx -y supcoflow@0.8.1 proyecto borrar`",
+      "`npx -y supcoflow@0.9.0 project delete`",
+      "`npx -y supcoflow@0.9.0 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -421,7 +431,7 @@ describe("lo que la skill no hace", () => {
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.8.1 no tiene comandos de esas acciones", () => {
+  it("la terminal 0.9.0 no tiene comandos de esas acciones", () => {
     for (const nombre of NOMBRES) expect(nombre).not.toMatch(/\bcap\b|delete|factory|access|invite|tope|borrar|fabrica|acceso|invitar/);
   });
   it("--authorize-spend sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
@@ -483,14 +493,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.3.1 y fija la terminal 0.8.1", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.3.1");
-    expect(describir.version).toBe("0.8.1");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.8.1 describe --json");
-    expect(P(skillMd)).toContain('if it says `"version":"0.8.1"`');
+  it("la skill es la 0.4.0 y fija la terminal 0.9.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.4.0");
+    expect(describir.version).toBe("0.9.0");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.9.0 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.9.0"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.8.1.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.9.0.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
@@ -608,17 +618,17 @@ describe("la escena de la landing (spec §10)", () => {
         expect(pedazo, ruta).toMatch(/--expect-policy/);
       }
   });
-  it("al final: `diagnose`, y sin 6 de 6 o sin estar listo no se gasta; con el sí, `test --authorize-spend` y `--wait`", () => {
+  it("al final: `diagnose`, y sin estar listo (o con un punto que no es un aviso en falla) no se gasta; con el sí, `test --authorize-spend` y `--wait`", () => {
     const final = seccion(skillMd, /^## 3\./m, /^## 4\./m);
     enOrden(final, [
-      "Checked sign-in, repo, GitHub App, allowed sites, chat and guide: N of 6, at no cost.",
-      "not 6 of 6",
+      "Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost.",
+      "not ready for a test",
       "supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy>",
       "supcoflow test --wait --json",
     ]);
     expect(P(final)).toMatch(/nothing is spent/);
   });
-  it("el resumen: «Done. The chat is a bubble on N pages, in English.» con la frase de la política, en tres líneas", () => {
+  it("el resumen: «Done. The chat is a bubble on N pages, in English.» (widget) con la frase de la política, en tres líneas", () => {
     const resumen = seccion(skillMd, /^## 13\./m);
     expect(P(resumen)).toContain("Done. The chat is a bubble on N pages, in English.");
     expect(P(resumen)).toContain("Each problem gets looked into and ends up as an issue.");
@@ -770,14 +780,15 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).toContain(
       "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
     );
-    expect(readme).toContain("npm i -g supcoflow@0.8.1");
+    expect(readme).toContain("npm i -g supcoflow@0.9.0");
   });
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.3.1 y avisa que 1B pasa a la 0.3.2", () => {
-    expect(readme).toMatch(/La skill es la `0\.3\.1`/);
-    expect(readme).toMatch(/1B.*pasa a la `0\.3\.2`/);
+  it("la versión es la 0.4.0, fija la terminal 0.9.0 y avisa que 1B queda para una versión posterior", () => {
+    expect(readme).toMatch(/La skill es la `0\.4\.0`/);
+    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.9\.0`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.4\.0`/);
   });
 });
 
@@ -814,7 +825,7 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
   });
   it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 9 no gasta si no está listo", () => {
     expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/`maquina`: whether this machine can save the test request/);
-    expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/not 6 of 6, or it says it is not ready for a test, say so and nothing\s+is spent/);
+    expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/it is not ready for a test, or a point that is not an `aviso` one fails, say so and nothing\s+is spent/);
   });
   it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
     expect(paso4()).not.toContain("--authorize-spend");
@@ -1037,8 +1048,9 @@ describe("el nivel 3 en la 0.3.0", () => {
     expect(P(prueba)).toContain(COMANDO_QUE_GASTA);
     expect(P(prueba)).toMatch(/`techo_distinto` or `politica_distinta` \(4\)/);
   });
-  it("sólo se gasta con `diagnose` en 6 de 6 y listo para la prueba", () => {
-    expect(P(prueba)).toMatch(/not 6 of 6, or not ready for a test[^.]*do not ask for money/);
+  it("sólo se gasta con `diagnose` listo para la prueba y sin un punto que no es un aviso en falla (0.4.0: ya no «6 de 6»)", () => {
+    expect(P(prueba)).toMatch(/not ready for a test[^.]*a point that is not an `aviso` one fails[^.]*do not ask for money/);
+    expect(P(prueba)).not.toMatch(/6 of 6|N of 6/);
   });
 });
 
@@ -1053,7 +1065,9 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(descripcion).toMatch(/why the support chat isn't showing/);
     expect(descripcion).toContain('"chat de soporte"');
     expect(descripcion).toContain('"/supcoflow go"');
-    expect(descripcion).toMatch(/Do not use for other chat vendors or for building a chat from scratch\./);
+    expect(descripcion).toMatch(/Do not use for other chat vendors\./);
+    expect(descripcion).not.toMatch(/from scratch/);
+    expect(descripcion).toMatch(/app's own components, icons and styles/);
     expect(descripcion.indexOf("Use when")).toBeLessThan(descripcion.indexOf("Do not use for"));
     expect(descripcion.length).toBeLessThanOrEqual(1024);
   });
@@ -1111,7 +1125,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
   const indice = leer(dir, "README.md");
 
-  it("son siete, los casos pedidos, y el índice los enlaza a todos", () => {
+  it("son once, los casos pedidos, y el índice los enlaza a todos", () => {
     expect(archivos).toEqual([
       "01-src-app.md",
       "02-csp.md",
@@ -1120,6 +1134,10 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
       "05-no-a-la-prueba.md",
       "06-sesion-cortada.md",
       "07-otra-rama.md",
+      "08-interfaz-propia-con-src.md",
+      "09-interfaz-propia-sin-src.md",
+      "10-sin-interfaz-propia.md",
+      "11-conformidad-en-rojo.md",
     ]);
     for (const f of archivos) expect(indice, f).toContain(`(${f})`);
   });
@@ -1173,5 +1191,321 @@ describe("los escenarios cubren los pedidos parciales y el repo sin proyecto (re
   it("el índice y el escenario 1 describen `sin_proyecto`: se continúa por el paso 2, no se detiene", () => {
     expect(P(leer(dir, "README.md"))).toMatch(/`sin_proyecto` en una app nueva: el asistente sigue por el paso 2 .* \*\*no se detiene\*\*/);
     expect(P(leer(dir, "01-src-app.md"))).toMatch(/`sin_proyecto`: el asistente \*\*continúa\*\* por `repo connect` y `project create` \(paso 2\)/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// T9, skill 0.4: el camino «construir con tus componentes». El plan es data/ui-agnostico/report.md §2.5 y §5 T9, y
+// las decisiones del dueño (D1 A, D2 A, D3 sin marca, D4 A con historial, D5 A).
+// ---------------------------------------------------------------------------------
+describe("la skill 0.4: construir el chat con los componentes de la app (T9)", () => {
+  const p10 = () => P(seccion(skillMd, /^## 10\./m, /^## 11\./m));
+  const p5 = () => P(seccion(skillMd, /^## 5\./m, /^## 6\./m));
+  const p4 = () => P(seccion(skillMd, /^## 4\./m, /^## 5\./m));
+  const propia = () => leer(CARPETA, "referencias", "interfaz-propia.md");
+
+  it("la referencia existe y SKILL.md la enlaza desde el punto 10", () => {
+    expect(readdirSync(join(CARPETA, "referencias"))).toContain("interfaz-propia.md");
+    expect(p10()).toContain("[`referencias/interfaz-propia.md`](referencias/interfaz-propia.md)");
+  });
+
+  it("D1 A: construye con los componentes de la app por defecto, y el widget sólo si no hay camino (otro stack, sin `interfaz_propia`, `sin_publicar`, o lo pidió)", () => {
+    const forma = P(seccion(skillMd, /^## 10\./m, /^### The widget/m));
+    expect(forma).toMatch(/Run `supcoflow widget --json`/);
+    expect(forma).toMatch(/built with the app's own components \(the own interface\) when ALL of these hold/);
+    expect(forma).toMatch(/Next\.js with the App Router/);
+    expect(forma).toMatch(/`interfaz_propia` is there and its `estado` is `disponible`/);
+    expect(forma).toMatch(/the person did not ask for the widget/);
+    expect(forma).toMatch(/Otherwise it is the widget/);
+    expect(forma).toMatch(/`estado: sin_publicar`/);
+    expect(forma).toMatch(/Say which form you chose and why in one line/);
+  });
+
+  it("la descripción y el punto 1 ya no prohíben construir un chat: dicen que se construye con la app", () => {
+    expect(P(skillMd)).not.toMatch(/building a chat from scratch/);
+    expect(P(seccion(skillMd, /^## 1\./m, /^## 2\./m))).toMatch(/built with the app's own components, icons and styles/);
+    expect(P(seccion(skillMd, /^## 1\./m, /^## 2\./m))).toMatch(/never a design/);
+  });
+
+  it("el camino de la interfaz propia: lee la referencia, instala lo que da la terminal y no pega código de Supcoflow", () => {
+    const propiaDeSkill = P(seccion(skillMd, /^### An own interface/m, /^## 11\./m));
+    expect(propiaDeSkill).toMatch(/Read \[`referencias\/interfaz-propia\.md`\]/);
+    expect(propiaDeSkill).toMatch(/`instalar` of `interfaz_propia`/);
+    expect(propiaDeSkill).toMatch(/No code comes from the terminal to paste/);
+  });
+
+  it("nunca copia componentes con estilo, ni usa el widget, ni `chat brand`, ni agrega librerías de interfaz o íconos, ni pone la marca de Supcoflow (D3)", () => {
+    const propiaDeSkill = P(seccion(skillMd, /^### An own interface/m, /^## 11\./m));
+    expect(propiaDeSkill).toMatch(/Never copy a styled component/);
+    expect(propiaDeSkill).toMatch(/never `ChatDeIntake`/);
+    expect(propiaDeSkill).toMatch(/never `supcoflow chat brand`/);
+    expect(propiaDeSkill).toMatch(/never add a component, icon or font library/);
+    expect(propiaDeSkill).toMatch(/never a Supcoflow logo, name or link/);
+  });
+
+  it("los colores ya no se deciden con `chat brand` para la interfaz propia, y nunca se preguntan", () => {
+    expect(p4()).toMatch(/for the widget[^.]*colors \(`supcoflow chat brand`\)/);
+    expect(p4()).toMatch(/With an own interface[^.]*you never ask about colors, fonts or icons and never run `supcoflow chat brand`/);
+    expect(p4()).toMatch(/What it does ask is how people open it/);
+  });
+
+  it("la captura y señalar: el widget siempre las ofrece, la interfaz propia sólo lo que elige la persona", () => {
+    expect(p5()).toMatch(/with the widget, this chat always offers users screenshots and pointing at elements/);
+    expect(p5()).toMatch(/an own interface offers only the tools of its second panel/);
+  });
+
+  it("D1/«la forma de abrirlo la decide el usuario»: un segundo panel con el texto exacto, sólo para la interfaz propia, en el mismo mensaje, sin colores", () => {
+    enOrden(seccion(skillMd, /^## 5\./m, /^## 6\./m), [
+      "Run one real test now?",
+      "Own interface only: a second panel",
+      "How should people open the chat?",
+      "1. <your proposal: the trigger and what it opens, built with the app's own components",
+      "2. A floating button in a corner that opens a panel",
+      "3. Somewhere else (tell me where)",
+      "Which tools should it offer to add evidence?",
+      "1. Attach an image, take a screenshot and point at an element",
+      "2. Only attach an image",
+      "3. None",
+    ]);
+    expect(p5()).toMatch(/in the same message, after the three questions/);
+    expect(p5()).toMatch(/Never colors, fonts or icons: the app already answers those/);
+  });
+
+  it("cada respuesta del segundo panel va a `capabilities`; la interfaz también sigue `state.allows`", () => {
+    expect(p5()).toMatch(/`capabilities: \{ attachImage: true, screenshot: true, pickElement: true \}`/);
+    expect(p5()).toMatch(/`capabilities: \{ attachImage: true, screenshot: false, pickElement: false \}`/);
+    expect(p5()).toMatch(/`capabilities: \{ attachImage: false, screenshot: false, pickElement: false \}`/);
+    expect(p5()).toMatch(/`newConversation` stays on/);
+    expect(p5()).toMatch(/The interface also follows `state\.allows`/);
+  });
+
+  it("el usuario declarado: `user` (id, role, attributes) y `autoContext`, nunca el nombre", () => {
+    expect(p5()).toMatch(/own interface[^.]*`user`[^.]*`id`, `role`[^.]*`attributes`/);
+    expect(p5()).toMatch(/`autoContext: false`/);
+    expect(p5()).toMatch(/Never `usuario\.nombre`/);
+  });
+
+  it("antes de aplicar, la propuesta dice disparador, componentes, íconos, archivos, herramientas y paquetes de prueba", () => {
+    const p6 = P(seccion(skillMd, /^## 6\./m, /^## 7\./m));
+    for (const parte of ["which trigger and where", "which of the app's components and icons it reuses", "which files it creates", "which tools it offers", "whether it adds test packages"])
+      expect(p6, parte).toContain(parte);
+  });
+
+  it("el paso 5 decide la forma antes de las preguntas: `widget --json` sólo lee", () => {
+    const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+    expect(s3).toMatch(/If the app is Next\.js \(App Router\), also run `supcoflow widget --json` here \(it only reads\) to decide the form/);
+    expect(s3.indexOf("also run `supcoflow widget --json` here")).toBeLessThan(s3.indexOf("the three questions (point 5)"));
+  });
+
+  it("el registro: `--shape own-interface` y un `--file` por cada archivo del chat; la versión del contrato la anota la terminal", () => {
+    const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+    expect(s3).toMatch(/For an own interface add `--shape own-interface` and one `--file` for each file of the chat/);
+    expect(p10()).toMatch(/`supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`/);
+    expect(p10()).toMatch(/the terminal writes the contract version from the installed package/);
+  });
+
+  it("no hay dos chats: un widget ya montado se frena y se pregunta, y los archivos no se borran por su cuenta", () => {
+    const propiaDeSkill = P(seccion(skillMd, /^### An own interface/m, /^## 11\./m));
+    expect(propiaDeSkill).toMatch(/If the widget is already mounted.*stop and ask/);
+    expect(propiaDeSkill).toMatch(/never delete the file/);
+  });
+
+  it("el CSP de la interfaz propia es la regla de siempre, con la línea `csp` de `interfaz_propia`", () => {
+    const propiaDeSkill = P(seccion(skillMd, /^### An own interface/m, /^## 11\./m));
+    expect(propiaDeSkill).toMatch(/CSP: the same rule as the widget's[^.]*`csp` line of `interfaz_propia`/);
+  });
+
+  it("la verificación no gasta: conformidad sobre el backend falso y vista en un navegador; el nivel 2 y el 3 siguen siendo de la persona", () => {
+    const propiaDeSkill = P(seccion(skillMd, /^### An own interface/m, /^## 11\./m));
+    expect(propiaDeSkill).toMatch(/conformance checks and the fake backend[^.]*spend nothing/);
+    expect(propiaDeSkill).toMatch(/Level 2 and level 3 of \[`referencias\/prueba\.md`\].*stay the person's/);
+  });
+
+  it("el resumen de la interfaz propia: dónde se abre y con qué está hecha, en tres líneas", () => {
+    const resumen = P(seccion(skillMd, /^## 13\./m));
+    expect(resumen).toContain("With an own interface line 1 is \"Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>.\"");
+    expect(resumen).toMatch(/line 3 also says whether the conformance checks ran/);
+  });
+
+  it("el paso 9 con la 0.9.0: `listo` manda y un punto `aviso` (la interfaz) baja la cuenta pero no frena la prueba", () => {
+    const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+    expect(s3).toMatch(/A failing `aviso` point \(the interface one\) lowers the count but does not stop a test: say what it says/);
+    expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost\./);
+  });
+
+  it("el nivel 2 de prueba.md también vale para la interfaz propia: el disparador propio en lugar de la burbuja", () => {
+    const n2 = P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^## Level 2\b/m, /^## Level 3\b/m));
+    expect(n2).toMatch(/the chat shows up where you put it \(the widget's bubble, or the trigger of the own interface\)/);
+    expect(n2).toMatch(/with an own interface[^.]*the tools it offers/);
+  });
+});
+
+describe("referencias/interfaz-propia.md (T9): el procedimiento del plan §2.5", () => {
+  const t = () => leer(CARPETA, "referencias", "interfaz-propia.md");
+  const txt = () => P(t());
+
+  it("tiene los seis pasos del plan en orden: detectar, proponer, preguntar, escribir, verificar, anotar", () => {
+    enOrden(t(), [
+      "1. **Detect**",
+      "2. **Propose and show before writing**",
+      "3. **Ask only what changes the result**",
+      "4. **Write**",
+      "5. **Check**",
+      "6. **Record**",
+    ]);
+  });
+
+  it("dice cuándo aplica: Next.js (App Router), `interfaz_propia` disponible; si no, el widget", () => {
+    expect(txt()).toMatch(/Next\.js \(App Router\)/);
+    expect(txt()).toMatch(/`estado` is `disponible`/);
+    expect(txt()).toMatch(/Pages Router[^.]*not tested/);
+  });
+
+  it("lee el contrato del paquete instalado, sin red: contract.json y el documento", () => {
+    expect(txt()).toContain("`contrato`");
+    expect(txt()).toContain("node_modules/@supcoflow/chat/contract.json");
+    expect(txt()).toContain("node_modules/@supcoflow/chat/docs/presentation-contract.md");
+    expect(txt()).toMatch(/offline/);
+    expect(txt()).toMatch(/if the installed contract says something different from this file, the contract wins/i);
+  });
+
+  it("detecta el sistema de diseño: componentes, íconos, estilos, modo oscuro, i18n y un lugar de la app donde ya vive la ayuda", () => {
+    for (const señal of [
+      "components.json", "@radix-ui/*", "@mui/material", "@chakra-ui/react", "@mantine/core", "antd", "@headlessui/react", "react-aria-components", "@heroui/react", "daisyui", "react-bootstrap",
+      "lucide-react", "@heroicons/react", "@tabler/icons-react", "react-icons", "@phosphor-icons/react", "@radix-ui/react-icons", "@mui/icons-material", "@fortawesome/*", "@iconify/react",
+      "Tailwind", "CSS Modules", "styled-components", "emotion", "vanilla-extract", "Sass",
+      "next-themes", "next-intl", "react-i18next", "lingui", "formatjs", "cmdk",
+    ])
+      expect(t(), señal).toContain(señal);
+  });
+
+  it("reglas de escritura: reutilizar antes que componer, componer antes que crear; sin librerías ni fuentes nuevas; ícono propio sólo si la app no tiene librería", () => {
+    expect(txt()).toMatch(/reuse before composing, compose before creating/i);
+    expect(txt()).toMatch(/never add a component, icon or font library/);
+    expect(txt()).toMatch(/If the app has no icon library[^.]*inline SVG/);
+    expect(txt()).toMatch(/never a second icon library/);
+    expect(txt()).toMatch(/Respect focus, the keyboard \(Esc\), `prefers-reduced-motion` and phones/);
+  });
+
+  it("nunca copia el ejemplo del paquete tal cual: es un esqueleto, cada elemento se cambia por el de la app", () => {
+    expect(txt()).toMatch(/examples\/react\/SupportChat\.tsx/);
+    expect(txt()).toMatch(/skeleton, not a design/);
+    expect(txt()).toMatch(/Never leave its bare elements/);
+  });
+
+  it("Next.js: archivo con \"use client\", el hook en un componente que vive tanto como el chat, el layout de servidor sólo pasa valores serializables", () => {
+    expect(txt()).toContain('"use client"');
+    expect(txt()).toMatch(/`useSupportChat`/);
+    expect(txt()).toMatch(/a component that stays mounted as long as the chat should/);
+    expect(txt()).toMatch(/serializable/);
+    expect(txt()).toMatch(/Never create the chat while rendering/);
+  });
+
+  it("lo que NO se deja a la interfaz: el «Sí» sólo por un gesto sobre ESA confirmación, el texto del reporte en texto plano, el Markdown con el subconjunto seguro, sin HTML", () => {
+    expect(txt()).toMatch(/`chat\.confirmReport\(question\.id\)` only from a press of the person/);
+    expect(txt()).toMatch(/the report as plain text/i);
+    expect(txt()).toMatch(/`parseAssistantText`/);
+    expect(txt()).toMatch(/never `dangerouslySetInnerHTML`/);
+    expect(txt()).toMatch(/never show `error\.message`/);
+  });
+
+  it("D2 A: declara `locale`, los textos del marco los escribe el agente en el idioma de la app y por el i18n de la app", () => {
+    expect(txt()).toMatch(/Declare `locale`/);
+    expect(txt()).toMatch(/the words of the two report buttons and of the frame around the report come from Supcoflow/);
+    expect(txt()).toMatch(/through the app's i18n/);
+  });
+
+  it("D3 y D4 A: sin marca de Supcoflow; el historial (retomar al volver) es obligatorio: `resume` en true y `storage` sin `\"none\"`", () => {
+    expect(txt()).toMatch(/no Supcoflow logo, name or link/);
+    expect(txt()).toMatch(/leave `resume` at `true` and never set `storage` to `\"none\"`/);
+    expect(txt()).toMatch(/Wait for `ready`/);
+  });
+
+  it("D4 A: encendido por defecto (imagen, captura, señalar, «leyendo la guía», nueva conversación); opcional (pasos, desenlace «respondida», arranques)", () => {
+    for (const parte of ["attach an image", "screenshot", "point at an element", "reading the guide", "new conversation", "visible steps", "answered", "start suggestions"])
+      expect(txt(), parte).toContain(parte);
+    expect(txt()).toMatch(/declare[^.]*`capabilities`/);
+  });
+
+  it("un solo chat por proyecto y pestaña, y nunca dos a la vez (el widget y la interfaz propia)", () => {
+    expect(txt()).toMatch(/One chat per project and tab/);
+    expect(txt()).toMatch(/never the widget and the own interface together/);
+  });
+
+  it("verificar sin gastar: conformidad (checks.ts sin editar, plantilla adaptada), servidor falso en un navegador, y la lista manual dicha", () => {
+    expect(txt()).toContain("node_modules/@supcoflow/chat/conformance/checks.ts");
+    expect(txt()).toContain("chat.conformance.template.tsx");
+    expect(txt()).toMatch(/Do not edit `checks\.ts`/);
+    expect(txt()).toContain("npx supcoflow-chat-fake");
+    expect(txt()).toMatch(/Never commit the fake server's address/);
+    expect(txt()).toMatch(/A skipped check is not a pass/);
+    expect(txt()).toMatch(/`MANUAL`/);
+    expect(txt()).toMatch(/Nothing here spends anything/);
+  });
+
+  it("sin corredor de pruebas no se instala uno sin el sí de la persona: se dice que la conformidad no se corrió", () => {
+    expect(txt()).toMatch(/If the app has no test runner[^.]*do not install one without the person's yes/);
+    expect(txt()).toMatch(/say the conformance checks were not run/);
+  });
+
+  it("nunca manda un reporte real para probar, y nunca deja el backend falso en lo que se commitea", () => {
+    expect(txt()).toMatch(/Never send a real report to test/);
+    expect(txt()).toMatch(/only in development/);
+  });
+
+  it("anotar: `install record --shape own-interface` con cada archivo; volver a correr compara el contrato (mayor: conformidad otra vez; menor: ofrecer lo opcional)", () => {
+    expect(txt()).toMatch(/install record --skill <version> --shape own-interface --file <file>/);
+    expect(txt()).toMatch(/A newer major version[^.]*run the conformance checks again/);
+    expect(txt()).toMatch(/A newer minor or patch[^.]*offer what is new and optional/);
+  });
+
+  it("no promete lo que no existe: sin feedback 👍/👎 ni lista de conversaciones pasadas (P16 todavía no aplica)", () => {
+    expect(txt()).toMatch(/does not exist: no thumbs up\/down/);
+    expect(txt()).toMatch(/P16[^.]*does not apply yet/);
+  });
+});
+
+describe("los escenarios nuevos de la T9 (8 a 11): interfaz propia y sus bordes", () => {
+  const dir = join(RAIZ, "docs", "escenarios");
+  const t = (f: string) => P(leer(dir, f));
+  it("8 (con src/ y shadcn): componentes e íconos de la app, sin colores ni marca, forma y registro, y se verifica", () => {
+    const e = t("08-interfaz-propia-con-src.md");
+    expect(e).toMatch(/\*\*No pregunta por colores, fuentes ni íconos\*\*, no corre `supcoflow chat brand` y no importa `ChatDeIntake`/);
+    expect(e).toMatch(/ninguna carpeta `app\/` en la raíz/);
+    expect(e).toMatch(/ninguna marca de Supcoflow/);
+    expect(e).toMatch(/`"use client"`/);
+    expect(e).toMatch(/`--shape own-interface` y un `--file` por cada archivo del chat/);
+    expect(e).toMatch(/«N of 7»/);
+    expect(e).toMatch(/`checks\.ts` del paquete \*\*sin editar\*\*/);
+    expect(e).toMatch(/`supcoflow-chat-fake`/);
+    expect(e).toMatch(/no queda\*\* en lo que se commitea/);
+  });
+  it("9 (sin src/ y sin sistema de diseño): mismos tokens, nada nuevo instalado, idioma de la app, sin corredor de pruebas no se instala uno sin el sí", () => {
+    const e = t("09-interfaz-propia-sin-src.md");
+    expect(e).toMatch(/los mismos tokens/);
+    expect(e).toMatch(/no\*\* instala Tailwind, ni una librería de íconos ni de componentes, ni fuentes/);
+    expect(e).toMatch(/bajo `app\/`, \*\*no\*\* en un `src\/` inventado/);
+    expect(e).toMatch(/\{ attachImage: true, screenshot: false, pickElement: false \}/);
+    expect(e).toMatch(/`locale: "es"`/);
+    expect(e).toMatch(/\*\*no instala uno sin el sí\*\* y dice que la conformidad no se corrió/);
+  });
+  it("10 (sin camino): dice en una línea por qué usa el widget, y no escribe interfaz ni segundo panel; cubre las cuatro causas", () => {
+    const e = t("10-sin-interfaz-propia.md");
+    for (const causa of ["(a)", "(b)", "(c)", "(d)", "sin_publicar", "no** manda `interfaz_propia`", "Pages Router"]) expect(e, causa).toContain(causa);
+    expect(e).toMatch(/\*\*en una línea\*\* por qué usa el widget/);
+    expect(e).toMatch(/\*\*sin\*\* el segundo panel/);
+    expect(e).toMatch(/Done\. The chat is a bubble on N pages, in English\./);
+  });
+  it("11 (conformidad en rojo / widget ya montado): se arregla la interfaz y no el check; con un widget se para y se pregunta; nunca se gasta", () => {
+    const e = t("11-conformidad-en-rojo.md");
+    expect(e).toMatch(/arregla la interfaz, nunca el check ni `checks\.ts`/);
+    expect(e).toMatch(/para y pregunta\*\* si reemplaza el widget: no hay dos chats/);
+    expect(e).toMatch(/no borra\*\* el archivo del widget por su cuenta/);
+    expect(e).toMatch(/En ningún caso aparece `--authorize-spend`/);
+  });
+  it("el índice los explica y no dice que nadie los corrió: dice qué se siguió y contra qué", () => {
+    const indice = t("README.md");
+    expect(indice).toMatch(/Once casos/);
+    expect(indice).toMatch(/los escenarios 8 y 9 se siguieron una vez a mano contra un motor y un backend falsos/);
   });
 });

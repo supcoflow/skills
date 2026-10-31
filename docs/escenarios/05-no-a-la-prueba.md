@@ -14,7 +14,7 @@ opción real y el «no» tenga qué rechazar).
   reales, no inventados).
 - **No aparece `--authorize-spend`** en ningún comando de toda la sesión. No hay `supcoflow test --wait` ni una
   prueba abierta.
-- Tras el «no», el asistente igual deja el chat andando y corre `supcoflow diagnose --json` (gratis): informa «N of 6».
+- Tras el «no», el asistente igual deja el chat andando y corre `supcoflow diagnose --json` (gratis): informa «N of 7».
 - La primera línea del resumen dice «Each problem gets looked into and ends up as an issue.» y el resumen dice que el chat **puede probarse** (no que se probó) y no promete que «funcionó».
 - Variante: un «sí» más tarde, en la misma sesión, **no** reutiliza ninguna autorización vieja: se vuelve a mostrar
   el techo y se manda `--authorize-spend --ceiling <techo mostrado> --expect-policy <política ofrecida>` en una llamada
