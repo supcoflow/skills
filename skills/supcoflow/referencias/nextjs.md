@@ -8,6 +8,9 @@ Tested path: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 and `@supcoflo
 that `supcoflow widget --json` gives (2.3.0); the first real run of the 0.3.0 skill is what confirms it.
 **Pages Router: not tested; tell the person** and do not improvise.
 
+The own interface (`interfaz-propia.md`) was opened in Chrome on Next.js 16.4.3 (App Router, `next dev`) with React
+19.3.0, in two throwaway apps (with and without `src/`), against the fake backend of the package; never against production.
+
 ## Why the wrapper file is used
 
 In the App Router everything is a server component unless the file says `"use client"`. The `@supcoflow/chat`

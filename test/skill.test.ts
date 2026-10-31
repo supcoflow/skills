@@ -1506,7 +1506,7 @@ describe("los escenarios nuevos de la T9 (8 a 11): interfaz propia y sus bordes"
   it("el índice los explica y no dice que nadie los corrió: dice qué se siguió y contra qué", () => {
     const indice = t("README.md");
     expect(indice).toMatch(/Once casos/);
-    expect(indice).toMatch(/los escenarios 8 y 9 se siguieron una vez a mano contra un motor y un backend falsos/);
+    expect(indice).toMatch(/los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos/);
   });
 });
 
@@ -1522,6 +1522,13 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/`root` is `document\.body`, and `words\.close` names the control/);
     expect(propia()).toMatch(/add `"test": "vitest run"`, and a `vitest\.config\.ts` with the app's path alias/);
     expect(propia()).toMatch(/say what covers that instead/);
+  });
+  it("la referencia: el componente recibe las opciones como props opcionales y cada control tiene un nombre accesible distinto", () => {
+    expect(propia()).toMatch(/takes the chat options \(`backendUrl`, `fetch`, `storage`, `locale`, `user`\) as optional props that default to the app's own values/);
+    expect(propia()).toMatch(/every control a distinct accessible name/);
+  });
+  it("nextjs.md dice que la interfaz propia se abrió en un navegador, contra el backend falso y nunca contra producción", () => {
+    expect(P(leer(CARPETA, "referencias", "nextjs.md"))).toMatch(/was opened in Chrome on Next\.js 16\.4\.3[^.]*against the fake backend of the package; never against production/);
   });
   it("la interfaz, sus pruebas y `instalacion.json` no se commitean", () => {
     expect(p10()).toMatch(/Do not commit the interface, its tests or `\.supcoflow\/instalacion\.json`/);

@@ -1,7 +1,7 @@
 # Escenarios para correr a mano con un asistente real
 
 Once casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.4.0), no sólo que el texto
-diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron una vez a mano contra un motor y un backend falsos (informe de la T9), no contra producción. Los tests de `test/` miran el texto;
+diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos (informe de la T9), no contra producción. Los tests de `test/` miran el texto;
 estos miran lo que el asistente hace.
 
 Cada escenario tiene tres partes: **App de ejemplo** (qué hay que preparar), **Pedido** (lo que la persona le escribe

@@ -101,6 +101,10 @@ What the interface must keep (the contract, point by point; read `docs/presentat
 | P14 | The conversation comes back: leave `resume` at `true` and never set `storage` to `"none"`. Wait for `ready` before showing an empty chat. Another conversation only when the person asks |
 | P15 | A paste longer than `isLongPaste()` says shows as a short marker, expandable, and is sent whole |
 
+Make the component testable: it takes the chat options (`backendUrl`, `fetch`, `storage`, `locale`, `user`) as optional props
+that default to the app's own values, so the conformance test can inject the fake backend; and give every control a distinct
+accessible name (an open panel with two buttons both named "Close" cannot be told apart by the checks or by a screen reader).
+
 Options of the chat (`useSupportChat`): the `tenantId`, `projectId` and `backendUrl` of `interfaz_propia`; **Declare `locale`**
 (the app's language: the words of the two report buttons and of the frame around the report come from Supcoflow, in that
 language: Spanish, English or Portuguese, and English for any other); `user` with only the fields the person accepted
