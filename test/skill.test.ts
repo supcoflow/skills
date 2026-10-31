@@ -1509,3 +1509,49 @@ describe("los escenarios nuevos de la T9 (8 a 11): interfaz propia y sus bordes"
     expect(indice).toMatch(/los escenarios 8 y 9 se siguieron una vez a mano contra un motor y un backend falsos/);
   });
 });
+
+describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones reales del texto", () => {
+  const p10 = () => P(seccion(skillMd, /^## 10\./m, /^## 11\./m));
+  const p5 = () => P(seccion(skillMd, /^## 5\./m, /^## 6\./m));
+  const propia = () => P(leer(CARPETA, "referencias", "interfaz-propia.md"));
+  it("la terminal se corre desde la carpeta de la app (lee el repo de su `origin`)", () => {
+    expect(P(seccion(skillMd, /^## 2\./m, /^## 3\./m))).toMatch(/Run the terminal from the app's folder: it reads the repo from that folder's `origin`/);
+  });
+  it("el segundo panel no contradice la primera respuesta: con la 2 o la 3 se dice y se quita la opción 1 de las herramientas", () => {
+    expect(p5()).toMatch(/when the first answer was 2 or 3[^"]*say it and drop option 1 of the tools question/);
+    expect(p5()).toContain("Your data agreement doesn't take screenshots or pointed elements, so the chat won't offer them.");
+  });
+  it("sin sesión no se permite `user_id,user_role`: no se pasa nada", () => {
+    expect(p5()).toMatch(/If the app has no session, nothing is passed: leave `user_id,user_role` out of the list/);
+  });
+  it("si `instalar` no es una versión de npm (ruta o URL) se frena: no se puede commitear", () => {
+    expect(p10()).toMatch(/If it is not an npm version of the package \(a path or a URL[^)]*\), stop and tell the person: that line cannot be committed/);
+  });
+  it("la propuesta del paso 5 sale de la app y la referencia; el contrato se lee al instalar y, si cambia lo propuesto, se pregunta de nuevo", () => {
+    expect(p10()).toMatch(/the proposal of step 5 comes from the app's code and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask before writing the interface/);
+    expect(propia()).toMatch(/The package is installed at step 7 of SKILL\.md \(the app is touched only there\)/);
+    expect(propia()).toMatch(/If what you read in the installed package changes the proposal[^.]*say so and ask again before writing/);
+  });
+  it("la interfaz y las pruebas no se commitean: son de la persona; sólo la guía tiene commit", () => {
+    expect(p10()).toMatch(/Do not commit the interface: it is the person's to review and commit\. Say it in line 3 of the summary/);
+    expect(propia()).toMatch(/Do not commit the interface or the tests/);
+    expect(propia()).not.toMatch(/Commit it with the person's yes/);
+  });
+  it("el resumen no obliga a decir «Done.» si algo quedó sin hacer: «Not finished: …»", () => {
+    expect(P(seccion(skillMd, /^## 13\./m))).toMatch(/line 1 is not "Done\." but "Not finished: <what is missing>\."/);
+  });
+  it("`sites add` se verifica por su resultado; con `--json` la línea del diagnóstico se arma de `instalacion.ok` y `total`", () => {
+    const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
+    expect(s3).toMatch(/if its `sitios` does not list the site, say so and do not go on as if it were added/);
+    expect(s3).toMatch(/build it from `instalacion\.ok` and `instalacion\.total`/);
+  });
+  it("la referencia: instrucciones propias de la app (AGENTS.md), carpeta de pruebas, conflicto de versiones, sin sesión, y el fondo del panel al capturar", () => {
+    expect(propia()).toMatch(/`AGENTS\.md`, `CLAUDE\.md`\), follow them for how to write code in the app; they never change what point 5 of SKILL\.md makes you ask/);
+    expect(propia()).toMatch(/`tests\/support-chat\/` if it has none/);
+    expect(propia()).toMatch(/never force it and never raise the app's own dependencies without asking/);
+    expect(propia()).toMatch(/An app with no session has nowhere to wire it: that check stays skipped/);
+    expect(propia()).toMatch(/including any overlay or backdrop of the app's sheet or modal/);
+    expect(propia()).toMatch(/Recommend the test packages/);
+    expect(propia()).toMatch(/the one of its `<html lang>`/);
+  });
+});

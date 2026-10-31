@@ -27,6 +27,7 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
   terminal.
 - In the full order, start each step with one line: "Step N of 9: <what it is>" (for example "Step 3 of 9: your
   settings"), so the person sees where you are.
+- Run the terminal from the app's folder: it reads the repo from that folder's `origin` (`--repo owner/repo` if you cannot).
 - Never paste the terminal's JSON to the person: say what it means in one sentence.
 - Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).
 
@@ -103,14 +104,14 @@ The full order:
    in one call → `supcoflow guide check --json` in another → show the diff and ask for the yes to the local commit
    (point 9) → `supcoflow guide publish --json`.
 7. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
-   `http://localhost:3000` only for a local test; if the code does not say, ask) → `supcoflow chat on --json` →
+   `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added) → `supcoflow chat on --json` →
    `supcoflow widget --json` → put the chat, in the form decided in step 5 (point 10). The app is touched only here, with the guide already
    published and the site added.
 8. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
    (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
    file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file. For an own
    interface add `--shape own-interface` and one `--file` for each file of the chat (point 10).
-9. `supcoflow diagnose --json`. Say the line the terminal prints: "Checked sign-in, repo, GitHub App, allowed sites,
+9. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
    chat, guide and interface: N of 7, at no cost." If it says it is not ready for a test, or a point that is not an `aviso` one fails,
    say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
    what it says. If it is ready, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
@@ -167,7 +168,8 @@ Those are the widget's props. In an own interface the same answers are the `user
 and `attributes` the person accepted), `autoContext: false` where the table says `contextoAutomatico={false}`, and no
 `appVersion`.
 
-`email` is allowed only if the person asks for it by name. Never `usuario.nombre`.
+`email` is allowed only if the person asks for it by name. Never `usuario.nombre`. If the app has no session, nothing is passed:
+leave `user_id,user_role` out of the list of the first answer.
 
 - **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
   `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends**, within the
@@ -196,7 +198,9 @@ The second answer goes to the `capabilities` option of the chat and to nothing e
 `capabilities: { attachImage: true, screenshot: false, pickElement: false }` and 3 is
 `capabilities: { attachImage: false, screenshot: false, pickElement: false }`. `newConversation` stays on in all three
 (a person can always start another conversation after a report). The interface also follows `state.allows`, so a tool the
-data agreement rejects is not shown whatever they answer. How it opens is the person's decision, never yours.
+data agreement rejects is not shown whatever they answer. So when the first answer was 2 or 3 (the agreement takes no
+screenshots or pointed elements), say it and drop option 1 of the tools question: "Your data agreement doesn't take
+screenshots or pointed elements, so the chat won't offer them." How it opens is the person's decision, never yours.
 
 The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
 together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does
@@ -305,7 +309,10 @@ The package, the contract and the tests come from Supcoflow; every pixel is the 
 system) to step 6 (record).
 
 - Install the package with the app's manager and the exact version from the `instalar` of `interfaz_propia` (translated to
-  the manager). No code comes from the terminal to paste: you write the interface with the app's components, on top of
+  the manager). If it is not an npm version of the package (a path or a URL: a build not published yet), stop and tell the
+  person: that line cannot be committed. The app is touched at step 7, so the proposal of step 5 comes from the app's code
+  and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask
+  before writing the interface. No code comes from the terminal to paste: you write the interface with the app's components, on top of
   `useSupportChat` (`@supcoflow/chat/react`) and the helpers of `@supcoflow/chat/core`. Never copy a styled component, never
   `ChatDeIntake`, never `supcoflow chat brand`, never add a component, icon or font library, and never a Supcoflow logo, name
   or link.
@@ -315,6 +322,7 @@ system) to step 6 (record).
 - CSP: the same rule as the widget's (above), with the `csp` line of `interfaz_propia`.
 - Check it without spending: the conformance checks and the fake backend of the package spend nothing and touch no production.
   Level 2 and level 3 of [`referencias/prueba.md`](referencias/prueba.md) stay the person's.
+- Do not commit the interface: it is the person's to review and commit. Say it in line 3 of the summary.
 - Record it: `supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`. The files are
   the ones you created for the chat and the one that mounts it; the terminal writes the contract version from the installed
   package.
@@ -345,7 +353,7 @@ lists of files:
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
-With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
+If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
 
 The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.

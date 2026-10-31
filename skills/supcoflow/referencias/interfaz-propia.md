@@ -4,6 +4,9 @@ Supcoflow is not a design. It brings the engine (the assistant, the guide, the r
 it, a contract that says what the interface has to show and a test bench to check it. **Everything you see is the
 app's**: its components, its icons, its styles, its words. You write it, in the app's repo, as any other code of the app.
 
+If the app has its own instructions for coding agents (`AGENTS.md`, `CLAUDE.md`), follow them for how to write code in the
+app; they never change what point 5 of SKILL.md makes you ask, what spends, or what the contract requires.
+
 ## When this path applies
 
 Only for **Next.js (App Router)**, and only when `supcoflow widget --json` brings `interfaz_propia` and its `estado` is
@@ -29,7 +32,8 @@ package is not on npm yet: the install would fail, so it is the widget.
 | The contract (`contract.json`) and the conformance checks | Components, icons, colors, typography, dark mode, animations |
 | The fake backend, to see and to check every state | Where it lives in the app, the phone layout, the words of everything the interface says |
 
-Install the package first (point 10 of SKILL.md), then read what it carries, in this order: `node_modules/@supcoflow/chat/docs/presentation-contract.md`
+The package is installed at step 7 of SKILL.md (the app is touched only there), so the proposal of step 2 below is made from
+the app's code and this file. Right after installing, read what the package carries, in this order: `node_modules/@supcoflow/chat/docs/presentation-contract.md`
 (and `contract.json`), `docs/react.md`, `docs/core.md`. If the installed contract says something different from this file,
 the contract wins: this file is a map of it, not a copy.
 
@@ -37,7 +41,8 @@ the contract wins: this file is a map of it, not a copy.
 
 1. **Detect** the app's design system and how it is built (the table below), with your file and search tools.
 2. **Propose and show before writing** (point 6 of SKILL.md): which trigger and where, which of the app's components and
-   icons it reuses, which files it creates, which tools it offers, and whether it adds test packages. Wait for the yes.
+   icons it reuses, which files it creates, which tools it offers, and whether it adds test packages. Wait for the yes. If what you read in the installed package changes the proposal (another file, another place for the
+tests), say so and ask again before writing. Recommend the test packages: without them nothing checks the interface.
 3. **Ask only what changes the result**: the second panel of point 5 of SKILL.md (how people open it, which evidence tools).
    Never colors, fonts or icons.
 4. **Write** it with the app's own components; never add a component, icon or font library.
@@ -101,7 +106,7 @@ Options of the chat (`useSupportChat`): the `tenantId`, `projectId` and `backend
 language: Spanish, English or Portuguese, and English for any other); `user` with only the fields the person accepted
 (`id`, `role`, `attributes`) and `autoContext` as point 5 of SKILL.md says; and `capabilities` as the person answered.
 Everything else the interface says (errors, "working", the report card, the automated-assistant line) is yours to write,
-through the app's i18n, in the app's language. Declare only what a person can really do in it: the assistant invites to
+through the app's i18n, in the app's language (if the app mixes languages, the one of its `<html lang>`). Declare only what a person can really do in it: the assistant invites to
 attach or point only if you declared it.
 
 On by default, unless the person said no: attach an image, screenshot, point at an element (each declared in `capabilities`
@@ -121,13 +126,16 @@ real report to test.**
 
 1. Needs vitest, a DOM (happy-dom or jsdom) and Testing Library (`@testing-library/react`, which brings `@testing-library/dom`).
    If the app has no test runner, do not install one without the person's yes: it is a new dev dependency, and the proposal
-   says so. Without it, check only with (b) and the manual list, and say the conformance checks were not run.
+   says so. Put the tests in the app's tests folder, or in `tests/support-chat/` if it has none (and say that its tsconfig
+   will include them). If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
+   allow; never force it and never raise the app's own dependencies without asking. Without it, check only with (b) and the manual list, and say the conformance checks were not run.
 2. Copy `node_modules/@supcoflow/chat/conformance/checks.ts` and `chat.conformance.template.tsx` into the app's tests. Name the
    template `chat.conformance.test.tsx`. **Do not edit `checks.ts`.**
 3. Adapt only the three places marked `ADAPT` in the template: the component to mount, the words of its controls (regular
    expressions in the app's language) and how it is mounted (render it as the app does, with the options the template
    gives it). Where the template says to put the signed-in person's name, wire it where the app reads who is signed in,
-   and only then set `personWired` to `true`.
+   and only then set `personWired` to `true`. An app with no session has nowhere to wire it: that check stays skipped, and you
+   say so (the interface never sets a name).
 4. Run the test file. Each failure names a point of the contract and what it expected: fix the interface, never the check.
    A skipped check is not a pass: say which checks were skipped and why.
 5. Say the manual list: what no test can tell is in `MANUAL` of `checks.ts` (for example, that the "automated assistant"
@@ -147,14 +155,15 @@ real report to test.**
 4. Stop the server when you finish. The site's origin (for example `http://localhost:3000`) only needs to be in the allowed
    sites for the real backend (`supcoflow sites add`), not for the fake one.
 
-Say what you ran and what you did not: never "it works" about what you did not see work.
+When capturing, `hideUi` must hide the whole interface, including any overlay or backdrop of the app's sheet or modal, and
+`ignore` is its root. Say what you ran and what you did not: never "it works" about what you did not see work.
 
 ## 6. Record
 
 `supcoflow install record --skill <version> --shape own-interface --file <file> --file <file> --json`, with every file you created for
 the chat (the interface, its trigger, the conformance test) and the file that mounts it (the layout you edited), relative to the
-repo root. The terminal writes the contract version from the installed package. Commit it with the person's yes to the
-rest of the repo, like any other file.
+repo root. The terminal writes the contract version from the installed package. Do not commit the
+interface or the tests: they are the person's to review and commit (SKILL.md, point 10).
 
 ## Coming back later
 
