@@ -110,7 +110,7 @@ The full order:
 8. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
    (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
    file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file. For an own
-   interface add `--shape own-interface` and one `--file` for each file of the chat (point 10).
+   interface add `--shape own-interface` and one `--file` for each file of the interface (point 10).
 9. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
    chat, guide and interface: N of 7, at no cost." If it says it is not ready for a test, or a point that is not an `aviso` one fails,
    say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
@@ -166,7 +166,7 @@ goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>`
 
 Those are the widget's props. In an own interface the same answers are the `user` option of the chat (only `id`, `role`
 and `attributes` the person accepted), `autoContext: false` where the table says `contextoAutomatico={false}`, and no
-`appVersion`.
+`appVersion`. When the first answer changes later, `capabilities` follows it: to 2 or 3, all three `false`; to 1, ask the tools question again.
 
 `email` is allowed only if the person asks for it by name. Never `usuario.nombre`. If the app has no session, nothing is passed:
 leave `user_id,user_role` out of the list of the first answer.
@@ -211,7 +211,9 @@ not carry them.
 
 Show the person the configuration proposal and the list of files you will create or change before `data set`,
 `policy set` and before touching files. For an own interface the proposal also says which trigger and where, which of the
-app's components and icons it reuses, which files it creates, which tools it offers and whether it adds test packages.
+app's components and icons it reuses, which files it creates, which tools it offers and whether it adds test packages. With an
+own interface the proposal goes in the same message as the panels of point 5, and their answers count as the yes only if the
+person does not correct the proposal; otherwise ask for the yes apart. Nothing is written before it.
 
 ## 7. Do not overwrite
 
@@ -324,9 +326,10 @@ system) to step 6 (record).
 - Check it without spending: the conformance checks and the fake backend of the package spend nothing and touch no production.
   Level 2 and level 3 of [`referencias/prueba.md`](referencias/prueba.md) stay the person's.
 - Do not commit the interface, its tests or `.supcoflow/instalacion.json`: they are the person's to review and commit. Say it in line 3 of the summary.
-- Record it: `supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`. The files are
-  the ones you created for the chat and the one that mounts it; the terminal writes the contract version from the installed
-  package.
+- Record it: `supcoflow install record --skill <version> --shape own-interface --file <each file of the interface> --json`. The files are
+  the files of the interface (its components and styles), the file of the trigger if it is another, and the file that mounts it (the layout you edited); never the tests; the terminal writes the contract version from the installed
+  package. If it exits 4 with `archivo_no_versionado` or `cambios_sin_commit`, `.supcoflow/instalacion.json` is there but git does not
+  keep it: tell the person to commit or discard it, and never delete it or commit it yourself.
 
 ## 11. What you do not do
 

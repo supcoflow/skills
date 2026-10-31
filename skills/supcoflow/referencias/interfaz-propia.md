@@ -67,8 +67,9 @@ composing, compose before creating. The app's own tokens, never invented ones.
 
 The package carries a skeleton in `node_modules/@supcoflow/chat/examples/react/SupportChat.tsx` (and its README). It is a
 skeleton, not a design: bare HTML elements with the points of the contract marked in comments. Read it, then write the
-app's own interface. Never leave its bare elements in the app: every `<button>`, `<textarea>`, `<section>` and `<details>`
-becomes the app's own component, and the trigger goes where the person chose.
+app's own interface. Never leave its bare elements as they come: every `<button>`, `<textarea>`, `<section>` and `<details>`
+becomes the app's own component that does that; if the app has none, a plain element styled with the app's own styles and
+tokens, never the skeleton's unstyled one. The trigger goes where the person chose.
 
 Respect focus, the keyboard (Esc), `prefers-reduced-motion` and phones, with the app's own components where they already do it.
 
@@ -132,7 +133,9 @@ real report to test.**
    If the app has no test runner, do not install one without the person's yes: it is a new dev dependency, and the proposal
    says so. Put the tests in the app's tests folder, or in `tests/support-chat/` if it has none (and say that its tsconfig
    will include them). If the project has no `test` script, add `"test": "vitest run"`, and a `vitest.config.ts` with the
-   app's path alias if its imports use one; say both in the proposal. If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
+   app's path alias if its imports use one; say both in the proposal. If the app already uses jest, vitest is still needed (the checks use `expect(value, message)`, which jest's does not accept):
+   add it only for these tests, with the same yes. In the DOM of a test your CSS does not load, so a panel hidden only by a class
+   (Tailwind's `hidden`) looks open to the checks: hide it with `hidden`, `inert` or by unmounting it. If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
    allow; never force it and never raise the app's own dependencies without asking. Without it, check only with (b) and the manual list, and say the conformance checks were not run.
 2. Copy `node_modules/@supcoflow/chat/conformance/checks.ts` and `chat.conformance.template.tsx` into the app's tests. Name the
    template `chat.conformance.test.tsx`. **Do not edit `checks.ts`.**
@@ -155,7 +158,8 @@ real report to test.**
    `report-confirmed`, `link-to-another-site`, `daily-cap-on-open`, `question-answered`.
 2. Point the chat's `backendUrl` at that address **only in development**, with an environment variable read by the
    component; production keeps the `backend_url` of `interfaz_propia`. Never commit the fake server's address, and
-   remove it when you finish.
+   remove it when you finish. If the app has a CSP with `connect-src`, the fake server's address is blocked in development too:
+   add it only there, never in what is committed.
 3. Open the app, use the trigger, walk each scenario (the `script` of a scenario says what the person does), and take a screenshot
    of the real app for what is visual. Check at least: the report is whole and the "send" button asks nothing until pressed,
    a link to another site shows as text, a daily cap shows a message of the app's own and no button for more.
@@ -167,17 +171,18 @@ When capturing, `hideUi` must hide the whole interface, including any overlay or
 
 ## 6. Record
 
-`supcoflow install record --skill <version> --shape own-interface --file <file> --file <file> --json`, with every file you created for
-the chat (the interface, its trigger, the conformance test) and the file that mounts it (the layout you edited), relative to the
-repo root. The terminal writes the contract version from the installed package. Do not commit the
+`supcoflow install record --skill <version> --shape own-interface --file <file> --file <file> --json`, with the files of the interface (its components and styles), the file of the trigger if it is another, and the file that mounts it (the layout you edited); never the tests, relative to the
+repo root (a test the person later moves would leave point 7 of `diagnose` red). The terminal writes the contract version from the installed package. Do not commit the
 interface or the tests: they are the person's to review and commit (SKILL.md, point 10).
 
 ## Coming back later
 
 The interface is the app's code: there are no files of ours to merge. When the person runs `/supcoflow go` again,
 `supcoflow diagnose --json` compares the recorded contract version with the one the project declares today. A newer major
-version of the contract is a new required point: say so, read the new contract, change the interface and run the conformance
-checks again. A newer minor or patch only adds optional points: offer what is new and optional, and run the checks again.
+version of the contract is a new required point: say so, install the version `interfaz_propia` gives now (shown first, like the
+first time), read the new contract, change the interface, replace `checks.ts` with the new one (unedited), run the conformance
+checks again and record the installation again (step 6). A newer minor or patch only adds optional points: offer what is new
+and optional, and do the same. If recording finds `.supcoflow/instalacion.json` not kept by git, SKILL.md point 10 says what to tell the person.
 
 ## What not to do
 

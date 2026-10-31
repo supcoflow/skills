@@ -18,7 +18,7 @@ aquí, un botón «Help» en la cabecera que abre una hoja lateral) y en «Which
 - Propone y muestra **antes de escribir**: el disparador y dónde va, qué componentes de la app reutiliza (`Button`, `Sheet`, `Textarea`, `ScrollArea`),
   qué íconos (`lucide-react`), qué archivos crea (todos bajo `src/`; **ninguna carpeta `app/` en la raíz**), qué herramientas ofrece y si agrega paquetes de prueba.
 - La interfaz está hecha con los componentes y los íconos de la app, con las clases de Tailwind y los tokens de shadcn: **ninguna** librería de componentes, de íconos
-  ni fuente nueva en `package.json` (salvo, con el sí de la persona, las de prueba), ningún elemento pelado del esqueleto del paquete y **ninguna marca de Supcoflow**.
+  ni fuente nueva en `package.json` (salvo, con el sí de la persona, las de prueba), ningún elemento del esqueleto del paquete sin estilo (si la app no tiene un componente para algo, un elemento simple con sus tokens) y **ninguna marca de Supcoflow**.
 - El archivo que llama a `useSupportChat` empieza con `"use client"`; el hook vive en un componente que se queda montado aunque la hoja se cierre; `locale` declarado;
   `capabilities` igual a la respuesta; el layout de servidor sólo pasa valores serializables.
 - Corre la conformidad (con los `checks.ts` del paquete **sin editar** y la plantilla adaptada), la ve pasar, dice qué checks quedaron saltados y la lista manual.

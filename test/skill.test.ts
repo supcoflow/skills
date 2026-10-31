@@ -1299,8 +1299,8 @@ describe("la skill 0.4: construir el chat con los componentes de la app (T9)", (
 
   it("el registro: `--shape own-interface` y un `--file` por cada archivo del chat; la versión del contrato la anota la terminal", () => {
     const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
-    expect(s3).toMatch(/For an own interface add `--shape own-interface` and one `--file` for each file of the chat/);
-    expect(p10()).toMatch(/`supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`/);
+    expect(s3).toMatch(/For an own interface add `--shape own-interface` and one `--file` for each file of the interface/);
+    expect(p10()).toMatch(/`supcoflow install record --skill <version> --shape own-interface --file <each file of the interface> --json`/);
     expect(p10()).toMatch(/the terminal writes the contract version from the installed package/);
   });
 
@@ -1455,7 +1455,7 @@ describe("referencias/interfaz-propia.md (T9): el procedimiento del plan §2.5",
 
   it("anotar: `install record --shape own-interface` con cada archivo; volver a correr compara el contrato (mayor: conformidad otra vez; menor: ofrecer lo opcional)", () => {
     expect(txt()).toMatch(/install record --skill <version> --shape own-interface --file <file>/);
-    expect(txt()).toMatch(/A newer major version[^.]*run the conformance checks again/);
+    expect(txt()).toMatch(/A newer major version.*run the conformance checks again/);
     expect(txt()).toMatch(/A newer minor or patch[^.]*offer what is new and optional/);
   });
 
@@ -1529,6 +1529,22 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
   });
   it("nextjs.md dice que la interfaz propia se abrió en un navegador, contra el backend falso y nunca contra producción", () => {
     expect(P(leer(CARPETA, "referencias", "nextjs.md"))).toMatch(/was opened in Chrome on Next\.js 16\.4\.3.*against the fake backend of the package; never against production/);
+  });
+  it("revisión vuelta 1: el sí a la propuesta se define; la lista de `--file` es una sola; volver más tarde nombra los pasos; capabilities sigue a la primera respuesta; huecos de la conformidad", () => {
+    const p6 = P(seccion(skillMd, /^## 6\./m, /^## 7\./m));
+    expect(p6).toMatch(/the proposal goes in the same message as the panels of point 5, and their answers count as the yes only if the person does not correct the proposal; otherwise ask for the yes apart\. Nothing is written before it/);
+    const lista = "the files of the interface (its components and styles), the file of the trigger if it is another, and the file that mounts it (the layout you edited); never the tests";
+    expect(p10()).toContain(lista);
+    expect(propia()).toContain(lista);
+    expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/one `--file` for each file of the interface/);
+    expect(p10()).toMatch(/exits 4 with `archivo_no_versionado` or `cambios_sin_commit`[^]*tell the person to commit or discard it, and never delete it or commit it yourself/);
+    expect(propia()).toMatch(/install the version `interfaz_propia` gives now[^]*replace `checks\.ts` with the new one \(unedited\)[^]*record the installation again/);
+    expect(p5()).toMatch(/When the first answer changes later, `capabilities` follows it: to 2 or 3, all three `false`; to 1, ask the tools question again/);
+    expect(propia()).toMatch(/If the app already uses jest, vitest is still needed/);
+    expect(propia()).toMatch(/hidden only by a class \(Tailwind's `hidden`\) looks open to the checks/);
+    expect(propia()).toMatch(/If the app has a CSP with `connect-src`, the fake server's address is blocked in development too/);
+    expect(propia()).toMatch(/if the app has none, a plain element styled with the app's own styles and tokens, never the skeleton's unstyled one/);
+    expect(propia()).not.toMatch(/Never leave its bare elements in the app/);
   });
   it("la interfaz, sus pruebas y `instalacion.json` no se commitean", () => {
     expect(p10()).toMatch(/Do not commit the interface, its tests or `\.supcoflow\/instalacion\.json`/);
