@@ -1514,12 +1514,25 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
   const p10 = () => P(seccion(skillMd, /^## 10\./m, /^## 11\./m));
   const p5 = () => P(seccion(skillMd, /^## 5\./m, /^## 6\./m));
   const propia = () => P(leer(CARPETA, "referencias", "interfaz-propia.md"));
+  it("si la herramienta no muestra el código de un éxito, no se agrega `echo $?`", () => {
+    expect(P(seccion(skillMd, /^## 2\./m, /^## 3\./m))).toMatch(/if your tool shows no code for a success, a result without an error is 0; never add `echo \$\?`/);
+  });
+  it("la referencia: ids en una constante copiada del JSON, portal y `words.close`, script `test` y vitest.config, y qué cubre lo saltado", () => {
+    expect(propia()).toMatch(/in one constant \(or one environment variable\)[^|]*never typed from memory or invented/);
+    expect(propia()).toMatch(/`root` is `document\.body`, and `words\.close` names the control/);
+    expect(propia()).toMatch(/add `"test": "vitest run"`, and a `vitest\.config\.ts` with the app's path alias/);
+    expect(propia()).toMatch(/say what covers that instead/);
+  });
+  it("la interfaz, sus pruebas y `instalacion.json` no se commitean", () => {
+    expect(p10()).toMatch(/Do not commit the interface, its tests or `\.supcoflow\/instalacion\.json`/);
+  });
   it("la terminal se corre desde la carpeta de la app (lee el repo de su `origin`)", () => {
     expect(P(seccion(skillMd, /^## 2\./m, /^## 3\./m))).toMatch(/Run the terminal from the app's folder: it reads the repo from that folder's `origin`/);
   });
   it("el segundo panel no contradice la primera respuesta: con la 2 o la 3 se dice y se quita la opción 1 de las herramientas", () => {
-    expect(p5()).toMatch(/when the first answer was 2 or 3[^"]*say it and drop option 1 of the tools question/);
-    expect(p5()).toContain("Your data agreement doesn't take screenshots or pointed elements, so the chat won't offer them.");
+    expect(p5()).toMatch(/when the first answer was 2 or 3[^"]*do not ask the tools question: say/);
+    expect(p5()).toContain("Your data agreement doesn't take screenshots, images or pointed elements, so the chat won't offer evidence tools.");
+    expect(p5()).toMatch(/an image counts as a screenshot/);
   });
   it("sin sesión no se permite `user_id,user_role`: no se pasa nada", () => {
     expect(p5()).toMatch(/If the app has no session, nothing is passed: leave `user_id,user_role` out of the list/);
@@ -1533,7 +1546,7 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/If what you read in the installed package changes the proposal[^.]*say so and ask again before writing/);
   });
   it("la interfaz y las pruebas no se commitean: son de la persona; sólo la guía tiene commit", () => {
-    expect(p10()).toMatch(/Do not commit the interface: it is the person's to review and commit\. Say it in line 3 of the summary/);
+    expect(p10()).toMatch(/they are the person's to review and commit\. Say it in line 3 of the summary/);
     expect(propia()).toMatch(/Do not commit the interface or the tests/);
     expect(propia()).not.toMatch(/Commit it with the person's yes/);
   });

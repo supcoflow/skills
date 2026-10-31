@@ -22,7 +22,7 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
   0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.9.0 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
-  command's own result.
+  command's own result (if your tool shows no code for a success, a result without an error is 0; never add `echo $?`).
 - Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
   terminal.
 - In the full order, start each step with one line: "Step N of 9: <what it is>" (for example "Step 3 of 9: your
@@ -199,8 +199,9 @@ The second answer goes to the `capabilities` option of the chat and to nothing e
 `capabilities: { attachImage: false, screenshot: false, pickElement: false }`. `newConversation` stays on in all three
 (a person can always start another conversation after a report). The interface also follows `state.allows`, so a tool the
 data agreement rejects is not shown whatever they answer. So when the first answer was 2 or 3 (the agreement takes no
-screenshots or pointed elements), say it and drop option 1 of the tools question: "Your data agreement doesn't take
-screenshots or pointed elements, so the chat won't offer them." How it opens is the person's decision, never yours.
+screenshots, images or pointed elements: an image counts as a screenshot), do not ask the tools question: say "Your data
+agreement doesn't take screenshots, images or pointed elements, so the chat won't offer evidence tools." and declare all
+three `false`. How it opens is the person's decision, never yours.
 
 The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
 together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does
@@ -310,7 +311,7 @@ system) to step 6 (record).
 
 - Install the package with the app's manager and the exact version from the `instalar` of `interfaz_propia` (translated to
   the manager). If it is not an npm version of the package (a path or a URL: a build not published yet), stop and tell the
-  person: that line cannot be committed. The app is touched at step 7, so the proposal of step 5 comes from the app's code
+  person: that line cannot be committed (say it already at step 5, when you read `widget --json`). The app is touched at step 7, so the proposal of step 5 comes from the app's code
   and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask
   before writing the interface. No code comes from the terminal to paste: you write the interface with the app's components, on top of
   `useSupportChat` (`@supcoflow/chat/react`) and the helpers of `@supcoflow/chat/core`. Never copy a styled component, never
@@ -322,7 +323,7 @@ system) to step 6 (record).
 - CSP: the same rule as the widget's (above), with the `csp` line of `interfaz_propia`.
 - Check it without spending: the conformance checks and the fake backend of the package spend nothing and touch no production.
   Level 2 and level 3 of [`referencias/prueba.md`](referencias/prueba.md) stay the person's.
-- Do not commit the interface: it is the person's to review and commit. Say it in line 3 of the summary.
+- Do not commit the interface, its tests or `.supcoflow/instalacion.json`: they are the person's to review and commit. Say it in line 3 of the summary.
 - Record it: `supcoflow install record --skill <version> --shape own-interface --file <each file of the chat> --json`. The files are
   the ones you created for the chat and the one that mounts it; the terminal writes the contract version from the installed
   package.

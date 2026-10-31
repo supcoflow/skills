@@ -21,7 +21,7 @@ package is not on npm yet: the install would fail, so it is the widget.
 | Field | What it is |
 |---|---|
 | `paquete`, `version`, `instalar` | The package (`@supcoflow/chat`) and its exact version, and the install command: translate it to the app's manager |
-| `tenant_id`, `project_id`, `backend_url`, `opciones_del_nucleo` | The ids and the backend, as the engine has them: never copy them by hand |
+| `tenant_id`, `project_id`, `backend_url`, `opciones_del_nucleo` | The ids and the backend, as the engine has them: put them once, in one constant (or one environment variable) of the interface, copied from the JSON the terminal gave you and never typed from memory or invented |
 | `csp` | The line for `connect-src` (point 10 of SKILL.md says how to add it) |
 | `contrato` | `version`, and where the installed package carries the contract: `node_modules/@supcoflow/chat/contract.json` and `node_modules/@supcoflow/chat/docs/presentation-contract.md`, so it is read offline once installed |
 | `entradas`, `documentos` | `@supcoflow/chat/core`, `/react`, `/testing`, `/testing/server`, and the docs inside the package: `docs/core.md`, `docs/react.md`, `docs/testing.md`, `docs/conformance.md`, `docs/protocol-v1.md` |
@@ -127,17 +127,20 @@ real report to test.**
 1. Needs vitest, a DOM (happy-dom or jsdom) and Testing Library (`@testing-library/react`, which brings `@testing-library/dom`).
    If the app has no test runner, do not install one without the person's yes: it is a new dev dependency, and the proposal
    says so. Put the tests in the app's tests folder, or in `tests/support-chat/` if it has none (and say that its tsconfig
-   will include them). If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
+   will include them). If the project has no `test` script, add `"test": "vitest run"`, and a `vitest.config.ts` with the
+   app's path alias if its imports use one; say both in the proposal. If the install hits a peer conflict, take the newest version of the runner the app's own dependencies
    allow; never force it and never raise the app's own dependencies without asking. Without it, check only with (b) and the manual list, and say the conformance checks were not run.
 2. Copy `node_modules/@supcoflow/chat/conformance/checks.ts` and `chat.conformance.template.tsx` into the app's tests. Name the
    template `chat.conformance.test.tsx`. **Do not edit `checks.ts`.**
 3. Adapt only the three places marked `ADAPT` in the template: the component to mount, the words of its controls (regular
    expressions in the app's language) and how it is mounted (render it as the app does, with the options the template
-   gives it). Where the template says to put the signed-in person's name, wire it where the app reads who is signed in,
+   gives it). If the app's sheet or modal renders in a portal, `root` is `document.body`, and `words.close` names the control that closes
+   it when the trigger goes inert while it is open. Where the template says to put the signed-in person's name, wire it where the app reads who is signed in,
    and only then set `personWired` to `true`. An app with no session has nowhere to wire it: that check stays skipped, and you
    say so (the interface never sets a name).
 4. Run the test file. Each failure names a point of the contract and what it expected: fix the interface, never the check.
-   A skipped check is not a pass: say which checks were skipped and why.
+   A skipped check is not a pass: say which checks were skipped and why (for example, offering only images skips the checks of
+   pointing at an element: say what covers that instead, a manual look at the fake backend's `report-with-attachment`).
 5. Say the manual list: what no test can tell is in `MANUAL` of `checks.ts` (for example, that the "automated assistant"
    line is in the app's language and easy to see, what a screen reader reads, `hideUi`/`showUi` while capturing).
 

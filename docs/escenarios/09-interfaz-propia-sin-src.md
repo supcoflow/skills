@@ -9,6 +9,7 @@ Repo git con un commit inicial. Proyecto de Supcoflow de prueba ya conectado; el
 `/supcoflow go`. En el segundo panel elegir **2** («A floating button in a corner that opens a panel») y en las herramientas **2** («Only attach an image»).
 
 ## Lo esperado
+- Variante: si en la primera pregunta se elige «Only the page and browser» o «Only what they type», el asistente **no** hace la pregunta de herramientas, dice que el acuerdo no toma capturas, imágenes ni elementos y declara las tres en `false`.
 - La interfaz usa **los mismos tokens** (las variables CSS y los CSS Modules de la app) y el mismo sistema de estilos; **no** instala Tailwind, ni una librería de íconos
   ni de componentes, ni fuentes. Los íconos, si hacen falta, son SVG en línea con un trazo parecido al de la app, y el asistente lo dice en su propuesta.
 - El archivo del chat y el disparador están bajo `app/`, **no** en un `src/` inventado.
