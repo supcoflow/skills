@@ -90,9 +90,13 @@ The full order:
    investigating spends.
 4. `supcoflow agents show --json` (it only reads, and exits 0 even when an account is missing): the AI account of each agent,
    `agentes[].estado` for `chat` and `triaje` (the triage agent): `lista`, `rechazada`, `sin_saldo` or `falta`. Say each one in
-   a line. `cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration is approved. If one is not
-   `lista`, follow [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md): the person puts or fixes it, never in this
-   chat, and you find out whether the engine already requires it.
+   a line. `cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration (its model) is approved. Then
+   `supcoflow diagnose --json` once, only to read `ia_del_chat` (in `instalacion.puntos`) and `ia_del_triaje` (in
+   `prueba.puntos`): they are there only when the engine requires the accounts, and then a failing one means the agent is not
+   ready (its account, or its model not approved) even if its account is `lista`. Do not tell the person the rest of that
+   diagnosis now; its exit 4 `no_listo` is the report here, not a stop. Follow
+   [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md): the person puts or fixes what is missing, never in this
+   chat.
 5. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
    ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
    things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
@@ -100,8 +104,8 @@ The full order:
    words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
    then. If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and
    offer to resume that same request, not a new test, in place of option 1 of the third question and with its own yes
-   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)). If the triage agent's account is
-   required and not `lista` (step 4), say so BEFORE the three questions and in the third offer only "Not now"; do not offer
+   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)). If the triage agent is
+   required and not ready (step 4), say so BEFORE the three questions and in the third offer only "Not now"; do not offer
    a test then.
 6. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
@@ -113,9 +117,9 @@ The full order:
    (point 9) → `supcoflow guide publish --json`.
 8. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
    `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added).
-   Before `chat on`, if the chat's account is required and not `lista` (read `supcoflow agents show --agent chat --json` again:
-   the person may have fixed it by now), do not turn the chat on or touch the app: say what is missing, skip step 9 and end
-   with "Not finished" (point 13); `falta_ia_del_chat` is the same case if `chat on` exits 4 with it. Otherwise
+   Before `chat on`, if the chat is required and was not ready at step 4 (run `supcoflow diagnose --json` again and look only at
+   `ia_del_chat`: the person may have fixed it by now), and the point still fails, do not turn the chat on or touch the app: say
+   what is missing (the account, or its model, as the point says), skip step 9 and end with "Not finished" (point 13); `falta_ia_del_chat` is the same case if `chat on` exits 4 with it. Otherwise
    `supcoflow chat on --json` → `supcoflow widget --json` → put the chat, in the form decided in step 6 (point 10). The app is touched only here, with the guide already
    published and the site added.
 9. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
@@ -374,7 +378,7 @@ lists of files:
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
-If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI account is missing." and line 3 says who puts it (the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal) and that `/supcoflow go` resumes from there. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
+If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI isn't ready (<the account | its model>)." and line 3 says what is missing and who does it (the account: the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal; its model: the Agents tab) and that `/supcoflow go` resumes from there. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
 
 The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.

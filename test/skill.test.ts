@@ -1150,7 +1150,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
   const indice = leer(dir, "README.md");
 
-  it("son catorce, los casos pedidos, y el índice los enlaza a todos", () => {
+  it("son quince, los casos pedidos, y el índice los enlaza a todos", () => {
     expect(archivos).toEqual([
       "01-src-app.md",
       "02-csp.md",
@@ -1166,6 +1166,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
       "12-cuenta-de-ia-que-falta.md",
       "13-cuenta-de-ia-rechazada-o-sin-saldo.md",
       "14-cuentas-de-ia-listas.md",
+      "15-cuenta-lista-modelo-sin-aprobar.md",
     ]);
     for (const f of archivos) expect(indice, f).toContain(`(${f})`);
   });
@@ -1533,7 +1534,7 @@ describe("los escenarios nuevos de la T9 (8 a 11): interfaz propia y sus bordes"
   });
   it("el índice los explica y no dice que nadie los corrió: dice qué se siguió y contra qué", () => {
     const indice = t("README.md");
-    expect(indice).toMatch(/Catorce casos/);
+    expect(indice).toMatch(/Quince casos/);
     expect(indice).toMatch(/los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos/);
   });
 });
@@ -1654,7 +1655,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
   });
 
   it("`cuenta_lista` dice sólo que la CUENTA está lista, no que la configuración esté aprobada (en el paso y en la referencia)", () => {
-    const frase = /`cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration is approved/;
+    const frase = /`cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration (?:\(its model\) )?is approved/;
     expect(paso(4, 5)).toMatch(frase);
     expect(ref()).toMatch(frase);
   });
@@ -1695,21 +1696,26 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
   it("saber si el motor la exige: `diagnose --json` trae `ia_del_chat` e `ia_del_triaje` sólo cuando rigen; su 4 `no_listo` acá es el informe, no un alto", () => {
     expect(ref()).toMatch(/`supcoflow diagnose --json` lists `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\) only when the engine requires the accounts/);
     expect(ref()).toMatch(/its exit 4 `no_listo` here is the report, not a stop/);
-    expect(ref()).toMatch(/Run it only when an account is not `lista`/);
+    expect(ref()).toMatch(/Run it once at step 4, whatever `agents show` said, and use it only for those two points: do not tell the person the rest of the diagnosis now/);
+    expect(paso(4, 5)).toMatch(/Then `supcoflow diagnose --json` once, only to read `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\)/);
+    expect(paso(4, 5)).toMatch(/Do not tell the person the rest of that diagnosis now; its exit 4 `no_listo` is the report here, not a stop/);
   });
 
   it("si el motor NO la exige todavía: se avisa y se sigue; no se rompe lo que anda hoy", () => {
-    expect(ref()).toMatch(/Not required[^.]*the terminal lets you go on: warn and go on/);
+    expect(ref()).toMatch(/Its point is not in the list: not required\. The terminal lets you go on: warn and go on/);
+    expect(ref()).toMatch(/do not explain how to put it unless they ask/);
+    expect(ref()).toMatch(/if the engine does not require it, say only the one line of section 3 and give the steps below if they ask/);
     expect(ref()).toMatch(/`chat on` and the test work without the account/);
     expect(ref()).toMatch(/do not say it will be required later/);
   });
 
   it("si el motor la exige y falta la del chat: no se ofrece prender el chat, no se corre `chat on`, no se toca la app; `chat on` con 4 `falta_ia_del_chat` es lo mismo", () => {
-    expect(ref()).toMatch(/Required and the chat's account is not `lista`: do not propose turning the chat on, do not run `supcoflow chat on`, and do not touch the app/);
+    expect(ref()).toMatch(/The chat: do not propose turning the chat on, do not run `supcoflow chat on`, and do not touch the app/);
     expect(ref()).toMatch(/`falta_ia_del_chat`/);
     const p8 = paso(8, 9);
-    expect(p8).toMatch(/Before `chat on`, if the chat's account is required and not `lista`/);
-    expect(p8).toMatch(/`supcoflow agents show --agent chat --json` again/);
+    expect(p8).toMatch(/Before `chat on`, if the chat is required and was not ready at step 4/);
+    expect(p8).toMatch(/run `supcoflow diagnose --json` again and look only at `ia_del_chat`/);
+    expect(p8).not.toMatch(/agents show --agent chat/);
     expect(p8).toMatch(/do not turn the chat on or touch the app/);
     expect(p8).toMatch(/`falta_ia_del_chat` is the same case/);
     expect(p8.indexOf("Before `chat on`")).toBeLessThan(p8.indexOf("`supcoflow chat on --json`"));
@@ -1717,8 +1723,8 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
 
   it("si el motor la exige y falta la del triage agent: no se ofrece la prueba; se dice ANTES de las tres preguntas y la tercera ofrece sólo «Not now»; `test` con 4 `falta_ia_del_triaje` no se reintenta", () => {
     const p5 = paso(5, 6);
-    expect(p5).toMatch(/If the triage agent's account is required and not `lista`[^.]*say so BEFORE the three questions and in the third offer only "Not now"/);
-    expect(ref()).toMatch(/Required and the triage agent's account is not `lista`: do not offer the test/);
+    expect(p5).toMatch(/If the triage agent is required and not ready \(step 4\), say so BEFORE the three questions and in the third offer only "Not now"/);
+    expect(ref()).toMatch(/The triage agent: do not offer the test/);
     expect(ref()).toMatch(/`falta_ia_del_triaje`/);
     const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
     expect(prueba).toMatch(/`falta_ia_del_triaje` \(4\)[^.]*the triage agent has no AI account the engine accepts[^.]*do not retry/);
@@ -1726,7 +1732,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
   });
 
   it("cuando la cuenta del triage no está lista y el motor la exige, el punto del diagnóstico puede venir en ok con la política `save`: manda la presencia del punto, no su ok", () => {
-    expect(ref()).toMatch(/the presence of the point decides, not its `ok`/);
+    expect(ref()).toMatch(/The presence of the point decides whether it is required; its `ok` decides whether it is ready/);
     expect(ref()).toMatch(/with the `save` policy it can come as `ok`/);
   });
 
@@ -1764,15 +1770,62 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(ref()).toMatch(/the triage agent's model is approved only in the Agents tab \(`--agent triage` exits 4 `no_desde_la_terminal`\)/);
   });
 
+
+  // Revisión 1 (Opus), P2-1: «listo» es cuenta `lista` Y modelo aprobado; sale del motor, no sólo de `agents show`.
+  it("P2-1: un agente está listo con la cuenta Y el modelo aprobado: `lista` no alcanza, y no se dice «falta la cuenta» cuando la cuenta está", () => {
+    expect(ref()).toMatch(/An agent is \*\*ready\*\* only with its account in `lista` AND its configuration \(the model\) approved/);
+    expect(ref()).toMatch(/Its point is there and fails, or its account is not `lista`: required and not ready/);
+    expect(ref()).toMatch(/Do not say "the account is missing" if the account is `lista`/);
+    expect(ref()).toMatch(/from the `mensaje` of the point, which is the engine's own reason/);
+    expect(paso(4, 5)).toMatch(/a failing one means the agent is not ready \(its account, or its model not approved\) even if its account is `lista`/);
+    expect(paso(4, 5)).toMatch(/not that the agent's configuration \(its model\) is approved/);
+  });
+
+  it("P2-1: si lo que falta es el modelo, se dice dónde se aprueba, sin bucle: del chat en la pestaña Agents (o `agents configure` si la persona lo pide); del triage agent sólo en la pestaña Agents", () => {
+    expect(ref()).toMatch(/The account is `lista` and the point says its model is not approved: the model is approved in the project's Agents tab\. For the chat, if the person asks you to do it, section 4 \(`agents configure`\)\. For the triage agent only in the Agents tab/);
+    expect(ref()).toMatch(/Say it once; do not loop on it/);
+    expect(ref()).toMatch(/Only if the person asks to choose the chat's model, or asks you to approve it when section 3 says it is the missing piece\. Never offer it on your own/);
+    expect(ref()).toMatch(/It saves and approves it in one step/);
+  });
+
+  it("P2-1: el paso 8 y `chat on` con `falta_ia_del_chat` frenan por el punto del motor y el resumen no dice «account is missing» si la cuenta está", () => {
+    const p8 = paso(8, 9);
+    expect(p8).toMatch(/say what is missing \(the account, or its model, as the point says\)/);
+    expect(ref()).toMatch(/`falta_ia_del_chat`, it is this same case, whatever `agents show` said/);
+    expect(ref()).toMatch(/resumes from what is missing, and now says the right thing/);
+  });
+
+  it("P3-1: con el motor sin exigirla se dice sólo la línea de «avisa y sigue»; cómo ponerla sólo si la persona pregunta", () => {
+    expect(ref()).toMatch(/Only when section 3 says the engine requires the account, or when the person asks how/);
+    expect(ref()).toMatch(/Read section 3 first/);
+  });
+
+  it("P3-2: si `agents show` o el `diagnose` del paso 4 no salen bien, se dice en una línea y se sigue como «no se sabe si la exige»; ningún paso que sólo lee frena", () => {
+    expect(ref()).toMatch(/If `agents show` exits 4 or another code, say it in one line and go on as if you did not know whether the engine requires the accounts/);
+    expect(ref()).toMatch(/If it exits with anything else, say it in one line and go on as if you did not know whether the engine requires the accounts/);
+    expect(ref()).toMatch(/a step that only reads stops nobody/);
+  });
+
+  it("P3-3: el comando para la terminal de la persona va en la misma forma que usa la skill (`supcoflow` o `npx -y supcoflow@0.10.0`)", () => {
+    expect(ref()).toMatch(/Give the command in the same form you are using \(plain `supcoflow`, or `npx -y supcoflow@0\.10\.0` if you are running it pinned\)/);
+  });
+
+  it("P3-5: otro 4 de `agents check` se dice con su mensaje; un punto que no pudo leer la cuenta no es de la persona", () => {
+    expect(ref()).toMatch(/Any other 4 \(for example `cuenta_no_lista`\): say its message/);
+    expect(ref()).toMatch(/The point says the engine could not check the account[^.]*: that is not the person's to fix/);
+  });
+
   it("el resumen: una cuenta que el motor exige y falta es «Not finished»; una que no exige se dice en la línea 3; siguen siendo tres líneas", () => {
     expect(p13()).toMatch(/three lines at most/);
-    expect(p13()).toMatch(/If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI account is missing\." and line 3 says who puts it \(the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal\) and that `\/supcoflow go` resumes/);
+    expect(p13()).toMatch(/If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI isn't ready \(<the account \| its model>\)\." and line 3 says what is missing and who does it \(the account: the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal; its model: the Agents tab\) and that `\/supcoflow go` resumes/);
+    expect(p13()).not.toMatch(/AI account is missing/);
     expect(p13()).toMatch(/an AI account that is not ready and the engine does not require yet also goes in line 3/);
   });
 
   it("el nivel 2 no dice que Supcoflow siempre paga la IA del chat: si el motor exige la cuenta del chat, el costo es de la persona", () => {
     const n2 = P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^## Level 2\b/m, /^## Level 3\b/m));
-    expect(n2).toMatch(/Today Supcoflow pays it with its own key[^;]*; but when the engine requires the chat's AI account \(`ia_del_chat` is among the points of `diagnose`\), the chat's AI runs on the person's own AI account and the cost is theirs, at their provider/);
+    expect(n2).toMatch(/While `ia_del_chat` is not among the points of `diagnose`, Supcoflow pays it with its own key[^;]*; when it is \(the engine requires the chat's AI account\), the chat's AI runs on the person's own AI account and the cost is theirs, at their provider/);
+    expect(n2).not.toMatch(/\bToday\b/);
   });
 
   it("el README dice que la 0.5.0 no se publica hasta que la 0.10.0 esté en npm", () => {
@@ -1813,5 +1866,13 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(e14).toMatch(/`cuenta_lista`/);
     expect(e14).toMatch(/`supcoflow agents configure --agent chat --option standard --data-retention allow`/);
     expect(e14).toMatch(/sólo si lo pide/);
+    expect(e14).toMatch(/los dos modelos aprobados/);
+    const e15 = P(leer(dir, "15-cuenta-lista-modelo-sin-aprobar.md"));
+    expect(e15).toMatch(/`cuenta_lista: true`/);
+    expect(e15).toMatch(/no dice «falta la cuenta»/);
+    expect(e15).toMatch(/pestaña Agents/);
+    expect(e15).toMatch(/`supcoflow agents configure --agent chat --option standard --data-retention allow`/);
+    expect(e15).toMatch(/Not finished: the chat's AI isn't ready \(its model\)/);
+    expect(e15).toMatch(/no corre `supcoflow chat on`/);
   });
 });

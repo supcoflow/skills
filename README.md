@@ -35,7 +35,7 @@ su cuenta.
   pasa por el asistente**: si falta o está caída, le dice a la persona que la ponga ella, en la pestaña Agents o en su
   propia terminal con `supcoflow agents set-key`, y que después de arreglarla en su proveedor el asistente la vuelve a mirar
   con `supcoflow agents check`. Si el motor exige la cuenta (lo ve en `supcoflow diagnose`: `ia_del_chat`, `ia_del_triaje`),
-  no ofrece prender el chat sin la del chat ni la prueba sin la del triage agent; si el motor todavía no la exige (hoy los
+  no ofrece prender el chat ni la prueba si el agente no está listo (listo = cuenta `lista` y modelo aprobado; si la cuenta está y falta aprobar el modelo, lo dice así y dice dónde se aprueba); si el motor todavía no la exige (hoy los
   portones están apagados), avisa y sigue como siempre. El diagnóstico pasa de «N of 7» a «N of 8» cuando el motor suma la
   cuenta del chat. Elegir el modelo del chat (`supcoflow agents configure`) es sólo si la persona lo pide. Los pasos del
   recorrido completo pasan de nueve a diez. Mantiene el camino de la 0.4.0 «construir el chat con los componentes de la

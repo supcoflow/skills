@@ -21,10 +21,10 @@ and, with their yes, solve it; the rest you tell them and do not touch.
 
 ## Level 2: the chat in a browser
 
-First, **warn the person**: testing the chat is talking to the chat's AI, and that has a small cost. Today Supcoflow pays
-it with its own key and it does not go through the person's cap; but when the engine requires the chat's AI account
-(`ia_del_chat` is among the points of `diagnose`), the chat's AI runs on the person's own AI account and the cost is
-theirs, at their provider. It creates no issue and spends no investigation. With their yes, go on.
+First, **warn the person**: testing the chat is talking to the chat's AI, and that has a small cost. While `ia_del_chat` is not
+among the points of `diagnose`, Supcoflow pays it with its own key and it does not go through the person's cap; when it
+is (the engine requires the chat's AI account), the chat's AI runs on the person's own AI account and the cost is theirs,
+at their provider. It creates no issue and spends no investigation. With their yes, go on.
 
 You need the app running (the person starts it, or you ask for the command) and a browser you can drive (Playwright, a
 browser from your environment). If you have none, say so and skip the level: do not simulate it.
