@@ -68,7 +68,7 @@ says and stop. Then:
 
 | The person asked | You do |
 |---|---|
-| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, that one is the person's to fix: [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). |
+| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, handle it as section 3 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) says. |
 | Update the guide | Points 8 and 9 (step 7 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
 | Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
 | Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
@@ -129,8 +129,8 @@ The full order:
 10. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
    chat, guide and interface: N of 7, at no cost."; when `ia_del_chat` is among `instalacion.puntos` the total is 8 and the line
    names it: "Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost."
-   (never a fixed number). If `ia_del_chat` (in `instalacion.puntos`) or `ia_del_triaje` (in `prueba.puntos`) fails, it is the
-   person's to fix: see `referencias/cuentas-de-ia.md`. If it says it is not ready for a test, or a point that is not an `aviso`
+   (never a fixed number). If `ia_del_chat` (in `instalacion.puntos`) or `ia_del_triaje` (in `prueba.puntos`) fails, handle it
+   as section 3 of `referencias/cuentas-de-ia.md` says. If it says it is not ready for a test, or a point that is not an `aviso`
    one fails, say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
    what it says. If it is ready, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
    in a call of its own, then `supcoflow test --wait --json` (details in

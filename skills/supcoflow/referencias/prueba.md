@@ -14,7 +14,7 @@ the chat installed.
 `supcoflow diagnose --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
 fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost."
 (N of 8 when the engine also reports `ia_del_chat`, the chat's AI account: the line then names it) and, apart, whether it is
-ready for a test (`listo`). The seventh point, the interface, is advice: it is marked `aviso` and lowers the count without stopping a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). It lists the triage agent's AI account (`ia_del_triaje`) when the engine requires it. A failing AI account is the person's to fix: [`cuentas-de-ia.md`](cuentas-de-ia.md). Each point on the list it brings is something to fix or know: **do not
+ready for a test (`listo`). The seventh point, the interface, is advice: it is marked `aviso` and lowers the count without stopping a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). It lists the triage agent's AI account (`ia_del_triaje`) when the engine requires it. A failing AI account point is handled as section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md) says. Each point on the list it brings is something to fix or know: **do not
 keep a list of points in your head**, read the ones that come (there may be new points) and tell the person each one
 in your own words. If it is something the skill already knows how to solve (a site not added, the chat off), propose it
 and, with their yes, solve it; the rest you tell them and do not touch.
@@ -61,9 +61,9 @@ skill that spends and you **never add `--authorize-spend` on your own**.
 
 1. `supcoflow diagnose --json`. If it exits 4, or it is not ready for a test, or a point that is not an `aviso` one fails, fix it or tell them
    first; do not ask for money for a test that cannot get there. A failing `aviso` point (the interface one) lowers the count but does not stop the test: tell them what it says.
-   If `ia_del_triaje` is in the points and the account is not ready, do not ask for money either: the triage agent's AI
-   account (`ia_del_triaje`) is the person's to put or fix ([`cuentas-de-ia.md`](cuentas-de-ia.md)), and the only answer to
-   offer is "Not now".
+   If `ia_del_triaje` is in the points and the agent is not ready, do not ask for money either: the triage agent's AI
+   account or its model (`ia_del_triaje`) is handled as section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md) says, and the
+   only answer to offer is "Not now".
 2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
    brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
@@ -102,8 +102,8 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    - `techo_distinto` or `politica_distinta` (4): the ceiling or the policy changed; go back to point 2 and ask again
      with the new numbers (the new values come in the `--json`). The old yes does not carry over.
    - `chat_deshabilitado` or `requiere_api_key` (4): tell them the message; do not retry.
-   - `falta_ia_del_triaje` (4): the triage agent has no AI account the engine accepts, so the test does not start; do not retry
-     and tell them to put or fix it as [`cuentas-de-ia.md`](cuentas-de-ia.md) says.
+   - `falta_ia_del_triaje` (4): the triage agent isn't ready (its account, or its model not approved), so the test does not start;
+     do not retry; say its message and follow section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md).
    - exit 3 (invalid input): you sent something wrong; fix it with the message. Exit 2: no session (`login --start`
      and `login --wait`). `idempotency_key_reusada` (1): it should not happen; tell them and, if the person wants,
      start again from point 2 (another test asks for another yes).

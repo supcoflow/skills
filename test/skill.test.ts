@@ -1727,8 +1727,8 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(ref()).toMatch(/The triage agent: do not offer the test/);
     expect(ref()).toMatch(/`falta_ia_del_triaje`/);
     const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
-    expect(prueba).toMatch(/`falta_ia_del_triaje` \(4\)[^.]*the triage agent has no AI account the engine accepts[^.]*do not retry/);
-    expect(prueba).toMatch(/If `ia_del_triaje` is in the points and the account is not ready, do not ask for money/);
+    expect(prueba).toMatch(/`falta_ia_del_triaje` \(4\): the triage agent isn't ready \(its account, or its model not approved\)[^.]*do not retry; say its message and follow section 3/);
+    expect(prueba).toMatch(/If `ia_del_triaje` is in the points and the agent is not ready, do not ask for money/);
   });
 
   it("cuando la cuenta del triage no está lista y el motor la exige, el punto del diagnóstico puede venir en ok con la política `save`: manda la presencia del punto, no su ok", () => {
@@ -1749,7 +1749,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(p10).toContain("Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost.");
     expect(p10).toMatch(/when `ia_del_chat` is among `instalacion\.puntos` the total is 8/);
     expect(p10).toMatch(/never a fixed number/);
-    expect(p10).toMatch(/If `ia_del_chat` \(in `instalacion\.puntos`\) or `ia_del_triaje` \(in `prueba\.puntos`\) fails, it is the person's to fix: see `referencias\/cuentas-de-ia\.md`/);
+    expect(p10).toMatch(/If `ia_del_chat` \(in `instalacion\.puntos`\) or `ia_del_triaje` \(in `prueba\.puntos`\) fails, handle it as section 3 of `referencias\/cuentas-de-ia\.md` says/);
     expect(ref()).toMatch(/seven, or eight when `ia_del_chat` is there/);
   });
 
@@ -1757,7 +1757,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
     expect(prueba).toMatch(/N of 7, at no cost\.[^.]*\(N of 8 when the engine also reports `ia_del_chat`/);
     const n3 = P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^## Level 3\b/m, /^### Resuming a pending request/m));
-    expect(n3).toMatch(/the triage agent's AI account \(`ia_del_triaje`\)/);
+    expect(n3).toMatch(/the triage agent's AI\s+account or its model \(`ia_del_triaje`\)/);
   });
 
   it("elegir el modelo del chat sólo si lo pide la persona: `agents configure` con las dos banderas; los topes y el modelo del triage son de la pestaña Agents", () => {
@@ -1813,6 +1813,24 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
   it("P3-5: otro 4 de `agents check` se dice con su mensaje; un punto que no pudo leer la cuenta no es de la persona", () => {
     expect(ref()).toMatch(/Any other 4 \(for example `cuenta_no_lista`\): say its message/);
     expect(ref()).toMatch(/The point says the engine could not check the account[^.]*: that is not the person's to fix/);
+  });
+
+  // Revisión 2 (Opus), P3-A, P3-B, P3-C.
+  it("vuelta 2 P3-A/B: ninguna frase de la skill dice que un punto de la cuenta falla «es de la persona» sin remitir a la sección 3, ni habla sólo de «la cuenta» del triage agent", () => {
+    for (const { ruta, texto } of textosDeLaSkill) {
+      expect(P(texto), ruta).not.toMatch(/(?:ia_del_chat|ia_del_triaje)[^.]*is the person's to fix/);
+      expect(P(texto), ruta).not.toMatch(/the triage agent has no AI account the engine accepts/);
+      expect(P(texto), ruta).not.toMatch(/A failing AI account is the person's to fix/);
+    }
+    const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
+    expect(prueba).toMatch(/A failing AI account point is handled as section 3 of \[`cuentas-de-ia\.md`\]\(cuentas-de-ia\.md\) says/);
+    expect(prueba).toMatch(/the triage agent's AI account or its model \(`ia_del_triaje`\) is handled as section 3/);
+    const mapa = seccion(skillMd, /\*\*Start from what the person asked\.\*\*/, /The full order:/);
+    expect(P(mapa)).toMatch(/handle it as section 3 of \[`referencias\/cuentas-de-ia\.md`\]/);
+  });
+
+  it("vuelta 2 P3-C: con la política `guardar` el `ok` de `ia_del_triaje` no dice si el agente está listo: se dice su `mensaje` si nombra algo que falta", () => {
+    expect(ref()).toMatch(/except for the triage agent when `politica` in `diagnose` is `guardar`: there `ok` does not say whether the agent is ready, so say its `mensaje` in one line if it names something missing/);
   });
 
   it("el resumen: una cuenta que el motor exige y falta es «Not finished»; una que no exige se dice en la línea 3; siguen siendo tres líneas", () => {

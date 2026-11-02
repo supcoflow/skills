@@ -67,7 +67,9 @@ engine requires the accounts. Then, for each agent:
   `lista`. Say it as it is: "The triage agent has no AI account yet. The engine does not ask for it today, so I go on."
   `chat on` and the test work without the account; do not say it will be required later, you do not know it, and do not
   explain how to put it unless they ask.
-- Its point is there and is `ok`, and its account is `lista`: required and ready. Nothing to say.
+- Its point is there and is `ok`, and its account is `lista`: required and ready. Nothing to say, except for the triage agent
+  when `politica` in `diagnose` is `guardar`: there `ok` does not say whether the agent is ready, so say its `mensaje` in
+  one line if it names something missing (for example its model not approved).
 - Its point is there and fails, or its account is not `lista`: required and not ready. Say why in one line, from the
   account (section 1) and from the `mensaje` of the point, which is the engine's own reason. Do not say "the account is
   missing" if the account is `lista`.
