@@ -32,7 +32,7 @@ package is not on npm yet: the install would fail, so it is the widget.
 | The contract (`contract.json`) and the conformance checks | Components, icons, colors, typography, dark mode, animations |
 | The fake backend, to see and to check every state | Where it lives in the app, the phone layout, the words of everything the interface says |
 
-The package is installed at step 7 of SKILL.md (the app is touched only there), so the proposal of step 2 below is made from
+The package is installed at step 8 of SKILL.md (the app is touched only there), so the proposal of step 2 below is made from
 the app's code and this file. Right after installing, read what the package carries, in this order: `node_modules/@supcoflow/chat/docs/presentation-contract.md`
 (and `contract.json`), `docs/react.md`, `docs/core.md`. If the installed contract says something different from this file,
 the contract wins: this file is a map of it, not a copy.

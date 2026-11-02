@@ -1,8 +1,8 @@
 ---
 name: supcoflow
-description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide or its data. Do not use for other chat vendors.
+description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Supcoflow go
@@ -17,15 +17,15 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.9.0"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.10.0"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.9.0 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.10.0 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result (if your tool shows no code for a success, a result without an error is 0; never add `echo $?`).
 - Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
   terminal.
-- In the full order, start each step with one line: "Step N of 9: <what it is>" (for example "Step 3 of 9: your
+- In the full order, start each step with one line: "Step N of 10: <what it is>" (for example "Step 3 of 10: your
   settings"), so the person sees where you are.
 - Run the terminal from the app's folder: it reads the repo from that folder's `origin` (`--repo owner/repo` if you cannot).
 - Never paste the terminal's JSON to the person: say what it means in one sentence.
@@ -68,11 +68,12 @@ says and stop. Then:
 
 | The person asked | You do |
 |---|---|
-| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 9). Fix only what it names. No test, nothing is spent. |
-| Update the guide | Points 8 and 9 (step 6 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
+| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, that one is the person's to fix: [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). |
+| Update the guide | Points 8 and 9 (step 7 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
 | Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
 | Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
-| Install it, or `/supcoflow go` | The full order below, steps 1 to 9. |
+| Put, fix or check an AI account (the chat's or the triage agent's), or choose the chat's model | [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). The key is the person's: you never ask for it and never run `supcoflow agents set-key` or `supcoflow agents remove`. |
+| Install it, or `/supcoflow go` | The full order below, steps 1 to 10. |
 
 The full order:
 
@@ -87,33 +88,46 @@ The full order:
 3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
    `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
    investigating spends.
-4. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
+4. `supcoflow agents show --json` (it only reads, and exits 0 even when an account is missing): the AI account of each agent,
+   `agentes[].estado` for `chat` and `triaje` (the triage agent): `lista`, `rechazada`, `sin_saldo` or `falta`. Say each one in
+   a line. `cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration is approved. If one is not
+   `lista`, follow [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md): the person puts or fixes it, never in this
+   chat, and you find out whether the engine already requires it.
+5. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
    ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
    things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
    `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
    words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
    then. If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and
    offer to resume that same request, not a new test, in place of option 1 of the third question and with its own yes
-   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)).
-5. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
+   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)). If the triage agent's account is
+   required and not `lista` (step 4), say so BEFORE the three questions and in the third offer only "Not now"; do not offer
+   a test then.
+6. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages). If the app is Next.js (App Router), also run `supcoflow widget --json` here (it only reads) to decide
    the form (point 10: own interface or widget) before the questions. → the three questions (point 5), and with an own
    interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
-6. `git status --porcelain --ignored -- .supcoflow/guide.md` (point 7, before writing) → write `.supcoflow/guide.md`
+7. `git status --porcelain --ignored -- .supcoflow/guide.md` (point 7, before writing) → write `.supcoflow/guide.md`
    in one call → `supcoflow guide check --json` in another → show the diff and ask for the yes to the local commit
    (point 9) → `supcoflow guide publish --json`.
-7. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
-   `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added) → `supcoflow chat on --json` →
-   `supcoflow widget --json` → put the chat, in the form decided in step 5 (point 10). The app is touched only here, with the guide already
+8. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
+   `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added).
+   Before `chat on`, if the chat's account is required and not `lista` (read `supcoflow agents show --agent chat --json` again:
+   the person may have fixed it by now), do not turn the chat on or touch the app: say what is missing, skip step 9 and end
+   with "Not finished" (point 13); `falta_ia_del_chat` is the same case if `chat on` exits 4 with it. Otherwise
+   `supcoflow chat on --json` → `supcoflow widget --json` → put the chat, in the form decided in step 6 (point 10). The app is touched only here, with the guide already
    published and the site added.
-8. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
+9. `supcoflow install record --skill <metadata.version of this skill> --file <the file the chat is mounted from> --json`
    (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
    file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file. For an own
    interface add `--shape own-interface` and one `--file` for each file of the interface (point 10).
-9. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
-   chat, guide and interface: N of 7, at no cost." If it says it is not ready for a test, or a point that is not an `aviso` one fails,
-   say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
+10. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
+   chat, guide and interface: N of 7, at no cost."; when `ia_del_chat` is among `instalacion.puntos` the total is 8 and the line
+   names it: "Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost."
+   (never a fixed number). If `ia_del_chat` (in `instalacion.puntos`) or `ia_del_triaje` (in `prueba.puntos`) fails, it is the
+   person's to fix: see `referencias/cuentas-de-ia.md`. If it says it is not ready for a test, or a point that is not an `aviso`
+   one fails, say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
    what it says. If it is ready, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
    in a call of its own, then `supcoflow test --wait --json` (details in
    [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
@@ -155,7 +169,7 @@ interface offers only the tools of its second panel.
 > 1. Yes, run one test — up to US$ <ceiling> of your team's US$ <cap> monthly cap (US$ <balance> left)
 > 2. Not now
 
-Fill the numbers from the `supcoflow test --json` of step 4 and print them as numbers, not as placeholders. Each answer
+Fill the numbers from the `supcoflow test --json` of step 5 and print them as numbers, not as placeholders. Each answer
 goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>` (or `nothing`):
 
 | Answer to the first question | In Supcoflow | In the app's code |
@@ -314,7 +328,7 @@ system) to step 6 (record).
 
 - Install the package with the app's manager and the exact version from the `instalar` of `interfaz_propia` (translated to
   the manager). If it is not an npm version of the package (a path or a URL: a build not published yet), stop and tell the
-  person: that line cannot be committed (say it already at step 5, when you read `widget --json`). The app is touched at step 7, so the proposal of step 5 comes from the app's code
+  person: that line cannot be committed (say it already at step 6, when you read `widget --json`). The app is touched at step 8, so the proposal of step 6 comes from the app's code
   and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask
   before writing the interface. No code comes from the terminal to paste: you write the interface with the app's components, on top of
   `useSupportChat` (`@supcoflow/chat/react`) and the helpers of `@supcoflow/chat/core`. Never copy a styled component, never
@@ -338,7 +352,9 @@ Spend on your own: the only test that spends is level 3 of [`referencias/prueba.
 with the person's explicit yes to the numbers that `supcoflow test --json` gave; never add
 `--authorize-spend` without that yes, and never repeat an old yes for another test. Neither: raise the cap, relaunch
 an `arranque_incierto` (it is relaunched from the console inbox), delete the project, turn on the factory, give
-people access (the API rejects them by key: they belong to the console). Never show or copy a `scf_` key.
+people access (the API rejects them by key: they belong to the console). Never show or copy a `scf_` key. Never ask for an AI key, accept one that is pasted in the chat, or put one in a command, a
+file or an environment variable, and never run `supcoflow agents set-key` or `supcoflow agents remove` yourself: the key of
+an AI account is the person's alone ([`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md)).
 
 ## 12. No network
 
@@ -354,11 +370,11 @@ lists of files:
    "Each problem gets looked into and ends up as an issue."; with "Save it for me to review", "Each problem is saved
    for you to review.";
 2. where the chat lives (the file and the layout);
-3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); if the guide
+3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); an AI account that is not ready and the engine does not require yet also goes in line 3 ("the triage agent has no AI account yet; the engine does not ask for it today"); if the guide
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 
-If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
+If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI account is missing." and line 3 says who puts it (the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal) and that `/supcoflow go` resumes from there. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
 
 The step lines of point 2 are not part of the summary: they do not count in those three lines and never go in them.
 Name only files that exist (if in doubt, look first). The person corrects.

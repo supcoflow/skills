@@ -26,7 +26,7 @@ type Describir = {
   flags_globales: string[];
 };
 // El vector es la salida de `supcoflow describe --json` de la terminal fijada. Se leen sus claves en inglés
-// (`commands`, `name`, `global_flags`) y, por si la 0.9.0 publicada conserva las del 0.7.0, las castellanas:
+// (`commands`, `name`, `global_flags`) y, por si la 0.10.0 publicada conserva las del 0.7.0, las castellanas:
 // al re-sincronizar el vector con la terminal real, esto es lo único que puede necesitar tocarse.
 function leerDescribe(archivo: string): Describir {
   const crudo = JSON.parse(leer(RAIZ, "test", "vectores", archivo));
@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.9.0.json");
+const describir: Describir = leerDescribe("describe-0.10.0.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -83,7 +83,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guide publish", "install record", "chat on"...). Los demás son de una
-// palabra ("whoami", "widget", "test"). En 0.9.0 ninguna palabra es a la vez grupo y comando.
+// palabra ("whoami", "widget", "test"). En 0.10.0 ninguna palabra es a la vez grupo y comando (`agents` es sólo grupo).
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -203,7 +203,7 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.9.0 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.10.0 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
@@ -263,7 +263,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.9.0 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.10.0 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
@@ -316,12 +316,12 @@ describe("la versión de la terminal", () => {
   });
 });
 
-describe("el vector de describe es el de la terminal 0.9.0 (T9)", () => {
-  const crudo = leer(RAIZ, "test", "vectores", "describe-0.9.0.json");
+describe("el vector de describe es el de la terminal 0.10.0 (T9, cuenta de IA)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.0.json");
   const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
-  it("hay un único vector de describe y es el de la 0.9.0", () => {
-    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.9.0.json"]);
-    expect(JSON.parse(crudo).version).toBe("0.9.0");
+  it("hay un único vector de describe y es el de la 0.10.0", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.10.0.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.10.0");
   });
   it("lo que la skill nombra de la 0.8.1 sigue en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
     for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
@@ -334,7 +334,7 @@ describe("el vector de describe es el de la terminal 0.9.0 (T9)", () => {
     expect(d.comandos.find((c) => c.nombre === "project show")!.resumen).toContain("`contexto`");
     expect(d.comandos.find((c) => c.nombre === "test")!.resumen).toContain("`maquina`");
   });
-  it("lo que la skill 0.4 usa de la 0.9.0 está en lo que la terminal dice: interfaz_propia, --shape own-interface, --file repetible, total 7 y aviso", () => {
+  it("lo que la skill 0.4 usa de la 0.9.0 sigue en lo que la terminal dice: interfaz_propia, --shape own-interface, --file repetible, el total de la instalación y aviso", () => {
     const d = JSON.parse(crudo) as { comandos: { nombre: string; flags: string[] }[] };
     expect(d.comandos.find((c) => c.nombre === "widget")!.flags.join("\n")).toContain("interfaz_propia");
     const registro = d.comandos.find((c) => c.nombre === "install record")!.flags.join("\n");
@@ -343,6 +343,27 @@ describe("el vector de describe es el de la terminal 0.9.0 (T9)", () => {
     expect(d.comandos.find((c) => c.nombre === "diagnose")!.flags.join("\n")).toContain("total: 7");
     for (const nombre of ["interfaz_propia", "own-interface", "aviso", "archivos", "forma", "contrato"])
       expect(crudo, nombre).toContain(nombre);
+  });
+  it("lo que la skill 0.5 usa de la 0.10.0 está en lo que la terminal dice: agents show/check/configure/set-key, ia_del_chat, ia_del_triaje, 7 u 8", () => {
+    const d = JSON.parse(crudo) as { comandos: { nombre: string; resumen: string; flags: string[] }[] };
+    const c = (n: string) => d.comandos.find((x) => x.nombre === n)!;
+    for (const n of ["agents show", "agents set-key", "agents check", "agents configure"]) expect(c(n), n).toBeDefined();
+    expect(c("agents show").flags.join("\n")).toMatch(/--agent chat\|triage: only that agent/);
+    expect(c("agents show").flags.join("\n")).toContain("agentes: [{ agente, estado, cuenta_lista, cuenta:");
+    expect(c("agents show").resumen).toMatch(/`lista` ready, `rechazada` rejected by the provider, `sin_saldo` out of balance, `falta` missing/);
+    expect(c("agents show").resumen).toMatch(/`cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration is approved/);
+    expect(c("agents show").resumen).toMatch(/does NOT ask for the key in the chat/);
+    expect(c("agents set-key").resumen).toMatch(/sin_terminal/);
+    expect(c("agents set-key").resumen).toMatch(/requiere_dueno/);
+    expect(c("agents check").resumen).toMatch(/cuenta_rechazada \/ cuenta_sin_saldo/);
+    expect(c("agents configure").flags.join("\n")).toMatch(/--option agile\|standard\|plus/);
+    expect(c("agents configure").flags.join("\n")).toMatch(/--data-retention allow\|deny/);
+    expect(c("agents configure").resumen).toMatch(/no_desde_la_terminal/);
+    expect(c("agents configure").resumen).toMatch(/message caps \(per project and per user\) are also set only in the Agents tab/);
+    expect(c("diagnose").flags.join("\n")).toContain("total: 7 | 8");
+    expect(c("diagnose").resumen).toContain("`ia_del_chat`");
+    expect(c("diagnose").resumen).toContain("`ia_del_triaje`");
+    expect(c("diagnose").resumen).toMatch(/once AI accounts are required/);
   });
 });
 
@@ -399,13 +420,13 @@ describe("--sin-subir-version", () => {
     });
     return { r, despues: readFileSync(archivo, "utf8"), registro };
   }
-  it("se niega si la versión registrada no es la sin publicar (0.4.0)", () => {
+  it("se niega si la versión registrada no es la sin publicar (0.5.0)", () => {
     const { r, despues, registro } = correr("1.0.0");
     expect(r.status).toBe(1);
     expect(despues).toBe(registro);
   });
-  it("con la 0.4.0 (sin publicar) reescribe", () => {
-    const { r, despues, registro } = correr("0.4.0");
+  it("con la 0.5.0 (sin publicar) reescribe", () => {
+    const { r, despues, registro } = correr("0.5.0");
     expect(r.status).toBe(0);
     expect(despues).not.toBe(registro);
   });
@@ -421,8 +442,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.9.0 project delete`",
-      "`npx -y supcoflow@0.9.0 proyecto borrar`",
+      "`npx -y supcoflow@0.10.0 project delete`",
+      "`npx -y supcoflow@0.10.0 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -431,7 +452,7 @@ describe("lo que la skill no hace", () => {
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.9.0 no tiene comandos de esas acciones", () => {
+  it("la terminal 0.10.0 no tiene comandos de esas acciones", () => {
     for (const nombre of NOMBRES) expect(nombre).not.toMatch(/\bcap\b|delete|factory|access|invite|tope|borrar|fabrica|acceso|invitar/);
   });
   it("--authorize-spend sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
@@ -493,14 +514,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.4.0 y fija la terminal 0.9.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.4.0");
-    expect(describir.version).toBe("0.9.0");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.9.0 describe --json");
-    expect(P(skillMd)).toContain('if it says `"version":"0.9.0"`');
+  it("la skill es la 0.5.0 y fija la terminal 0.10.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.0");
+    expect(describir.version).toBe("0.10.0");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.10.0 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.10.0"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.9.0.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.0.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
@@ -728,14 +749,14 @@ describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)",
   const s2 = () => P(seccion(skillMd, /^## 2\./m, /^## 3\./m));
   const s3 = () => P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
   const s13 = () => P(seccion(skillMd, /^## 13\./m));
-  it("en el recorrido completo, cada paso empieza con una línea «Step N of 9: …»", () => {
-    expect(s2()).toMatch(/In the full order, start each step with one line: "Step N of 9: <what it is>"/);
-    expect(s2()).toContain('(for example "Step 3 of 9: your settings")');
+  it("en el recorrido completo, cada paso empieza con una línea «Step N of 10: …»", () => {
+    expect(s2()).toMatch(/In the full order, start each step with one line: "Step N of 10: <what it is>"/);
+    expect(s2()).toContain('(for example "Step 3 of 10: your settings")');
   });
-  it("el recorrido completo tiene exactamente nueve pasos (el «9» de la línea es cierto)", () => {
+  it("el recorrido completo tiene exactamente diez pasos (el «10» de la línea es cierto)", () => {
     const orden = seccion(skillMd, /^The full order:/m, /^Testing beyond that/m);
     const pasos = orden.split("\n").filter((l) => /^\d+\. /.test(l)).map((l) => Number(l.match(/^(\d+)\./)![1]));
-    expect(pasos).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(pasos).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
   it("las líneas de paso no se mezclan con el resumen: no cuentan en las tres líneas y no van en él", () => {
     expect(s13()).toMatch(/The step lines of point 2 are not part of the summary/);
@@ -755,7 +776,7 @@ describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)",
     const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
     expect(prueba).toMatch(/5: still running; in the same turn, run the same command again\. Ask the person nothing, but say one line per round: how many minutes it has been running/);
   });
-  it("no se inventa que la terminal diga el paso siguiente (eso es 0.9.0, no esta versión)", () => {
+  it("no se inventa que la terminal diga el paso siguiente (no lo hace en la 0.10.0)", () => {
     for (const { ruta, texto } of textosDeLaSkill) expect(P(texto), ruta).not.toMatch(/next step[^.]*terminal prints|terminal (?:tells|says) (?:you )?the next step/i);
   });
 });
@@ -780,15 +801,19 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).toContain(
       "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
     );
-    expect(readme).toContain("npm i -g supcoflow@0.9.0");
+    expect(readme).toContain("npm i -g supcoflow@0.10.0");
   });
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.4.0, fija la terminal 0.9.0 y avisa que 1B queda para una versión posterior", () => {
-    expect(readme).toMatch(/La skill es la `0\.4\.0`/);
-    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.9\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.4\.0`/);
+  it("la versión es la 0.5.0, fija la terminal 0.10.0 y avisa que 1B queda para una versión posterior a la 0.5.0", () => {
+    expect(readme).toMatch(/La skill es la `0\.5\.0`/);
+    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.0`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.0`/);
+  });
+  it("la 0.5.0 NO se publica hasta que la terminal 0.10.0 esté en npm, y lo dice el README", () => {
+    expect(readme).toMatch(/La `0\.5\.0` no se publica hasta que la terminal `0\.10\.0` esté en npm/);
+    expect(readme).toMatch(/La 0\.4\.0 sigue fijada a la terminal 0\.9\.0/);
   });
 });
 
@@ -796,20 +821,20 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
 // 1A.1, fricción 3: el aviso llega ANTES del sí al gasto (`maquina` e `intento_pendiente` de `test --json`).
 // ---------------------------------------------------------------------------------
 describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
-  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
+  const pasoPrueba = () => P(seccion(skillMd, /^5\. `supcoflow test --json`/m, /^6\. /m));
   const prueba = () => P(leer(CARPETA, "referencias", "prueba.md"));
   const punto2 = () => P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
   it("el paso 4 lee `maquina` e `intento_pendiente` de `test --json`", () => {
-    expect(paso4()).toContain("`maquina`");
-    expect(paso4()).toContain("`intento_pendiente`");
+    expect(pasoPrueba()).toContain("`maquina`");
+    expect(pasoPrueba()).toContain("`intento_pendiente`");
   });
   it("con `maquina.ok` en false dice por qué ANTES de las tres preguntas y en la tercera ofrece sólo «Not now»", () => {
-    expect(paso4()).toMatch(/If `maquina\.ok` is `false`, say why[^.]*BEFORE the three questions/);
-    expect(paso4()).toMatch(/in the third offer only "Not now"/);
+    expect(pasoPrueba()).toMatch(/If `maquina\.ok` is `false`, say why[^.]*BEFORE the three questions/);
+    expect(pasoPrueba()).toMatch(/in the third offer only "Not now"/);
   });
   it("con un `intento_pendiente` de otro techo u otra política: lo dice y ofrece retomar ESE pedido, sin un sí nuevo para otra prueba", () => {
-    expect(paso4()).toMatch(/If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request/);
-    expect(paso4()).toMatch(/not a new test/);
+    expect(pasoPrueba()).toMatch(/If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and offer to resume that same request/);
+    expect(pasoPrueba()).toMatch(/not a new test/);
   });
   it("prueba.md punto 2: trae `maquina` e `intento_pendiente`, y lo que se muestra es sólo el techo y la política", () => {
     expect(punto2()).toMatch(/`maquina` \{ ok, impedimentos \}/);
@@ -823,12 +848,12 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
     expect(punto2()).toMatch(/Follow \*\*Resuming a pending request\*\* below instead/);
     expect(punto2()).toMatch(/a new test cannot start while a request is pending/);
   });
-  it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 9 no gasta si no está listo", () => {
+  it("el nivel 1 lista `maquina` entre lo que `diagnose` dice, y el paso 10 no gasta si no está listo", () => {
     expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/`maquina`: whether this machine can save the test request/);
     expect(P(seccion(skillMd, /^## 3\./m, /^## 4\./m))).toMatch(/it is not ready for a test, or a point that is not an `aviso` one fails, say so and nothing\s+is spent/);
   });
   it("el flujo de gasto sigue igual: nunca `--authorize-spend` sin el sí a los números", () => {
-    expect(paso4()).not.toContain("--authorize-spend");
+    expect(pasoPrueba()).not.toContain("--authorize-spend");
   });
 });
 
@@ -841,8 +866,8 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
   const retomar = () => P(seccion(pruebaMd(), /^### Resuming a pending request/m));
   const punto2 = () => P(seccion(pruebaMd(), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
   const punto4 = () => P(seccion(pruebaMd(), /^4\. Only with the yes/m, /^5\. /m));
-  const paso4 = () => P(seccion(skillMd, /^4\. `supcoflow test --json`/m, /^5\. /m));
-  const paso9 = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^9\. /m));
+  const pasoPrueba = () => P(seccion(skillMd, /^5\. `supcoflow test --json`/m, /^6\. /m));
+  const pasoDiagnostico = () => P(seccion(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m), /^10\. /m));
 
   it("la sección existe, está antes del resumen y sus pasos van en orden: decir, pedir el sí a ESE pedido, correr el comando de recuperación", () => {
     enOrden(retomar(), [
@@ -867,7 +892,7 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
   it("techo distinto, política distinta y pendiente sin política (o con la máquina impedida) quedan cubiertos", () => {
     expect(punto2()).toMatch(/when its ceiling or its policy differ from the ones of this `test --json`, or it has `politica: null`/);
     expect(punto2()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume it/);
-    expect(paso4()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume/);
+    expect(pasoPrueba()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume/);
   });
   it("sin poder retomarlo (no lo quiere, o la máquina no puede) sólo se ofrece «Not now»: una prueba nueva no arranca con un pendiente", () => {
     expect(punto2()).toMatch(/If the person does not want to resume it, offer only "Not now"/);
@@ -908,11 +933,11 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
     }
     expect(retomar()).toMatch(/`techo_distinto` or `politica_distinta`: go back to point 2 and ask again with the new numbers, before any new test/);
   });
-  it("el paso 4 y el paso 9 de SKILL.md distinguen recuperar de pedir una prueba nueva y remiten a prueba.md", () => {
-    expect(paso4()).toMatch(/in place of option 1 of the third question/);
-    expect(paso4()).toMatch(/Resuming a pending request/);
-    expect(paso9()).toMatch(/If instead they said yes to resuming a pending request[^.]*do not use these values/);
-    expect(paso9()).toMatch(/Resuming a pending request/);
+  it("el paso 5 y el paso 10 de SKILL.md distinguen recuperar de pedir una prueba nueva y remiten a prueba.md", () => {
+    expect(pasoPrueba()).toMatch(/in place of option 1 of the third question/);
+    expect(pasoPrueba()).toMatch(/Resuming a pending request/);
+    expect(pasoDiagnostico()).toMatch(/If instead they said yes to resuming a pending request[^.]*do not use these values/);
+    expect(pasoDiagnostico()).toMatch(/Resuming a pending request/);
   });
   it("ningún texto escribe el alias viejo de la 0.7.0: sólo se remite a lo que la terminal imprime", () => {
     for (const { ruta, texto } of textosDeLaSkill) expect(texto, ruta).not.toMatch(/autorizo-gasto|supcoflow probar/);
@@ -1085,13 +1110,13 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
   });
   it("cada pedido va a su camino (diagnose, guía, sólo la primera pregunta, prueba, orden completo)", () => {
     const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
-    expect(filas).toHaveLength(5);
+    expect(filas).toHaveLength(6);
     const fila = (re: RegExp) => P(filas.find((l) => re.test(l)) ?? "");
     expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
     expect(fila(/Update the guide/)).toMatch(/Points 8 and 9.*Do not ask about data, policy or the test\. The questions and permissions of points 7 and 9 stay \(overwriting, the business rules, the commit\)/);
     expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code\. Do not ask the second or the third question\. The permissions of point 7 before touching files stay/);
     expect(fila(/Test it/)).toMatch(/referencias\/prueba\.md.*Level 3 spends: only with its own yes/);
-    expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 9/);
+    expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 10/);
   });
   it("el mapa no tiene prohibiciones absolutas que choquen con los permisos de los puntos 7 y 9", () => {
     expect(P(mapa)).not.toMatch(/Nothing else is asked/);
@@ -1111,12 +1136,12 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(mapa).not.toContain("--authorize-spend");
     expect(P(mapa)).not.toMatch(/supcoflow test/);
   });
-  it("lo que el mapa señala existe: puntos 8 y 9, la primera pregunta del 5 y el paso 9 del orden", () => {
+  it("lo que el mapa señala existe: puntos 8 y 9, la primera pregunta del 5 y el paso 10 del orden", () => {
     expect(skillMd).toMatch(/^## 8\. The guide/m);
     expect(skillMd).toMatch(/^## 9\. Publish the guide/m);
     expect(skillMd).toMatch(/^## 5\. What you ALWAYS ask the person/m);
-    expect(s3).toMatch(/^9\. `supcoflow diagnose --json`/m);
-    expect(s3).toMatch(/^6\. `git status/m);
+    expect(s3).toMatch(/^10\. `supcoflow diagnose --json`/m);
+    expect(s3).toMatch(/^7\. `git status/m);
   });
 });
 
@@ -1125,7 +1150,7 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
   const archivos = readdirSync(dir).filter((f) => /^\d\d-.*\.md$/.test(f)).sort();
   const indice = leer(dir, "README.md");
 
-  it("son once, los casos pedidos, y el índice los enlaza a todos", () => {
+  it("son catorce, los casos pedidos, y el índice los enlaza a todos", () => {
     expect(archivos).toEqual([
       "01-src-app.md",
       "02-csp.md",
@@ -1138,6 +1163,9 @@ describe("los escenarios para correr a mano (A4, docs/escenarios, fuera de la sk
       "09-interfaz-propia-sin-src.md",
       "10-sin-interfaz-propia.md",
       "11-conformidad-en-rojo.md",
+      "12-cuenta-de-ia-que-falta.md",
+      "13-cuenta-de-ia-rechazada-o-sin-saldo.md",
+      "14-cuentas-de-ia-listas.md",
     ]);
     for (const f of archivos) expect(indice, f).toContain(`(${f})`);
   });
@@ -1327,7 +1355,7 @@ describe("la skill 0.4: construir el chat con los componentes de la app (T9)", (
     expect(resumen).toMatch(/line 3 also says whether the conformance checks ran/);
   });
 
-  it("el paso 9 con la 0.9.0: `listo` manda y un punto `aviso` (la interfaz) baja la cuenta pero no frena la prueba", () => {
+  it("el paso 10 con la 0.10.0: `listo` manda y un punto `aviso` (la interfaz) baja la cuenta pero no frena la prueba", () => {
     const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
     expect(s3).toMatch(/A failing `aviso` point \(the interface one\) lowers the count but does not stop a test: say what it says/);
     expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost\./);
@@ -1505,7 +1533,7 @@ describe("los escenarios nuevos de la T9 (8 a 11): interfaz propia y sus bordes"
   });
   it("el índice los explica y no dice que nadie los corrió: dice qué se siguió y contra qué", () => {
     const indice = t("README.md");
-    expect(indice).toMatch(/Once casos/);
+    expect(indice).toMatch(/Catorce casos/);
     expect(indice).toMatch(/los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos/);
   });
 });
@@ -1567,9 +1595,9 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
   it("si `instalar` no es una versión de npm (ruta o URL) se frena: no se puede commitear", () => {
     expect(p10()).toMatch(/If it is not an npm version of the package \(a path or a URL[^)]*\), stop and tell the person: that line cannot be committed/);
   });
-  it("la propuesta del paso 5 sale de la app y la referencia; el contrato se lee al instalar y, si cambia lo propuesto, se pregunta de nuevo", () => {
-    expect(p10()).toMatch(/the proposal of step 5 comes from the app's code and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask before writing the interface/);
-    expect(propia()).toMatch(/The package is installed at step 7 of SKILL\.md \(the app is touched only there\)/);
+  it("la propuesta del paso 6 sale de la app y la referencia; el contrato se lee al instalar y, si cambia lo propuesto, se pregunta de nuevo", () => {
+    expect(p10()).toMatch(/the proposal of step 6 comes from the app's code and the reference; read the installed contract right after installing and, if it changes what you proposed, say so and ask before writing the interface/);
+    expect(propia()).toMatch(/The package is installed at step 8 of SKILL\.md \(the app is touched only there\)/);
     expect(propia()).toMatch(/If what you read in the installed package changes the proposal[^.]*say so and ask again before writing/);
   });
   it("la interfaz y las pruebas no se commitean: son de la persona; sólo la guía tiene commit", () => {
@@ -1593,5 +1621,197 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/including any overlay or backdrop of the app's sheet or modal/);
     expect(propia()).toMatch(/Recommend the test packages/);
     expect(propia()).toMatch(/the one of its `<html lang>`/);
+  });
+});
+
+// ---------------------------------------------------------------------------------
+// Skill 0.5.0: el paso nuevo de la cuenta de IA del cliente (terminal 0.10.0, tanda 9). Lo que tiene que decir sale de
+// «Lo que tiene que decir el paso nuevo de /supcoflow go» del informe de la terminal (docs/verificaciones/2026-11-01-t9-agents.md).
+// ---------------------------------------------------------------------------------
+describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
+  const orden = () => seccion(skillMd, /^The full order:/m, /^Testing beyond that/m);
+  const paso = (n: number, siguiente: number) => P(seccion(orden(), new RegExp(`^${n}\\. `, "m"), new RegExp(`^${siguiente}\\. `, "m")));
+  const cuentas = () => leer(CARPETA, "referencias", "cuentas-de-ia.md");
+  const ref = () => P(cuentas());
+  const p11 = () => P(seccion(skillMd, /^## 11\./m, /^## 12\./m));
+  const p13 = () => P(seccion(skillMd, /^## 13\./m));
+
+  it("la referencia existe y SKILL.md la enlaza desde el paso 4 y desde el mapa", () => {
+    expect(readdirSync(join(CARPETA, "referencias"))).toContain("cuentas-de-ia.md");
+    expect(paso(4, 5)).toContain("[`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md)");
+    const mapa = seccion(skillMd, /\*\*Start from what the person asked\.\*\*/, /The full order:/);
+    expect(P(mapa)).toContain("[`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md)");
+  });
+
+  it("el paso 4 va DESPUÉS de `config` (3) y ANTES de `test --json` (5): lee `agents show --json` y los cuatro estados de los dos agentes", () => {
+    expect(paso(3, 4)).toMatch(/^3\. `supcoflow config --json`/);
+    expect(paso(4, 5)).toMatch(/^4\. `supcoflow agents show --json`/);
+    expect(P(seccion(orden(), /^5\. /m, /^6\. /m))).toMatch(/^5\. `supcoflow test --json`/);
+    const p4 = paso(4, 5);
+    expect(p4).toMatch(/it only reads, and exits 0 even when an account is missing/);
+    expect(p4).toMatch(/`agentes\[\]\.estado` for `chat` and `triaje`/);
+    for (const estado of ["`lista`", "`rechazada`", "`sin_saldo`", "`falta`"]) expect(p4, estado).toContain(estado);
+  });
+
+  it("`cuenta_lista` dice sólo que la CUENTA está lista, no que la configuración esté aprobada (en el paso y en la referencia)", () => {
+    const frase = /`cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration is approved/;
+    expect(paso(4, 5)).toMatch(frase);
+    expect(ref()).toMatch(frase);
+  });
+
+  it("la clave NUNCA pasa por el asistente: no se pide en el chat, no se acepta pegada, no se corre `set-key` ni `remove`", () => {
+    expect(ref()).toMatch(/It never passes through you/);
+    expect(ref()).toMatch(/Never ask for the key in the chat/);
+    expect(ref()).toMatch(/never accept one that is pasted there/);
+    expect(ref()).toMatch(/never put a key in a command, a file or an environment variable/);
+    expect(ref()).toMatch(/never run `supcoflow agents set-key` or `supcoflow agents remove` yourself/);
+    expect(p11()).toMatch(/Never ask for an AI key, accept one that is pasted in the chat, or put one in a command, a file or an environment variable/);
+    expect(p11()).toMatch(/never run `supcoflow agents set-key` or `supcoflow agents remove` yourself/);
+    // ningún texto manda al asistente a leerla de una variable ni a pasarla como argumento
+    for (const { ruta, texto } of textosDeLaSkill) expect(texto, ruta).not.toMatch(/--from-env|--key\b|--api-key|--token\b/);
+  });
+
+  it("si la persona igual pega una clave: no se usa, no se repite, se da por expuesta y se crea otra", () => {
+    expect(ref()).toMatch(/If they paste a key into the chat anyway: do not use it and do not repeat it; tell them to treat it as exposed \(delete it at the provider and create a new one\)/);
+  });
+
+  it("a la persona se le dice dónde ponerla: la pestaña Agents, o su propia terminal con `set-key --agent chat` (o `triage`), que la pide sin mostrarla; sólo el dueño del equipo", () => {
+    expect(ref()).toMatch(/in the project's Agents tab/);
+    expect(ref()).toMatch(/open your own terminal in the app's folder and type `supcoflow agents set-key --agent chat` \(or `--agent triage`\)/);
+    expect(ref()).toMatch(/asks for the key without showing it/);
+    expect(ref()).toMatch(/Only a team Owner can/);
+    expect(ref()).toMatch(/do not tell them to run it through this chat/);
+    expect(ref()).not.toMatch(/(?:^|\s)!\s*supcoflow/);
+  });
+
+  it("una cuenta rechazada o sin saldo: se arregla en el proveedor y después `agents check --agent chat` (o triage) la vuelve a mirar", () => {
+    expect(ref()).toMatch(/`rechazada` or `sin_saldo`[^.]*fix it at the AI provider/);
+    expect(ref()).toMatch(/`supcoflow agents check --agent chat --json` \(or `--agent triage`\)/);
+    expect(ref()).toMatch(/exits 4 `cuenta_rechazada` or `cuenta_sin_saldo`: it is still not ready/);
+    expect(ref()).toMatch(/4 `sin_cuenta`: there is no account, so it is `falta`/);
+    expect(ref()).toMatch(/1 `proveedor_no_responde`: the provider did not answer, which says nothing about the key; do not retry more than once/);
+  });
+
+  it("saber si el motor la exige: `diagnose --json` trae `ia_del_chat` e `ia_del_triaje` sólo cuando rigen; su 4 `no_listo` acá es el informe, no un alto", () => {
+    expect(ref()).toMatch(/`supcoflow diagnose --json` lists `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\) only when the engine requires the accounts/);
+    expect(ref()).toMatch(/its exit 4 `no_listo` here is the report, not a stop/);
+    expect(ref()).toMatch(/Run it only when an account is not `lista`/);
+  });
+
+  it("si el motor NO la exige todavía: se avisa y se sigue; no se rompe lo que anda hoy", () => {
+    expect(ref()).toMatch(/Not required[^.]*the terminal lets you go on: warn and go on/);
+    expect(ref()).toMatch(/`chat on` and the test work without the account/);
+    expect(ref()).toMatch(/do not say it will be required later/);
+  });
+
+  it("si el motor la exige y falta la del chat: no se ofrece prender el chat, no se corre `chat on`, no se toca la app; `chat on` con 4 `falta_ia_del_chat` es lo mismo", () => {
+    expect(ref()).toMatch(/Required and the chat's account is not `lista`: do not propose turning the chat on, do not run `supcoflow chat on`, and do not touch the app/);
+    expect(ref()).toMatch(/`falta_ia_del_chat`/);
+    const p8 = paso(8, 9);
+    expect(p8).toMatch(/Before `chat on`, if the chat's account is required and not `lista`/);
+    expect(p8).toMatch(/`supcoflow agents show --agent chat --json` again/);
+    expect(p8).toMatch(/do not turn the chat on or touch the app/);
+    expect(p8).toMatch(/`falta_ia_del_chat` is the same case/);
+    expect(p8.indexOf("Before `chat on`")).toBeLessThan(p8.indexOf("`supcoflow chat on --json`"));
+  });
+
+  it("si el motor la exige y falta la del triage agent: no se ofrece la prueba; se dice ANTES de las tres preguntas y la tercera ofrece sólo «Not now»; `test` con 4 `falta_ia_del_triaje` no se reintenta", () => {
+    const p5 = paso(5, 6);
+    expect(p5).toMatch(/If the triage agent's account is required and not `lista`[^.]*say so BEFORE the three questions and in the third offer only "Not now"/);
+    expect(ref()).toMatch(/Required and the triage agent's account is not `lista`: do not offer the test/);
+    expect(ref()).toMatch(/`falta_ia_del_triaje`/);
+    const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
+    expect(prueba).toMatch(/`falta_ia_del_triaje` \(4\)[^.]*the triage agent has no AI account the engine accepts[^.]*do not retry/);
+    expect(prueba).toMatch(/If `ia_del_triaje` is in the points and the account is not ready, do not ask for money/);
+  });
+
+  it("cuando la cuenta del triage no está lista y el motor la exige, el punto del diagnóstico puede venir en ok con la política `save`: manda la presencia del punto, no su ok", () => {
+    expect(ref()).toMatch(/the presence of the point decides, not its `ok`/);
+    expect(ref()).toMatch(/with the `save` policy it can come as `ok`/);
+  });
+
+  it("las preguntas no cambian: la cuenta de IA no es una cuarta pregunta ni se pregunta nada de modelos junto a las tres", () => {
+    const p5 = P(seccion(skillMd, /^## 5\./m, /^## 6\./m));
+    expect(p5).not.toMatch(/AI account|agents configure/);
+    expect(ref()).toMatch(/not a fourth question/);
+  });
+
+  it("después de `diagnose` se lee `instalacion.ok` / `instalacion.total` (7 u 8) y los puntos `ia_del_chat` e `ia_del_triaje`, no un número fijo", () => {
+    const p10 = paso(10, 11);
+    expect(p10).toMatch(/build it from `instalacion\.ok` and `instalacion\.total`/);
+    expect(p10).toContain("Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost.");
+    expect(p10).toContain("Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost.");
+    expect(p10).toMatch(/when `ia_del_chat` is among `instalacion\.puntos` the total is 8/);
+    expect(p10).toMatch(/never a fixed number/);
+    expect(p10).toMatch(/If `ia_del_chat` \(in `instalacion\.puntos`\) or `ia_del_triaje` \(in `prueba\.puntos`\) fails, it is the person's to fix: see `referencias\/cuentas-de-ia\.md`/);
+    expect(ref()).toMatch(/seven, or eight when `ia_del_chat` is there/);
+  });
+
+  it("el nivel 1 de prueba.md dice «N of 7» u 8; el nivel 3 no pide plata si `ia_del_triaje` está en los puntos y la cuenta no está lista", () => {
+    const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
+    expect(prueba).toMatch(/N of 7, at no cost\.[^.]*\(N of 8 when the engine also reports `ia_del_chat`/);
+    const n3 = P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^## Level 3\b/m, /^### Resuming a pending request/m));
+    expect(n3).toMatch(/the triage agent's AI account \(`ia_del_triaje`\)/);
+  });
+
+  it("elegir el modelo del chat sólo si lo pide la persona: `agents configure` con las dos banderas; los topes y el modelo del triage son de la pestaña Agents", () => {
+    expect(ref()).toMatch(/Only if the person asks/);
+    expect(ref()).toMatch(/`supcoflow agents configure --agent chat --option <agile\|standard\|plus> --data-retention <allow\|deny> --json`/);
+    expect(ref()).toMatch(/both flags are required: the terminal cannot read what is set, so it guesses nothing/);
+    expect(ref()).toMatch(/Never offer it on your own, and it is not one of the three questions/);
+    expect(ref()).toMatch(/`opcion_sin_medicion`/);
+    expect(ref()).toMatch(/message caps of the chat \(per project and per user\) are changed only in the Agents tab/);
+    expect(ref()).toMatch(/the triage agent's model is approved only in the Agents tab \(`--agent triage` exits 4 `no_desde_la_terminal`\)/);
+  });
+
+  it("el resumen: una cuenta que el motor exige y falta es «Not finished»; una que no exige se dice en la línea 3; siguen siendo tres líneas", () => {
+    expect(p13()).toMatch(/three lines at most/);
+    expect(p13()).toMatch(/If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI account is missing\." and line 3 says who puts it \(the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal\) and that `\/supcoflow go` resumes/);
+    expect(p13()).toMatch(/an AI account that is not ready and the engine does not require yet also goes in line 3/);
+  });
+
+  it("el nivel 2 no dice que Supcoflow siempre paga la IA del chat: si el motor exige la cuenta del chat, el costo es de la persona", () => {
+    const n2 = P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^## Level 2\b/m, /^## Level 3\b/m));
+    expect(n2).toMatch(/Today Supcoflow pays it with its own key[^;]*; but when the engine requires the chat's AI account \(`ia_del_chat` is among the points of `diagnose`\), the chat's AI runs on the person's own AI account and the cost is theirs, at their provider/);
+  });
+
+  it("el README dice que la 0.5.0 no se publica hasta que la 0.10.0 esté en npm", () => {
+    expect(P(leer(RAIZ, "README.md"))).toMatch(/La `0\.5\.0` no se publica hasta que la terminal `0\.10\.0` esté en npm/);
+  });
+
+  it("la descripción menciona la cuenta de IA entre lo que dispara la skill", () => {
+    expect(encabezadoYaml(skillMd).description as string).toMatch(/its AI account/);
+  });
+
+  it("la skill no inventa ningún comando `agents` y sólo usa los que la terminal tiene (show, check, configure; set-key y remove sólo para decir que no los corre)", () => {
+    const usados = new Set<string>();
+    for (const { texto } of textosDeLaSkill)
+      for (const pedazo of pedazosDeCodigo(texto))
+        for (const { tokens } of invocacionesDe(pedazo)) {
+          const [a, b] = tokens.filter((x) => !x.startsWith("-"));
+          if (a === "agents") usados.add(`agents ${b}`);
+        }
+    for (const u of usados) expect(NOMBRES.has(u), u).toBe(true);
+    expect([...usados].sort()).toEqual(["agents check", "agents configure", "agents remove", "agents set-key", "agents show"]);
+  });
+
+  it("los escenarios 12 a 14 están, con el caso del portón apagado dentro del 12", () => {
+    const dir = join(RAIZ, "docs", "escenarios");
+    const e12 = P(leer(dir, "12-cuenta-de-ia-que-falta.md"));
+    expect(e12).toMatch(/\(a\) el motor la exige/);
+    expect(e12).toMatch(/\(b\) el motor todavía no la exige/);
+    expect(e12).toMatch(/no la pide en el chat/);
+    expect(e12).toMatch(/no corre `supcoflow agents set-key`/);
+    expect(e12).toMatch(/no corre `supcoflow chat on`/);
+    expect(e12).toMatch(/avisa y sigue/);
+    const e13 = P(leer(dir, "13-cuenta-de-ia-rechazada-o-sin-saldo.md"));
+    expect(e13).toMatch(/`supcoflow agents check --agent chat --json`/);
+    expect(e13).toMatch(/`cuenta_rechazada`/);
+    expect(e13).toMatch(/`cuenta_sin_saldo`/);
+    const e14 = P(leer(dir, "14-cuentas-de-ia-listas.md"));
+    expect(e14).toMatch(/«N of 8»/);
+    expect(e14).toMatch(/`cuenta_lista`/);
+    expect(e14).toMatch(/`supcoflow agents configure --agent chat --option standard --data-retention allow`/);
+    expect(e14).toMatch(/sólo si lo pide/);
   });
 });
