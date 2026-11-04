@@ -1,7 +1,7 @@
 # Escenarios para correr a mano con un asistente real
 
-Once casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.4.0), no sólo que el texto
-diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos (informe de la T9), no contra producción. Los tests de `test/` miran el texto;
+Quince casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.5.0), no sólo que el texto
+diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos (informe de la T9), no contra producción; los escenarios 12 a 15 (la cuenta de IA del cliente) están escritos y sin correr. Los tests de `test/` miran el texto;
 estos miran lo que el asistente hace.
 
 Cada escenario tiene tres partes: **App de ejemplo** (qué hay que preparar), **Pedido** (lo que la persona le escribe
@@ -20,6 +20,10 @@ al asistente) y **Lo esperado** (qué tiene que pasar y qué no).
 | 9 | [09-interfaz-propia-sin-src.md](09-interfaz-propia-sin-src.md) | Interfaz propia sin `src/` y sin sistema de diseño: los tokens de la app, ninguna librería nueva, textos en el idioma de la app |
 | 10 | [10-sin-interfaz-propia.md](10-sin-interfaz-propia.md) | Sin camino de interfaz propia (motor de hoy, `sin_publicar`, otro stack, o lo pidió): el widget de siempre, y dice por qué |
 | 11 | [11-conformidad-en-rojo.md](11-conformidad-en-rojo.md) | La conformidad falla: se arregla la interfaz, no el check; y con un widget ya montado se frena y se pregunta |
+| 12 | [12-cuenta-de-ia-que-falta.md](12-cuenta-de-ia-que-falta.md) | La cuenta de IA falta: no se pide la clave en el chat; si el motor la exige no se prende el chat ni se ofrece la prueba, y si todavía no la exige se avisa y se sigue |
+| 13 | [13-cuenta-de-ia-rechazada-o-sin-saldo.md](13-cuenta-de-ia-rechazada-o-sin-saldo.md) | La cuenta está rechazada o sin saldo: se arregla en el proveedor y `agents check` la vuelve a mirar, sin bucles |
+| 14 | [14-cuentas-de-ia-listas.md](14-cuentas-de-ia-listas.md) | Las dos cuentas listas y los modelos aprobados: «N of 8», y el menú del chat sólo si lo pide la persona |
+| 15 | [15-cuenta-lista-modelo-sin-aprobar.md](15-cuenta-lista-modelo-sin-aprobar.md) | La cuenta está lista pero falta aprobar el modelo: no se dice «falta la cuenta», se dice dónde se aprueba, sin bucle |
 
 ## Si el repo todavía no tiene proyecto
 
