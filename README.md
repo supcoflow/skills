@@ -35,16 +35,16 @@ su cuenta.
   pasa por el asistente**: si falta o está caída, le dice a la persona que la ponga ella, en la pestaña Agents o en su
   propia terminal con `supcoflow agents set-key`, y que después de arreglarla en su proveedor el asistente la vuelve a mirar
   con `supcoflow agents check`. Si el motor exige la cuenta (lo ve en `supcoflow diagnose`: `ia_del_chat`, `ia_del_triaje`),
-  no ofrece prender el chat ni la prueba si el agente no está listo (listo = cuenta `lista` y modelo aprobado; si la cuenta está y falta aprobar el modelo, lo dice así y dice dónde se aprueba); si el motor todavía no la exige (hoy los
-  portones están apagados), avisa y sigue como siempre. El diagnóstico pasa de «N of 7» a «N of 8» cuando el motor suma la
+  no ofrece prender el chat ni la prueba si el agente no está listo (listo = cuenta `lista` y modelo aprobado; si la cuenta está y falta aprobar el modelo, lo dice así y dice dónde se aprueba); si el motor todavía no la exige (desde el
+  2026-11-04 la exige en producción), avisa y sigue como siempre. El diagnóstico pasa de «N of 7» a «N of 8» cuando el motor suma la
   cuenta del chat. Elegir el modelo del chat (`supcoflow agents configure`) es sólo si la persona lo pide. Los pasos del
   recorrido completo pasan de nueve a diez. Mantiene el camino de la 0.4.0 «construir el chat con los componentes de la
   app» (`referencias/interfaz-propia.md`), por defecto en Next.js (App Router); el widget queda de respaldo. La privacidad
   de la etapa 1B, que el plan 1A tenía reservada para la 0.3.1 y después para la 0.3.2, queda para una versión posterior a
   la `0.5.0`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
   huella: cambiar el texto sin subir la versión deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.10.0`. **La `0.5.0` no se publica hasta que la terminal `0.10.0` esté en npm**
-  (hoy está sólo en el repo de la terminal, sin publicar; sin esa versión en npm, el `npx -y supcoflow@0.10.0` de la skill no encuentra la terminal).
+- Fija la terminal en `npx -y supcoflow@0.10.0`. La `0.5.0` se publicó el 2026-11-04, después de la terminal `0.10.0` en npm
+  (sin esa versión en npm, el `npx -y supcoflow@0.10.0` de la skill no encuentra la terminal).
   Tampoco funciona en producción antes de que el motor describa la interfaz propia en `/widget` y esté publicado el paquete
   `@supcoflow/chat` con el núcleo, el hook de React y la conformidad: sin `interfaz_propia`, o con `estado: sin_publicar`, usa
   el widget, como la 0.3.1. La 0.4.0 sigue fijada a la terminal 0.9.0, la 0.2.1 a la 0.7.0, la 0.3.0 a la 0.8.0 y la 0.3.1 a la 0.8.1.
