@@ -1894,3 +1894,14 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(e15).toMatch(/no corre `supcoflow chat on`/);
   });
 });
+
+describe("la licencia viaja con la skill", () => {
+  it("la carpeta que se instala lleva el mismo LICENSE que la raíz", () => {
+    expect(leer(CARPETA, "LICENSE")).toBe(leer(RAIZ, "LICENSE"));
+  });
+  it("el LICENSE es MIT con el titular de Supcoflow", () => {
+    const t = leer(CARPETA, "LICENSE");
+    expect(t).toMatch(/^MIT License/);
+    expect(t).toContain("Copyright (c) 2026 Supcoflow");
+  });
+});
