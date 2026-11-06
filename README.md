@@ -70,6 +70,8 @@ npm test
 - No hace `git push`.
 - No tiene camino para quien no usa un asistente de código.
 
-## Licencia
+## License
 
-Pendiente. La de la terminal es hoy `UNLICENSED`; es una decisión abierta del dueño.
+MIT. See [LICENSE](LICENSE).
+
+**Name and logo.** The code is MIT-licensed. The name "Supcoflow" and its logo are not part of the license: you can fork and change the code, but a modified version must not be called Supcoflow or look like it comes from Supcoflow. Saying your project "works with Supcoflow" is fine.
