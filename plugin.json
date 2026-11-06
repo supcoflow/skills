@@ -2,5 +2,6 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "supcoflow-skills",
   "description": "The supcoflow skill: installs and configures the Supcoflow support chat in an app, from a coding agent.",
+  "license": "MIT",
   "repository": "https://github.com/supcoflow/skills"
 }
