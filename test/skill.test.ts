@@ -811,8 +811,8 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.0`/);
     expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.0`/);
   });
-  it("la 0.5.0 NO se publica hasta que la terminal 0.10.0 esté en npm, y lo dice el README", () => {
-    expect(readme).toMatch(/La `0\.5\.0` no se publica hasta que la terminal `0\.10\.0` esté en npm/);
+  it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
+    expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
     expect(readme).toMatch(/La 0\.4\.0 sigue fijada a la terminal 0\.9\.0/);
   });
 });
@@ -1846,8 +1846,8 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(n2).not.toMatch(/\bToday\b/);
   });
 
-  it("el README dice que la 0.5.0 no se publica hasta que la 0.10.0 esté en npm", () => {
-    expect(P(leer(RAIZ, "README.md"))).toMatch(/La `0\.5\.0` no se publica hasta que la terminal `0\.10\.0` esté en npm/);
+  it("el README dice que la 0.5.0 se publicó después de la 0.10.0 en npm", () => {
+    expect(P(leer(RAIZ, "README.md"))).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
   });
 
   it("la descripción menciona la cuenta de IA entre lo que dispara la skill", () => {
