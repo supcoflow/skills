@@ -18,7 +18,7 @@ El comando es el mismo para cualquier asistente. Qué pasa depende de quién lo 
 - If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this
   skill.
 
-Para comandos más cortos, la terminal se puede instalar aparte: `npm i -g supcoflow@0.10.0`. La skill no la instala por
+Para comandos más cortos, la terminal se puede instalar aparte: `npm i -g supcoflow@0.10.1`. La skill no la instala por
 su cuenta.
 
 ## Usar
@@ -29,7 +29,7 @@ su cuenta.
 
 ## Versiones
 
-- La skill es la `0.5.0` (`metadata.version` en `skills/supcoflow/SKILL.md`). Suma el paso nuevo de la cuenta de IA del
+- La skill es la `0.5.1` (`metadata.version` en `skills/supcoflow/SKILL.md`). Suma el paso nuevo de la cuenta de IA del
   cliente (`referencias/cuentas-de-ia.md`): después de `supcoflow config` lee `supcoflow agents show --json` y dice, agente
   por agente (el chat y el triage agent), si la cuenta está `lista`, `rechazada`, `sin_saldo` o `falta`. **La clave nunca
   pasa por el asistente**: si falta o está caída, le dice a la persona que la ponga ella, en la pestaña Agents o en su
@@ -41,15 +41,16 @@ su cuenta.
   recorrido completo pasan de nueve a diez. Mantiene el camino de la 0.4.0 «construir el chat con los componentes de la
   app» (`referencias/interfaz-propia.md`), por defecto en Next.js (App Router); el widget queda de respaldo. La privacidad
   de la etapa 1B, que el plan 1A tenía reservada para la 0.3.1 y después para la 0.3.2, queda para una versión posterior a
-  la `0.5.0`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
+  la `0.5.1`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
   huella: cambiar el texto sin subir la versión deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.10.0`. La `0.5.0` se publicó el 2026-11-04, después de la terminal `0.10.0` en npm
+- Fija la terminal en `npx -y supcoflow@0.10.1`. La `0.5.1` sólo cambia esa fijación (de la `0.10.0` a la `0.10.1`, ya en npm); el
+  texto de la skill no cambia en nada más. La `0.5.0` se publicó el 2026-11-04, después de la terminal `0.10.0` en npm
   (sin esa versión en npm, el `npx -y supcoflow@0.10.0` de la skill no encuentra la terminal).
   Tampoco funciona en producción antes de que el motor describa la interfaz propia en `/widget` y esté publicado el paquete
   `@supcoflow/chat` con el núcleo, el hook de React y la conformidad: sin `interfaz_propia`, o con `estado: sin_publicar`, usa
   el widget, como la 0.3.1. La 0.4.0 sigue fijada a la terminal 0.9.0, la 0.2.1 a la 0.7.0, la 0.3.0 a la 0.8.0 y la 0.3.1 a la 0.8.1.
 - Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
-  `describe-0.10.0.json` (la salida de `supcoflow describe --json` de la terminal 0.10.0, construida desde el main local del repo de la terminal), `guia-de-ejemplo.md` (la
+  `describe-0.10.1.json` (la salida de `supcoflow describe --json` de la terminal 0.10.1 publicada en npm), `guia-de-ejemplo.md` (la
   guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,
   byte a byte) y `motivos-de-la-guia.json` (esos mismos `motivo`, más el `queHacer` propio de la skill). No se
   escriben a mano: el motor es la fuente de la guía y los `motivo`; la terminal construida, la de `describe`.

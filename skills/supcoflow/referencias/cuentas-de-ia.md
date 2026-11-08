@@ -38,7 +38,7 @@ asks how: if the engine does not require it, say only the one line of section 3 
 - `falta`: "The <chat | triage agent> has no AI account yet. Add it in the project's Agents tab, or open your own terminal in
   the app's folder and type `supcoflow agents set-key --agent chat` (or `--agent triage`): it asks for the key without
   showing it. Only a team Owner can." Give the command in the same form you are using (plain `supcoflow`, or
-  `npx -y supcoflow@0.10.0` if you are running it pinned), because their terminal may have an older one without `agents`
+  `npx -y supcoflow@0.10.1` if you are running it pinned), because their terminal may have an older one without `agents`
   (do not tell them to run it through this chat, and do not depend on a shell escape inside your own tool: it may have no
   interactive terminal, and then the command exits 4 `sin_terminal` and asks for nothing).
 - `rechazada` or `sin_saldo`: fix it at the AI provider (a new key, balance, the key's own cap), or replace the key the
