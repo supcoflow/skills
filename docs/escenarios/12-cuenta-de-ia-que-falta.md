@@ -19,7 +19,7 @@ tercero, lo que se ofrezca (en (a) y (c) sólo hay «Not now»).
   por agente**, que la cuenta de IA falta, y **no la pide en el chat**: le dice a la persona que la ponga ella, en la pestaña
   Agents del proyecto o abriendo **su propia terminal** en la carpeta de la app y escribiendo
   `supcoflow agents set-key --agent chat` (o `--agent triage`) en la misma forma en que el asistente corre la terminal (`supcoflow` o
-  `npx -y supcoflow@0.10.0`), que se la pide sin mostrarla, y que sólo un Owner del equipo puede. Esto lo dice en (a) y (c), donde el motor la exige; en (b) sólo si la persona pregunta. No depende de ningún atajo de su propia herramienta.
+  `npx -y supcoflow@0.10.1`), que se la pide sin mostrarla, y que sólo un Owner del equipo puede. Esto lo dice en (a) y (c), donde el motor la exige; en (b) sólo si la persona pregunta. No depende de ningún atajo de su propia herramienta.
 - El asistente **no corre `supcoflow agents set-key`** ni `supcoflow agents remove`, no usa `--from-env`, y ninguna clave
   pasa por el chat. Si la persona pega una igual, el asistente no la usa ni la repite y le dice que la dé por expuesta (que la borre
   en su proveedor y cree otra).
