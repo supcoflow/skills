@@ -21,7 +21,7 @@ The text the person receives (`SKILL.md` and everything in `referencias/`) is ti
 
 ## Vectors
 
-`describe-0.10.0.json`, `guia-de-ejemplo.md` and `motivos-del-motor.json` are copies from other repos (the terminal and the engine). Do not write them by hand; re-sync them from their source when it changes. `motivos-de-la-guia.json` takes its `motivo` fields from the engine copy, but its `queHacer` text is the skill's own: sync the motives, then review that text. `huella-de-la-skill.json` is written by `npm run huella -- --escribir`.
+`describe-0.10.2.json`, `guia-de-ejemplo.md` and `motivos-del-motor.json` are copies from other repos (the terminal and the engine). Do not write them by hand; re-sync them from their source when it changes. `motivos-de-la-guia.json` takes its `motivo` fields from the engine copy, but its `queHacer` text is the skill's own: sync the motives, then review that text. `huella-de-la-skill.json` is written by `npm run huella -- --escribir`.
 
 ## Terminal version
 

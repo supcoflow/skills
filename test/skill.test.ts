@@ -26,7 +26,7 @@ type Describir = {
   flags_globales: string[];
 };
 // El vector es la salida de `supcoflow describe --json` de la terminal fijada. Se leen sus claves en inglés
-// (`commands`, `name`, `global_flags`) y, por si la 0.10.0 publicada conserva las del 0.7.0, las castellanas:
+// (`commands`, `name`, `global_flags`) y, por si la 0.10.2 publicada conserva las del 0.7.0, las castellanas:
 // al re-sincronizar el vector con la terminal real, esto es lo único que puede necesitar tocarse.
 function leerDescribe(archivo: string): Describir {
   const crudo = JSON.parse(leer(RAIZ, "test", "vectores", archivo));
@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.10.0.json");
+const describir: Describir = leerDescribe("describe-0.10.2.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -83,7 +83,7 @@ function encabezadoYaml(texto: string): Record<string, unknown> {
 const NOMBRES = new Set(describir.comandos.map((c) => c.nombre));
 // Grupos: la primera palabra de los comandos de dos palabras en el vector real
 // ("guide publish", "install record", "chat on"...). Los demás son de una
-// palabra ("whoami", "widget", "test"). En 0.10.0 ninguna palabra es a la vez grupo y comando (`agents` es sólo grupo).
+// palabra ("whoami", "widget", "test"). En 0.10.2 ninguna palabra es a la vez grupo y comando (`agents` es sólo grupo).
 const GRUPOS = new Set([...NOMBRES].filter((n) => n.includes(" ")).map((n) => n.split(" ")[0]));
 const SOLOS = new Set([...NOMBRES].filter((n) => !n.includes(" ")));
 const FLAGS_CONOCIDOS = new Set(
@@ -203,7 +203,7 @@ export function flagsInventados(texto: string): string[] {
 }
 
 // Las acciones que son de la consola (la API las rechaza por clave) y lo que gasta:
-// ninguna puede aparecer como algo a correr. La terminal 0.10.0 no tiene ningún comando
+// ninguna puede aparecer como algo a correr. La terminal 0.10.2 no tiene ningún comando
 // de estas (el vector lo prueba abajo), así que sólo puede asomar un comando inventado
 // o un script del motor (`npm run tope|invitar|aprobar|operador|clave`).
 const PROHIBIDOS: RegExp[] = [
@@ -263,7 +263,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.10.0 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.10.2 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
@@ -316,12 +316,12 @@ describe("la versión de la terminal", () => {
   });
 });
 
-describe("el vector de describe es el de la terminal 0.10.0 (T9, cuenta de IA)", () => {
-  const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.0.json");
+describe("el vector de describe es el de la terminal 0.10.2 (T9, cuenta de IA)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.2.json");
   const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
-  it("hay un único vector de describe y es el de la 0.10.0", () => {
-    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.10.0.json"]);
-    expect(JSON.parse(crudo).version).toBe("0.10.0");
+  it("hay un único vector de describe y es el de la 0.10.2", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.10.2.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.10.2");
   });
   it("lo que la skill nombra de la 0.8.1 sigue en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
     for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
@@ -344,7 +344,7 @@ describe("el vector de describe es el de la terminal 0.10.0 (T9, cuenta de IA)",
     for (const nombre of ["interfaz_propia", "own-interface", "aviso", "archivos", "forma", "contrato"])
       expect(crudo, nombre).toContain(nombre);
   });
-  it("lo que la skill 0.5 usa de la 0.10.0 está en lo que la terminal dice: agents show/check/configure/set-key, ia_del_chat, ia_del_triaje, 7 u 8", () => {
+  it("lo que la skill 0.5 usa de la 0.10.2 está en lo que la terminal dice: agents show/check/configure/set-key, ia_del_chat, ia_del_triaje, 7 u 8", () => {
     const d = JSON.parse(crudo) as { comandos: { nombre: string; resumen: string; flags: string[] }[] };
     const c = (n: string) => d.comandos.find((x) => x.nombre === n)!;
     for (const n of ["agents show", "agents set-key", "agents check", "agents configure"]) expect(c(n), n).toBeDefined();
@@ -442,8 +442,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.10.0 project delete`",
-      "`npx -y supcoflow@0.10.0 proyecto borrar`",
+      "`npx -y supcoflow@0.10.2 project delete`",
+      "`npx -y supcoflow@0.10.2 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -452,7 +452,7 @@ describe("lo que la skill no hace", () => {
     ])
       expect(accionesProhibidas(mala), mala).not.toEqual([]);
   });
-  it("la terminal 0.10.0 no tiene comandos de esas acciones", () => {
+  it("la terminal 0.10.2 no tiene comandos de esas acciones", () => {
     for (const nombre of NOMBRES) expect(nombre).not.toMatch(/\bcap\b|delete|factory|access|invite|tope|borrar|fabrica|acceso|invitar/);
   });
   it("--authorize-spend sólo se nombra en el nivel 3 y en las reglas, y el nivel 3 pregunta antes", () => {
@@ -514,14 +514,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.5.0 y fija la terminal 0.10.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.0");
-    expect(describir.version).toBe("0.10.0");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.10.0 describe --json");
-    expect(P(skillMd)).toContain('if it says `"version":"0.10.0"`');
+  it("la skill es la 0.5.2 y fija la terminal 0.10.2", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.2");
+    expect(describir.version).toBe("0.10.2");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.10.2 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.10.2"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.0.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.10.2.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
@@ -776,7 +776,7 @@ describe("progreso visible, sin JSON ni pipelines de shell (1A.1, fricción 5)",
     const prueba = P(leer(CARPETA, "referencias", "prueba.md"));
     expect(prueba).toMatch(/5: still running; in the same turn, run the same command again\. Ask the person nothing, but say one line per round: how many minutes it has been running/);
   });
-  it("no se inventa que la terminal diga el paso siguiente (no lo hace en la 0.10.0)", () => {
+  it("no se inventa que la terminal diga el paso siguiente (no lo hace en la 0.10.2)", () => {
     for (const { ruta, texto } of textosDeLaSkill) expect(P(texto), ruta).not.toMatch(/next step[^.]*terminal prints|terminal (?:tells|says) (?:you )?the next step/i);
   });
 });
@@ -801,15 +801,15 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).toContain(
       "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
     );
-    expect(readme).toContain("npm i -g supcoflow@0.10.0");
+    expect(readme).toContain("npm i -g supcoflow@0.10.2");
   });
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.5.0, fija la terminal 0.10.0 y avisa que 1B queda para una versión posterior a la 0.5.0", () => {
-    expect(readme).toMatch(/La skill es la `0\.5\.0`/);
-    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.0`/);
+  it("la versión es la 0.5.2, fija la terminal 0.10.2 y avisa que 1B queda para una versión posterior a la 0.5.2", () => {
+    expect(readme).toMatch(/La skill es la `0\.5\.2`/);
+    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.2`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.2`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -1356,7 +1356,7 @@ describe("la skill 0.4: construir el chat con los componentes de la app (T9)", (
     expect(resumen).toMatch(/line 3 also says whether the conformance checks ran/);
   });
 
-  it("el paso 10 con la 0.10.0: `listo` manda y un punto `aviso` (la interfaz) baja la cuenta pero no frena la prueba", () => {
+  it("el paso 10 con la 0.10.2: `listo` manda y un punto `aviso` (la interfaz) baja la cuenta pero no frena la prueba", () => {
     const s3 = P(seccion(skillMd, /^## 3\./m, /^## 4\./m));
     expect(s3).toMatch(/A failing `aviso` point \(the interface one\) lowers the count but does not stop a test: say what it says/);
     expect(P(leer(CARPETA, "referencias", "prueba.md"))).toMatch(/Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost\./);
@@ -1626,10 +1626,10 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
 });
 
 // ---------------------------------------------------------------------------------
-// Skill 0.5.0: el paso nuevo de la cuenta de IA del cliente (terminal 0.10.0, tanda 9). Lo que tiene que decir sale de
+// Skill 0.5.0: el paso nuevo de la cuenta de IA del cliente (terminal 0.10.2, tanda 9). Lo que tiene que decir sale de
 // «Lo que tiene que decir el paso nuevo de /supcoflow go» del informe de la terminal (docs/verificaciones/2026-11-01-t9-agents.md).
 // ---------------------------------------------------------------------------------
-describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
+describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.2)", () => {
   const orden = () => seccion(skillMd, /^The full order:/m, /^Testing beyond that/m);
   const paso = (n: number, siguiente: number) => P(seccion(orden(), new RegExp(`^${n}\\. `, "m"), new RegExp(`^${siguiente}\\. `, "m")));
   const cuentas = () => leer(CARPETA, "referencias", "cuentas-de-ia.md");
@@ -1806,8 +1806,8 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.0)", () => {
     expect(ref()).toMatch(/a step that only reads stops nobody/);
   });
 
-  it("P3-3: el comando para la terminal de la persona va en la misma forma que usa la skill (`supcoflow` o `npx -y supcoflow@0.10.0`)", () => {
-    expect(ref()).toMatch(/Give the command in the same form you are using \(plain `supcoflow`, or `npx -y supcoflow@0\.10\.0` if you are running it pinned\)/);
+  it("P3-3: el comando para la terminal de la persona va en la misma forma que usa la skill (`supcoflow` o `npx -y supcoflow@0.10.2`)", () => {
+    expect(ref()).toMatch(/Give the command in the same form you are using \(plain `supcoflow`, or `npx -y supcoflow@0\.10\.2` if you are running it pinned\)/);
   });
 
   it("P3-5: otro 4 de `agents check` se dice con su mensaje; un punto que no pudo leer la cuenta no es de la persona", () => {

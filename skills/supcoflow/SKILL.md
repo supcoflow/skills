@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.5.0"
+  version: "0.5.2"
 ---
 
 # Supcoflow go
@@ -17,9 +17,9 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.10.0"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.10.2"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.10.0 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.10.2 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result (if your tool shows no code for a success, a result without an error is 0; never add `echo $?`).
