@@ -178,14 +178,12 @@ real report to test.**
 3. Open the app, use the trigger, walk each scenario (the `script` of a scenario says what the person does), and take a screenshot
    of the real app for what is visual. Check at least: the report is whole and the "send" button asks nothing until pressed,
    a link to another site shows as text, a daily cap shows a message of the app's own and no button for more.
-4. To type in the browser, use `type` (key by key), never `fill`: `fill` of `chrome-devtools-axi` sets the DOM value without
-   firing React's `onChange`, so the controlled `<textarea>` shows the text but the state stays empty and "Send" does nothing
-   and says nothing. It looks like a broken chat and it is not.
+4. To type in the browser, use `type` (key by key), never `fill`: any way of filling a field that sets the DOM value without
+   firing React's input event (`onChange`), such as `fill` of `chrome-devtools-axi`, leaves the controlled `<textarea>` showing
+   the text while its state stays empty, so "Send" does nothing and says nothing. It looks like a broken chat and it is not.
 5. In the Network tab, `POST /api/chat/sesion` can show `net::ERR_ABORTED` even though the turn ended well (the answer arrived
    and was drawn): the core closes the stream when the turn ends. It is not an error; do not "fix" it and do not report it as one.
-6. When you change the `backendUrl` between the fake and the real server, clear `sessionStorage`: the saved cursor does not depend
-   on the address, and the browser would ask the new server for the other one's session.
-7. Stop the server when you finish. The site's origin (for example `http://localhost:3000`) only needs to be in the allowed
+6. Stop the server when you finish. The site's origin (for example `http://localhost:3000`) only needs to be in the allowed
    sites for the real backend (`supcoflow sites add`), not for the fake one.
 
 When capturing, `hideUi` must hide the whole interface, including any overlay or backdrop of the app's sheet or modal, and
