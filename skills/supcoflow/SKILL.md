@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.5.2"
+  version: "0.5.3"
 ---
 
 # Supcoflow go

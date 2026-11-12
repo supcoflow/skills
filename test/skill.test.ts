@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.5.2 y fija la terminal 0.10.2", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.2");
+  it("la skill es la 0.5.3 y fija la terminal 0.10.2", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.3");
     expect(describir.version).toBe("0.10.2");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.10.2 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.10.2"`');
@@ -806,10 +806,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.5.2, fija la terminal 0.10.2 y avisa que 1B queda para una versión posterior a la 0.5.2", () => {
-    expect(readme).toMatch(/La skill es la `0\.5\.2`/);
+  it("la versión es la 0.5.3, fija la terminal 0.10.2 y avisa que 1B queda para una versión posterior a la 0.5.3", () => {
+    expect(readme).toMatch(/La skill es la `0\.5\.3`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.2`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.2`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.3`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -1556,8 +1556,20 @@ describe("lo que dejó ver el primer ensayo con dos agentes (T9): fricciones rea
     expect(propia()).toMatch(/takes the chat options \(`backendUrl`, `fetch`, `storage`, `locale`, `user`\) as optional props that default to the app's own values/);
     expect(propia()).toMatch(/every control a distinct accessible name/);
   });
-  it("nextjs.md dice que la interfaz propia se abrió en un navegador, contra el backend falso y nunca contra producción", () => {
-    expect(P(leer(CARPETA, "referencias", "nextjs.md"))).toMatch(/was opened in Chrome on Next\.js 16\.4\.3.*against the fake backend of the package; never against production/);
+  it("nextjs.md dice con qué se probó la interfaz propia (2.4.0, Next.js 16.4.6, React 19.3.0), en el navegador, y que no tocó producción", () => {
+    const nextjs = P(leer(CARPETA, "referencias", "nextjs.md"));
+    expect(nextjs).toMatch(/own interface \(`interfaz-propia\.md`\) was tested with `@supcoflow\/chat` 2\.4\.0 on Next\.js 16\.4\.6.*React 19\.3\.0, opened in Chrome/);
+    expect(nextjs).toMatch(/nothing of that touched production/);
+    expect(nextjs).not.toMatch(/never against production|only at build time \(`next build`\); `next start` was not run and it was not opened in a browser\. The wrapper is the same in the version that `supcoflow widget --json` gives \(2\.3\.0\)/);
+  });
+  it("0.5.3: interfaz-propia.md trae las fricciones S1 a S6 del ensayo", () => {
+    const propia = P(leer(CARPETA, "referencias", "interfaz-propia.md"));
+    expect(propia).toMatch(/keeps the old messages in `state`.*separator.*or empty the view/); // S1
+    expect(propia).toMatch(/no longer lists what was already attached/); // S2
+    expect(propia).toMatch(/set the real `lang` on `<html>`, or pass `locale` explicitly, and translate every text of the skeleton/); // S3
+    expect(propia).toMatch(/use `type` \(key by key\), never `fill`/); // S4
+    expect(propia).toMatch(/`net::ERR_ABORTED`.*It is not an error/); // S5
+    expect(propia).toMatch(/What the person types is not filtered: the body of the report can carry what they wrote/); // S6
   });
   it("revisión vuelta 1: el sí a la propuesta se define; la lista de `--file` es una sola; volver más tarde nombra los pasos; capabilities sigue a la primera respuesta; huecos de la conformidad", () => {
     const p6 = P(seccion(skillMd, /^## 6\./m, /^## 7\./m));
