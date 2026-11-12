@@ -111,13 +111,28 @@ Options of the chat (`useSupportChat`): the `tenantId`, `projectId` and `backend
 language: Spanish, English or Portuguese, and English for any other); `user` with only the fields the person accepted
 (`id`, `role`, `attributes`) and `autoContext` as point 5 of SKILL.md says; and `capabilities` as the person answered.
 Everything else the interface says (errors, "working", the report card, the automated-assistant line) is yours to write,
-through the app's i18n, in the app's language (if the app mixes languages, the one of its `<html lang>`). Declare only what a person can really do in it: the assistant invites to
+through the app's i18n, in the app's language (if the app mixes languages, the one of its `<html lang>`).
+The skeleton takes its `locale` from `<html lang>`, and `create-next-app` writes `lang="en"`: in an app in another language
+the report buttons and the skeleton's own texts come out in English while the assistant answers in the person's language.
+So set the real `lang` on `<html>`, or pass `locale` explicitly, and translate every text of the skeleton (its trigger, the
+automated-assistant line, "Reading the guide…", "Attachments that go with this report", "Report sent", the buttons). Declare only what a person can really do in it: the assistant invites to
 attach or point only if you declared it.
 
 On by default, unless the person said no: attach an image, screenshot, point at an element (each declared in `capabilities`
 and shown only if `state.allows` lets it be taken; a screenshot only if `canCaptureScreen()`), reading the guide (say so
 while `activity` says it), and the new conversation after a report (P8, always). Optional, only if asked: visible steps, the "answered" mark, start
 suggestions, hooks with `onEvent`. Not asked for, so not built: no Supcoflow logo, name or link anywhere in the chat.
+
+Another conversation (`newConversation()`) forgets the saved cursor but **keeps the old messages in `state`**: without more,
+the new question and its answer are drawn right under the previous report, and only a reload shows just the new one. Draw a
+visible separator where the new conversation starts, or empty the view, and check it in the browser.
+
+Attachments: after a reload the interface no longer lists what was already attached, although it was already uploaded (the
+report card counts the attachments that go with it). Tell the person this limit; if they point at the same thing again,
+more than one copy may reach the engine, and it is not known which one goes with the report.
+
+What the person types is not filtered: the body of the report can carry what they wrote (an email address, for example). It
+is expected, and it is the person's to know: say it when you hand over the interface.
 
 It does not exist: no thumbs up/down, and the list of past conversations (P16) does not apply yet: the server does not
 support it. Do not build either, and do not promise them.
@@ -163,7 +178,12 @@ real report to test.**
 3. Open the app, use the trigger, walk each scenario (the `script` of a scenario says what the person does), and take a screenshot
    of the real app for what is visual. Check at least: the report is whole and the "send" button asks nothing until pressed,
    a link to another site shows as text, a daily cap shows a message of the app's own and no button for more.
-4. Stop the server when you finish. The site's origin (for example `http://localhost:3000`) only needs to be in the allowed
+4. To type in the browser, use `type` (key by key), never `fill`: any way of filling a field that sets the DOM value without
+   firing React's input event (`onChange`), such as `fill` of `chrome-devtools-axi`, leaves the controlled `<textarea>` showing
+   the text while its state stays empty, so "Send" does nothing and says nothing. It looks like a broken chat and it is not.
+5. In the Network tab, `POST /api/chat/sesion` can show `net::ERR_ABORTED` even though the turn ended well (the answer arrived
+   and was drawn): the core closes the stream when the turn ends. It is not an error; do not "fix" it and do not report it as one.
+6. Stop the server when you finish. The site's origin (for example `http://localhost:3000`) only needs to be in the allowed
    sites for the real backend (`supcoflow sites add`), not for the fake one.
 
 When capturing, `hideUi` must hide the whole interface, including any overlay or backdrop of the app's sheet or modal, and

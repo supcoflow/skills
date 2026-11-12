@@ -3,13 +3,15 @@
 This is the path of the **widget**. The chat built with the app's own components (the own interface) is in
 [`interfaz-propia.md`](interfaz-propia.md); the rule below about `"use client"` and the server layout holds for it too.
 
-Tested path: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 and `@supcoflow/chat` 2.2.1. Tested only at build time
-(`next build`); `next start` was not run and it was not opened in a browser. The wrapper is the same in the version
-that `supcoflow widget --json` gives (2.3.0); the first real run of the 0.3.0 skill is what confirms it.
+Tested path of the widget: Next.js 16.4.2 (App Router, Turbopack), React 19.3.0 and `@supcoflow/chat` 2.2.1, only at build
+time (`next build`); `next start` was not run and it was not opened in a browser. The wrapper is the same in the version
+that `supcoflow widget --json` gives (2.4.0).
 **Pages Router: not tested; tell the person** and do not improvise.
 
-The own interface (`interfaz-propia.md`) was opened in Chrome on Next.js 16.4.3 (App Router, `next dev`) with React
-19.3.0, in two throwaway apps (with and without `src/`), against the fake backend of the package; never against production.
+The own interface (`interfaz-propia.md`) was tested with `@supcoflow/chat` 2.4.0 on Next.js 16.4.6 (App Router, `next dev`)
+with React 19.3.0, opened in Chrome: first against the package's fake backend, then in a full local trial against the real
+assistant (through the local backend and engine, with a throwaway key and an isolated database; nothing of that touched
+production). It ran from the first message to a confirmed report. It was not tested with `next start` nor with the Pages Router.
 
 ## Why the wrapper file is used
 
