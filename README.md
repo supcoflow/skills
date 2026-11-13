@@ -68,7 +68,7 @@ npm test
 ## Lo que esta versión NO hace
 
 - No gasta por su cuenta: la prueba paga (`test`, nivel 3) sólo se pide con el sí de la persona a los números
-  que dio el motor (techo y saldo), y viaja con ese techo y esa política (`--ceiling`, `--expect-policy`).
+  que dio el motor (el techo), y viaja con ese techo y esa política (`--ceiling`, `--expect-policy`).
 - No relanza desde la terminal un relevamiento de arranque incierto: eso es de la consola.
 - No pide, no recibe y no repite la clave de IA de la persona (la pone ella, sin pasar por el asistente), y no corre `agents set-key` ni `agents remove`.
 - No hace `git push`.
