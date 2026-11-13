@@ -29,7 +29,7 @@ su cuenta.
 
 ## Versiones
 
-- La skill es la `0.5.4` (`metadata.version` en `skills/supcoflow/SKILL.md`). Suma el paso nuevo de la cuenta de IA del
+- La skill es la `0.5.5` (`metadata.version` en `skills/supcoflow/SKILL.md`). Suma el paso nuevo de la cuenta de IA del
   cliente (`referencias/cuentas-de-ia.md`): después de `supcoflow config` lee `supcoflow agents show --json` y dice, agente
   por agente (el chat y el triage agent), si la cuenta está `lista`, `rechazada`, `sin_saldo` o `falta`. **La clave nunca
   pasa por el asistente**: si falta o está caída, le dice a la persona que la ponga ella, en la pestaña Agents o en su
@@ -41,13 +41,13 @@ su cuenta.
   recorrido completo pasan de nueve a diez. Mantiene el camino de la 0.4.0 «construir el chat con los componentes de la
   app» (`referencias/interfaz-propia.md`), por defecto en Next.js (App Router); el widget queda de respaldo. La privacidad
   de la etapa 1B, que el plan 1A tenía reservada para la 0.3.1 y después para la 0.3.2, queda para una versión posterior a
-  la `0.5.4`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
+  la `0.5.5`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
   huella: cambiar el texto sin subir la versión deja un test en rojo (`npm run huella` la imprime).
 - Fija la terminal en `npx -y supcoflow@0.10.2`. La `0.5.2` cambió esa fijación respecto de la `0.5.0` (de la `0.10.0` a la `0.10.2`). La `0.5.3` actualiza `referencias/nextjs.md` con el ensayo
   de la interfaz propia (`@supcoflow/chat` 2.4.0, Next.js 16.4.6, React 19.3.0) y suma a `referencias/interfaz-propia.md` seis avisos que dejó:
   la charla anterior sigue a la vista al empezar otra, lo adjuntado no se lista al recargar, el `lang` real o `locale` explícito y los textos del
   esqueleto traducidos, `type` y no `fill` en el navegador, el `ERR_ABORTED` de `POST /api/chat/sesion` que no es un error, y que lo que la persona
-  escribe va en el reporte. La `0.5.4` no cambia la terminal fijada: suma al mapa del punto 3 las filas «Connect the repo», «Change what happens with a report», «Turn the chat on» y «Check an AI account» (esta última separada de «Put or fix…»), saca de la tercera pregunta el tope mensual y el saldo del equipo (la prueba sólo muestra el techo) y borra «el motor todavía no la exige» de `cuentas-de-ia.md` y del resumen. La `0.5.0` se publicó el 2026-11-04, después de la terminal `0.10.0` en npm
+  escribe va en el reporte. La `0.5.4` no cambia la terminal fijada: suma al mapa del punto 3 las filas «Connect the repo», «Change what happens with a report», «Turn the chat on» y «Check an AI account» (esta última separada de «Put or fix…»), saca de la tercera pregunta el tope mensual y el saldo del equipo (la prueba sólo muestra el techo) y borra «el motor todavía no la exige» de `cuentas-de-ia.md` y del resumen. La `0.5.5` dice en el mapa que un pedido que coincide con una fila más chica corre sólo esa fila aunque diga `/supcoflow go`, deja que «Connect the repo» siga al paso 2 cuando el repo no tiene proyecto y saca el saldo que quedaba en el nivel 3 de la prueba. La `0.5.0` se publicó el 2026-11-04, después de la terminal `0.10.0` en npm
   (sin esa versión en npm, el `npx -y supcoflow@0.10.0` de la skill no encuentra la terminal).
   Tampoco funciona en producción antes de que el motor describa la interfaz propia en `/widget` y esté publicado el paquete
   `@supcoflow/chat` con el núcleo, el hook de React y la conformidad: sin `interfaz_propia`, o con `estado: sin_publicar`, usa

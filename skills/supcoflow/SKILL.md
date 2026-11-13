@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.5.4"
+  version: "0.5.5"
 ---
 
 # Supcoflow go
@@ -54,7 +54,7 @@ which repo and which project: say it in words, also when everything fits ("You'r
 read-only key). If `project show` exits 4 with `error: "contexto_incoherente"`, this clone and the account do not fit
 (the `motivo` says how): stop, say its message as is, and create, connect and publish nothing; do not retry or work
 around it, and never delete or edit `.supcoflow/proyecto.json` on your own. If `project show` brings `proyecto: null` or
-`config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to install, go on to
+`config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet. When the person asked to install or to connect the repo, go on to
 step 2 of the order (connect the repo, create the project) and read `config` again. For any other row, tell them the
 installation is missing and offer the full order; create nothing for a diagnosis or a partial request. Any other exit 4
 is a decision for a person: stop, as the table of point 2 says.
@@ -65,6 +65,9 @@ message says so and gives `git remote add supcoflow https://github.com/<owner>/<
 run it only with their yes (a permission like the commit's, not a fourth question). Then go on without `--repo`. The
 `falta_guia` or `sin_clon` of an alias gives the same command. If the message gives no command, tell the person what it
 says and stop. Then:
+
+A request that matches one of the narrower rows below runs only that row, even when it also says `/supcoflow go`: the
+full order is for a request to install that names nothing narrower.
 
 | The person asked | You do |
 |---|---|
@@ -143,7 +146,7 @@ The full order:
 
 Testing beyond that (optional, never without asking): offer the person the levels of
 [`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
-browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling and the balance
+browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling
 that `supcoflow test --json` gave.
 
 Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
