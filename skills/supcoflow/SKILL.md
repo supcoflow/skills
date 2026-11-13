@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.5.3"
+  version: "0.5.4"
 ---
 
 # Supcoflow go
@@ -72,7 +72,11 @@ says and stop. Then:
 | Update the guide | Points 8 and 9 (step 7 below). Do not ask about data, policy or the test. The questions and permissions of points 7 and 9 stay (overwriting, the business rules, the commit). |
 | Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
 | Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
-| Put, fix or check an AI account (the chat's or the triage agent's), or choose the chat's model | [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). The key is the person's: you never ask for it and never run `supcoflow agents set-key` or `supcoflow agents remove`. |
+| Connect the repo | Steps 1 and 2 of the full order, and stop after "Connected. Created the project <slug>." (or, if the project already existed, after saying so). Nothing else: no questions, no guide, no chat, and the app's code is not touched. Offer the rest as `/supcoflow go`. |
+| Change what happens with a report | Only the second question of point 5, with its words and its warning that investigating spends: ask it, do not decide it, then `supcoflow policy set --mode investigate --json` or `supcoflow policy set --mode save --json` and say the result in one sentence. Do not ask the first or the third question. |
+| Turn the chat on | Steps 8 and the checks before it, and nothing else: if the chat is required and not ready, [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) section 3 says stop. Ask for the site where its users use the app if the code does not say (`http://localhost:3000` only for a local test), `supcoflow sites add --site <site> --json`, then `supcoflow chat on --json`. If `chat on` says something is missing (a guide, the chat's AI account), say what and stop. Do not touch the app's code: if the chat is not in it yet, offer the full order. |
+| Check an AI account (the chat's or the triage agent's) | `supcoflow agents check --agent <chat or triage> --json` and say in one line whether that agent's account is ready or what is still missing, as section 2 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) reads its exits. It spends nothing. Never ask for the key. |
+| Put or fix an AI account (the chat's or the triage agent's), or choose the chat's model | [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). The key is the person's: you never ask for it and never run `supcoflow agents set-key` or `supcoflow agents remove`. |
 | Install it, or `/supcoflow go` | The full order below, steps 1 to 10. |
 
 The full order:
@@ -98,7 +102,7 @@ The full order:
    [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md): the person puts or fixes what is missing, never in this
    chat.
 5. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
-   ceiling, balance and cap in numbers (`techo_usd`, `saldo_usd`, `tope_usd`) before the third question. Read two more
+   ceiling in numbers (`techo_usd`) before the third question. Read two more
    things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
    `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
    words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
@@ -170,10 +174,10 @@ interface offers only the tools of its second panel.
 > 2. Save it for me to review
 >
 > **Run one real test now?**
-> 1. Yes, run one test — up to US$ <ceiling> of your team's US$ <cap> monthly cap (US$ <balance> left)
+> 1. Yes, run one test — up to US$ <ceiling>
 > 2. Not now
 
-Fill the numbers from the `supcoflow test --json` of step 5 and print them as numbers, not as placeholders. Each answer
+Fill the ceiling from the `supcoflow test --json` of step 5 and print it as a number, not as a placeholder. Each answer
 goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>` (or `nothing`):
 
 | Answer to the first question | In Supcoflow | In the app's code |
@@ -190,8 +194,7 @@ and `attributes` the person accepted), `autoContext: false` where the table says
 leave `user_id,user_role` out of the list of the first answer.
 
 - **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
-  `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends**, within the
-  team's monthly cap, and that with "save" a person can ask for the investigation later.
+  `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends** (the cost is theirs, at their AI provider), and that with "save" a person can ask for the investigation later.
 - **Third question**: a yes to numbers, not to a phrase. With "Save it for me to review", option 1 of the third
   question says the test spends nothing (it stops at the saved problem): print the option as written and add under it "This test
   spends nothing: it stops at the saved problem." That yes authorizes ONE test with exactly the
@@ -374,7 +377,7 @@ lists of files:
    "Each problem gets looked into and ends up as an issue."; with "Save it for me to review", "Each problem is saved
    for you to review.";
 2. where the chat lives (the file and the layout);
-3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); an AI account that is not ready and the engine does not require yet also goes in line 3 ("the triage agent has no AI account yet; the engine does not ask for it today"); if the guide
+3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); an AI account that is not ready and that `diagnose` does not list as required also goes in line 3 ("the triage agent has no AI account yet"); if the guide
    is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
    also includes "commit `.supcoflow/guide.md` on `<rama>` when you want" (the project's main branch).
 

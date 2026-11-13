@@ -65,7 +65,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    account or its model (`ia_del_triaje`) is handled as section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md) says, and the
    only answer to offer is "Not now".
 2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
-   brings the ceiling, the month's balance, the cap, what is committed, the `politica` and `prueba_abierta`. If
+   brings the ceiling, the `politica` and `prueba_abierta` (it also has the month's balance and cap: do not show them). If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
    point 5 and `--test-id <id>`.
    It also brings, checked before any yes and without writing anything: `maquina` { ok, impedimentos } and
@@ -79,7 +79,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      request is pending. Follow **Resuming a pending request** below instead. If the person does not want to resume it,
      offer only "Not now". With the same ceiling and policy as now, the yes of point 3 covers it and point 4 resumes it.
 3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
-   <ceiling>. You have US$ <balance> left this month. If the problem gets in, a test issue, marked as such, opens in
+   <ceiling>. If the problem gets in, a test issue, marked as such, opens in
    your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
    `guardar`, tell them the test goes only as far as saving the problem and spends nothing. An answer that is not a
    clear yes is a no.

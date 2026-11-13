@@ -55,8 +55,8 @@ asks how: if the engine does not require it, say only the one line of section 3 
 ## 3. Is it required, and is it ready?
 
 `agents show` says whether an account is there, not whether the engine insists on it, and not whether the agent is ready.
-Today the engine may not require accounts yet: while it does not, `chat on` and the test work without the account, and
-stopping the installation for it would break something that works. The terminal tells you: `supcoflow diagnose --json`
+Do not guess whether the engine requires an account: while its point is not listed, `chat on` and the test work without
+the account, and stopping the installation for it would break something that works. The terminal tells you: `supcoflow diagnose --json`
 lists `ia_del_chat` (in `instalacion.puntos`) and `ia_del_triaje` (in `prueba.puntos`) only when the engine requires the
 accounts. Run it once at step 4, whatever `agents show` said, and use it only for those two points: do not tell the person
 the rest of the diagnosis now, and do not fix the rest yet (it is free and writes nothing; its exit 4 `no_listo` here is
@@ -64,7 +64,7 @@ the report, not a stop). If it exits with anything else, say it in one line and 
 engine requires the accounts. Then, for each agent:
 
 - Its point is not in the list: not required. The terminal lets you go on: warn and go on, only if its account is not
-  `lista`. Say it as it is: "The triage agent has no AI account yet. The engine does not ask for it today, so I go on."
+  `lista`. Say it as it is: "The triage agent has no AI account yet. The terminal does not stop for it, so I go on."
   `chat on` and the test work without the account; do not say it will be required later, you do not know it, and do not
   explain how to put it unless they ask.
 - Its point is there and is `ok`, and its account is `lista`: required and ready. Nothing to say, except for the triage agent
