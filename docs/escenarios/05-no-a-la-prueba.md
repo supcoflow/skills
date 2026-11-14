@@ -10,8 +10,8 @@ suficientes para que `supcoflow test --json` muestre números.
 opción real y el «no» tenga qué rechazar).
 
 ## Lo esperado
-- La tercera pregunta muestra el techo, el saldo y el tope que dio `supcoflow test --json` sin autorizar (números
-  reales, no inventados).
+- La tercera pregunta muestra el techo que dio `supcoflow test --json` sin autorizar (un número real, no inventado),
+  y no muestra el saldo ni el tope mensual del equipo.
 - **No aparece `--authorize-spend`** en ningún comando de toda la sesión. No hay `supcoflow test --wait` ni una
   prueba abierta.
 - Tras el «no», el asistente igual deja el chat andando y corre `supcoflow diagnose --json` (gratis): informa «N of 7».

@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.5.3 y fija la terminal 0.10.2", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.3");
+  it("la skill es la 0.5.5 y fija la terminal 0.10.2", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.5.5");
     expect(describir.version).toBe("0.10.2");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.10.2 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.10.2"`');
@@ -569,7 +569,7 @@ describe("la escena de la landing (spec §10)", () => {
       "1. Look into it right away",
       "2. Save it for me to review",
       "Run one real test now?",
-      "1. Yes, run one test — up to US$ <ceiling> of your team's US$ <cap> monthly cap (US$ <balance> left)",
+      "1. Yes, run one test — up to US$ <ceiling>",
       "2. Not now",
     ]);
   });
@@ -615,11 +615,12 @@ describe("la escena de la landing (spec §10)", () => {
     expect(P(p5)).toMatch(/With "Save it for me to review", option 1 of the third question says the test spends nothing/);
     expect(P(p5)).not.toMatch(/Anything about your business/);
   });
-  it("antes de las preguntas corre `test --json` sin autorizar para tener techo, saldo y tope", () => {
+  it("antes de las preguntas corre `test --json` sin autorizar para tener techo (sin saldo ni tope)", () => {
     const iCorre = skillMd.indexOf("`supcoflow test --json`");
     expect(iCorre).toBeGreaterThan(0);
     expect(iCorre).toBeLessThan(skillMd.indexOf("What can the chat see about your users?"));
-    expect(P(skillMd)).toMatch(/ceiling, balance and cap/);
+    expect(P(skillMd)).toMatch(/to have the\s+ceiling in numbers \(`techo_usd`\) before the third question/);
+    expect(P(skillMd)).not.toMatch(/monthly cap|US\$ <balance>|saldo_usd|tope_usd|the ceiling and the balance/);
   });
   it("«From your code: …, on N pages» con N contado de los page.tsx bajo el layout elegido", () => {
     expect(P(skillMd)).toContain("From your code: ");
@@ -806,10 +807,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.5.3, fija la terminal 0.10.2 y avisa que 1B queda para una versión posterior a la 0.5.3", () => {
-    expect(readme).toMatch(/La skill es la `0\.5\.3`/);
+  it("la versión es la 0.5.5, fija la terminal 0.10.2 y avisa que 1B queda para una versión posterior a la 0.5.5", () => {
+    expect(readme).toMatch(/La skill es la `0\.5\.5`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.10\.2`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.3`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.5\.5`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -1110,13 +1111,22 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
   });
   it("cada pedido va a su camino (diagnose, guía, sólo la primera pregunta, prueba, orden completo)", () => {
     const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
-    expect(filas).toHaveLength(6);
+    expect(filas).toHaveLength(10);
     const fila = (re: RegExp) => P(filas.find((l) => re.test(l)) ?? "");
     expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
     expect(fila(/Update the guide/)).toMatch(/Points 8 and 9.*Do not ask about data, policy or the test\. The questions and permissions of points 7 and 9 stay \(overwriting, the business rules, the commit\)/);
     expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code\. Do not ask the second or the third question\. The permissions of point 7 before touching files stay/);
     expect(fila(/Test it/)).toMatch(/referencias\/prueba\.md.*Level 3 spends: only with its own yes/);
     expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 10/);
+  });
+  it("0.5.4: el mapa trae «Connect the repo», «Change what happens with a report», «Turn the chat on» y «Check an AI account», sólo con comandos de la terminal fijada", () => {
+    const fila = (re: RegExp) => P(mapa.split("\n").find((l) => re.test(l)) ?? "");
+    expect(fila(/^\| Connect the repo/)).toMatch(/Steps 1 and 2 of the full order, and stop after "Connected\. Created the project <slug>\."/);
+    expect(fila(/^\| Change what happens with a report/)).toMatch(/Only the second question of point 5.*`supcoflow policy set --mode investigate --json` or `supcoflow policy set --mode save --json`.*Do not ask the first or the third question/);
+    expect(fila(/^\| Turn the chat on/)).toMatch(/`supcoflow sites add --site <site> --json`, then `supcoflow chat on --json`.*Do not touch the app's code/);
+    expect(fila(/^\| Check an AI account/)).toMatch(/`supcoflow agents check --agent <chat or triage> --json`.*Never ask for the key/);
+    expect(P(seccion(s3, /\*\*Start from what the person asked\.\*\*/, /\| The person asked/))).toMatch(/A request that matches one of the narrower rows below runs only that row, even when it also says `\/supcoflow go`: the full order is for a request to install that names nothing narrower/);
+    for (const c of ["policy set", "sites add", "chat on", "agents check", "repo connect", "project create"]) expect(describir.comandos.map((x: { comando?: string; nombre?: string }) => x.comando ?? x.nombre), c).toContain(c);
   });
   it("el mapa no tiene prohibiciones absolutas que choquen con los permisos de los puntos 7 y 9", () => {
     expect(P(mapa)).not.toMatch(/Nothing else is asked/);
@@ -1127,7 +1137,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
   it("si `config` sale 4 `sin_proyecto`: al instalar se sigue por el paso 2; en un pedido parcial se ofrece la instalación y no se crea nada; otro 4 se detiene", () => {
     const intro = P(seccion(s3, /\*\*Start from what the person asked\.\*\*/, /\| The person asked/));
     expect(intro).toMatch(/If `project show` brings `proyecto: null` or `config` exits 4 with `error: "sin_proyecto"`, this repo has no project yet/);
-    expect(intro).toMatch(/When the person asked to install, go on to step 2 of the order \(connect the repo, create the project\) and read `config` again/);
+    expect(intro).toMatch(/When the person asked to install or to connect the repo, go on to step 2 of the order \(connect the repo, create the project\) and read `config` again/);
     expect(intro).toMatch(/For any other row, tell them the installation is missing and offer the full order; create nothing for a diagnosis or a partial request/);
     expect(intro).toMatch(/Any other exit 4 is a decision for a person: stop/);
     expect(s3).toMatch(/^2\. `supcoflow project show --json`; if there is no project: `supcoflow repo connect --start --json`/m);
@@ -1849,7 +1859,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.10.2)", () => {
     expect(p13()).toMatch(/three lines at most/);
     expect(p13()).toMatch(/If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI isn't ready \(<the account \| its model>\)\." and line 3 says what is missing and who does it \(the account: the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal; its model: the Agents tab\) and that `\/supcoflow go` resumes/);
     expect(p13()).not.toMatch(/AI account is missing/);
-    expect(p13()).toMatch(/an AI account that is not ready and the engine does not require yet also goes in line 3/);
+    expect(p13()).toMatch(/an AI account that is not ready and that `diagnose` does not list as required also goes in line 3/);
   });
 
   it("el nivel 2 no dice que Supcoflow siempre paga la IA del chat: si el motor exige la cuenta del chat, el costo es de la persona", () => {
