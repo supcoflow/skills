@@ -18,7 +18,7 @@ El comando es el mismo para cualquier asistente. Qué pasa depende de quién lo 
 - If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this
   skill.
 
-Para comandos más cortos, la terminal se puede instalar aparte: `npm i -g supcoflow@0.10.3`. La skill no la instala por
+Para comandos más cortos, la terminal se puede instalar aparte: `npm i -g supcoflow@0.11.0`. La skill no la instala por
 su cuenta.
 
 ## Usar
@@ -29,7 +29,7 @@ su cuenta.
 
 ## Versiones
 
-- La skill es la `0.5.6` (`metadata.version` en `skills/supcoflow/SKILL.md`). Suma el paso nuevo de la cuenta de IA del
+- La skill es la `0.6.1` (`metadata.version` en `skills/supcoflow/SKILL.md`). La `0.6.1` suma la fila `/supcoflow guide` (`referencias/guia-en-carpeta.md`): el agente de código escribe o actualiza la guía como documentos en `.supcoflow/knowledge/` (uno por área, con cabecera `title`, `summary` y `sources`, y las cuatro etiquetas), corre `supcoflow guide check` y `supcoflow guide stale`, muestra el diff y propone el commit; **nunca publica** y nunca escribe un índice a mano. Si el repo sólo tiene `guide.md`/`guia.md`, lo parte en la carpeta sin cambiar el contenido (y dice que la carpeta manda). Cierra el camino viejo de «Update the guide»: publicar sin `--from-github` sólo desde la rama principal y sólo la primera guía; desde otra rama avisa y pregunta; para actualizar, `guide publish --from-github` en la rama principal o el paso de CI del proyecto. Ofrece, sólo con permiso, una línea para el `AGENTS.md`/`CLAUDE.md`. **Fija la terminal `0.11.0`, que todavía no está en npm**: publicarla necesita el sí aparte del dueño; hasta entonces la skill `0.6.1` no debe publicarse. Antes, la `0.5.0` suma el paso nuevo de la cuenta de IA del
   cliente (`referencias/cuentas-de-ia.md`): después de `supcoflow config` lee `supcoflow agents show --json` y dice, agente
   por agente (el chat y el triage agent), si la cuenta está `lista`, `rechazada`, `sin_saldo` o `falta`. **La clave nunca
   pasa por el asistente**: si falta o está caída, le dice a la persona que la ponga ella, en la pestaña Agents o en su
@@ -41,9 +41,9 @@ su cuenta.
   recorrido completo pasan de nueve a diez. Mantiene el camino de la 0.4.0 «construir el chat con los componentes de la
   app» (`referencias/interfaz-propia.md`), por defecto en Next.js (App Router); el widget queda de respaldo. La privacidad
   de la etapa 1B, que el plan 1A tenía reservada para la 0.3.1 y después para la 0.3.2, queda para una versión posterior a
-  la `0.5.6`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
+  la `0.6.1`. El texto que recibe la persona (`SKILL.md` y `referencias/`) está en inglés y atado a esa versión por una
   huella: cambiar el texto sin subir la versión deja un test en rojo (`npm run huella` la imprime).
-- Fija la terminal en `npx -y supcoflow@0.10.3`. La `0.5.2` cambió esa fijación respecto de la `0.5.0` (de la `0.10.0` a la `0.10.2`). La `0.5.3` actualiza `referencias/nextjs.md` con el ensayo
+- Fija la terminal en `npx -y supcoflow@0.11.0`. La `0.6.1` la mueve de la `0.10.3` a la `0.11.0`. La `0.5.2` cambió esa fijación respecto de la `0.5.0` (de la `0.10.0` a la `0.10.2`). La `0.5.3` actualiza `referencias/nextjs.md` con el ensayo
   de la interfaz propia (`@supcoflow/chat` 2.4.0, Next.js 16.4.6, React 19.3.0) y suma a `referencias/interfaz-propia.md` seis avisos que dejó:
   la charla anterior sigue a la vista al empezar otra, lo adjuntado no se lista al recargar, el `lang` real o `locale` explícito y los textos del
   esqueleto traducidos, `type` y no `fill` en el navegador, el `ERR_ABORTED` de `POST /api/chat/sesion` que no es un error, y que lo que la persona
@@ -53,7 +53,7 @@ su cuenta.
   `@supcoflow/chat` con el núcleo, el hook de React y la conformidad: sin `interfaz_propia`, o con `estado: sin_publicar`, usa
   el widget, como la 0.3.1. La 0.4.0 sigue fijada a la terminal 0.9.0, la 0.2.1 a la 0.7.0, la 0.3.0 a la 0.8.0 y la 0.3.1 a la 0.8.1.
 - Los vectores de `test/vectores/` vienen de otros repos y se re-sincronizan a mano cuando cambian allá:
-  `describe-0.10.3.json` (la salida de `supcoflow describe --json` de la terminal 0.10.3 publicada en npm), `guia-de-ejemplo.md` (la
+  `describe-0.11.0.json` (la salida de `supcoflow describe --json` de la terminal 0.11.0, construida del PR https://github.com/supcoflow/cli/pull/16; todavía no publicada en npm), `motivos-de-la-carpeta.json` (los motivos de la carpeta, de ese mismo PR), `guia-de-ejemplo.md` (la
   guía de ejemplo del motor, byte a byte), `motivos-del-motor.json` (`src/guia/vectores/motivos.json` del motor,
   byte a byte) y `motivos-de-la-guia.json` (esos mismos `motivo`, más el `queHacer` propio de la skill). No se
   escriben a mano: el motor es la fuente de la guía y los `motivo`; la terminal construida, la de `describe`.
