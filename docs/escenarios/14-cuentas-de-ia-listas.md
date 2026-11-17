@@ -12,7 +12,7 @@ chat y la del triage agent `lista` (`cuenta_lista: true`) **y los dos modelos ap
 - El paso 4 dice **en una línea por agente** que la cuenta está lista, sin avisos de más, y **no** dice que la configuración
   del agente está «aprobada» ni «configurada» por lo que dice `cuenta_lista`. Corre `supcoflow diagnose --json` una vez en el paso 4 sólo para leer `ia_del_chat` e `ia_del_triaje`, ve que los dos
   están en `ok`, y **no** le cuenta el resto de ese diagnóstico a la persona.
-- Las tres preguntas son las de siempre y la tercera ofrece los números de `supcoflow test --json`. Sigue la instalación
+- La confirmación de los valores por defecto es la de siempre y la instalación no ofrece prueba paga. Sigue la instalación
   completa, con `chat on` incluido.
 - El paso 10 dice la línea de ocho puntos («N of 8»): «Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide
   and interface: N of 8, at no cost.», armada con `instalacion.ok` y `instalacion.total` (8), **no** «N of 7». Lee

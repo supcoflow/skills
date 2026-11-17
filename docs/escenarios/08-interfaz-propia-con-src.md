@@ -9,8 +9,8 @@ y un paquete instalable (en el ensayo local, el `.tgz` del sdk).
 
 ## Pedido
 `/supcoflow go`. En el segundo panel («How should people open the chat?») responder **1** (el disparador que el asistente propuso a partir del código;
-aquí, un botón «Help» en la cabecera que abre una hoja lateral) y en «Which tools should it offer to add evidence?» **1**. En las tres preguntas:
-«Who they are, the page, and screenshots» (el acuerdo debe tomar capturas e imágenes, o el segundo panel no ofrece herramientas), «Save it for me to review» y «Not now».
+aquí, un botón «Help» en la cabecera que abre una hoja lateral) y en «Which tools should it offer to add evidence?» **1**. En la confirmación elegir «2. Let me change something» y, en las preguntas de cambio:
+«Who they are, the page, and screenshots» (el acuerdo debe tomar capturas e imágenes, o el segundo panel no ofrece herramientas) y «Save it for me to review». La instalación no ofrece prueba paga.
 
 ## Lo esperado
 - El asistente corre `supcoflow widget --json` **antes de las preguntas**, dice en una línea qué forma eligió y por qué («Building the chat with your own components.»).

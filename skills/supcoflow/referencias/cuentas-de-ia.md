@@ -5,8 +5,8 @@ provider: the **chat** (`chat`) and the **triage agent** (`triaje` in the JSON, 
 account is write-only: it is set once, it is never shown again, and it can only be replaced or removed. **It never
 passes through you.** Never ask for the key in the chat, never accept one that is pasted there, never put a key in a
 command, a file or an environment variable, and never run `supcoflow agents set-key` or `supcoflow agents remove`
-yourself: the person does it, in the Agents tab or in their own terminal. This is not a fourth question of point 5 of
-SKILL.md, and nothing here changes the three that are asked.
+yourself: the person does it, in the Agents tab or in their own terminal. This is not another question of point 5 of
+SKILL.md, and nothing here changes the confirmation that is asked.
 
 An agent is **ready** only with its account in `lista` AND its configuration (the model) approved, and the engine only
 asks for that once it requires the accounts. Read section 3 first (is it required, and is it ready?); sections 2 and 4
@@ -83,12 +83,12 @@ engine requires the accounts. Then, for each agent:
 What each one stops, when it is required and not ready:
 
 - The chat: do not propose turning the chat on, do not run `supcoflow chat on`, and do not touch the app (without it the
-  chat cannot answer and disappears from the site). Everything that does not depend on it (the questions, the guide, the
+  chat cannot answer and disappears from the site). Everything that does not depend on it (the confirmation, the guide, the
   allowed site) can be done. At step 8 run `supcoflow diagnose --json` again and look only at `ia_del_chat`: if it is `ok`
   by then, go on; if not, stop there with "Not finished: the chat's AI isn't ready (<the account | its model>)." If
   `chat on` exits 4 with `falta_ia_del_chat`, it is this same case, whatever `agents show` said. The next `/supcoflow go`
   resumes from what is missing, and now says the right thing.
-- The triage agent: do not offer the test. Say it BEFORE the three questions and offer only "Not now" in the third. If a
+- The triage agent: do not offer the test. The install offers no test anyway; say in the summary that the triage agent has no AI account yet. If a
   test is attempted anyway and exits 4 `falta_ia_del_triaje`, tell them and do not retry. The presence of the point decides
   whether it is required; its `ok` decides whether it is ready, except that with the `save` policy it can come as `ok`
   (the test would not investigate) even though the agent is not ready: you still do not offer the test when its account is
@@ -97,7 +97,7 @@ What each one stops, when it is required and not ready:
 ## 4. The chat's model (only if the person asks)
 
 Only if the person asks to choose the chat's model, or asks you to approve it when section 3 says it is the missing
-piece. Never offer it on your own, and it is not one of the three questions.
+piece. Never offer it on your own, and it is not part of the confirmation of point 5.
 `supcoflow agents configure --agent chat --option <agile|standard|plus> --data-retention <allow|deny> --json`.
 Ask what you need: which option, and whether the provider may keep their data (`allow`: any provider; `deny`: only
 providers that do not keep data); both flags are required: the terminal cannot read what is set, so it guesses nothing.

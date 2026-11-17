@@ -20,12 +20,12 @@ no instala nada) y **(ii)** `/supcoflow go` (recorrido completo).
 - Con el sí, parte la guía en `.supcoflow/knowledge/<área>.md` con cabecera `title`/`summary`/`sources`; el número de
   `secciones` de `supcoflow guide check --json` es el mismo antes y después; dice que la carpeta manda y **no borra ni
   renombra** `guide.md`. Corre `guide stale --base origin/<rama> --json`.
-- Muestra **en UN solo mensaje** el diff de la carpeta, el mensaje exacto del commit y la pregunta «Anything about
-  your business the chat must know: deadlines, refunds, prices? I won't guess them from the code.». El sí viene **antes** del commit.
+- Muestra como texto el diff de la carpeta y el mensaje exacto del commit, y después hace **una pregunta por vez con la herramienta de opciones**: «Anything about
+  your business the chat must know: deadlines, refunds, prices? I won't guess them from the code.» y la del commit. El sí viene **antes** del commit.
 - El commit usa `git add -- <archivos de la carpeta>` y `git commit -m "<mensaje>" -- <los mismos archivos>`: el archivo ajeno
   del índice **sigue sin commitear**, y `git show --name-only HEAD` muestra sólo la carpeta.
 - Variante (a): avisa que git ignora lo que escribe y que el commit no lo contendrá.
 - Variante (b): migra desde `guia.md` sin renombrarla ni borrarla.
-- Cierra con una línea que no afirma una publicación que no hubo (consulta `guide versions --json`); **ningún `git push`**
-  y ningún `guide publish`.
+- Cierra con una línea que no afirma una publicación que no hubo (consulta `guide versions --json`); **ningún `guide publish`**
+  y ningún `git push` de la rama principal: subir la rama y abrir el PR es una pregunta aparte, con su sí.
 - Más todo lo de la lista común del README.
