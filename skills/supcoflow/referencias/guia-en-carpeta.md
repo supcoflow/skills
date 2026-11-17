@@ -71,9 +71,11 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
    word for word, with the same links, contacts, routes and problems; nothing is merged, dropped, reworded or added except the
    header of each new document (section 3), which is the only new text. The `# ` title of the old file is dropped (it was
    ignored).
-3. Run `supcoflow guide check --json`: it must say the same number of `secciones`, now in N `documentos`. If it differs,
+3. Keep the inherited section titles first, even if `guide check` warns `nombres_repetidos`; if a title must change to tell two
+   apart, make that rename after the move and show it apart in the diff, never mixed into the move.
+4. Run `supcoflow guide check --json`: it must say the same number of `secciones`, now in N `documentos`. If it differs,
    find what you moved wrong and fix it before showing anything.
-4. Tell the person: "The folder takes precedence now: `.supcoflow/guide.md` is ignored while there is at least one document in
+5. Tell the person: "The folder takes precedence now: `.supcoflow/guide.md` is ignored while there is at least one document in
    it." Do not delete or rename their old file: offer to remove it in a later commit and let them do it.
 
 ## 5. Write or update
@@ -86,8 +88,9 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
 ## 6. Check, then show
 
 1. `supcoflow guide check --json`, until it exits 0. Every error comes with its `documento` and line; fix ALL of them (the
-   table of [`guia.md`](guia.md) says how; the reasons of the folder are in the table at the end of this file). Read `avisos`: a
-   `nombres_repetidos` is fixed; `archivo_ignorado_por_la_carpeta` is expected when there is an old file.
+   table of [`guia.md`](guia.md) says how; the reasons of the folder are in the table at the end of this file). Read the two warnings it brings at the root of its JSON (it has no
+   `avisos`; that field is `guide stale`'s): `nombres_repetidos`, a list, is fixed, and `aviso`, a single string, such as
+   `archivo_ignorado_por_la_carpeta`, is expected when there is an old file.
 2. `supcoflow guide stale --base origin/<rama> --json` (`<rama>` is `proyecto.rama` of `project show`, usually `main`). It reads
    only git and the clone, spends nothing and asks nothing of the engine. Every warning is for you to act on or to say:
    - A document that explains code this change touched and you did not touch: read the change and update it if a user
@@ -116,12 +119,17 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
    attribution; if your environment adds one, put it in the message you show). Never `git add .` or `git commit -a`. Check with
    `git show --name-only HEAD` that it touches only those files. If they answer with rules, add them to the guide, check again and
    show the diff again before the commit.
-3. **This row does not publish, push, change branch or create one.** Close with one line, by where the person is. On `<rama>`
-   with the commit: "The chat still uses the published guide: this goes live when your commit reaches `<rama>` on GitHub and is
-   published. Pushing, or opening a pull request from a branch, is up to you." On `<rama>` without the commit: "The chat still
-   uses the published guide: this goes live when it is committed on `<rama>`, reaches GitHub and is published." On another
-   branch or with no branch: "The chat still uses the published guide: this goes live when it is merged on `<rama>` and
-   published. Pushing is up to you."
+3. **This row does not publish, push, change branch or create one.** First `supcoflow guide versions --json`: `vigente` says
+   whether the project has an active guide. Close with one line, by where the person is.
+   - `vigente` is `null` (no active guide: for example right after "Connect the repo"): "This draft isn't published and the
+     project has no active guide yet: it goes live after it reaches `<rama>` on GitHub (push, or open a pull request from a
+     branch) and is published there with `supcoflow guide publish --from-github --json` or by your CI step." Never say the chat
+     uses a published guide.
+   - `vigente` is there. On `<rama>` with the commit: "The chat still uses the published guide: this goes live when your
+     commit reaches `<rama>` on GitHub and is published. Pushing, or opening a pull request from a branch, is up to you." On
+     `<rama>` without the commit: "The chat still uses the published guide: this goes live when it is committed on `<rama>`,
+     reaches GitHub and is published." On another branch or with no branch: "The chat still uses the published guide: this
+     goes live when it is merged on `<rama>` and published. Pushing is up to you."
 4. Publishing is a separate request, never part of this row. How the guide goes live, only if asked: `supcoflow guide publish --from-github --json`, on the project's main branch after the
    merge (if it exits 5 `guia_no_subida` or `guia_distinta`, GitHub's `<rama>` does not have it yet: say so with the `<rama>` line
    of step 3, push or a pull request, and do not publish another way), or the project's CI step, which does the same after the
