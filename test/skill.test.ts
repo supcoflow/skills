@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.8 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.8");
+  it("la skill es la 0.6.9 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.9");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -716,7 +716,7 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
     expect(P(skillMd)).toMatch(/If the project has no live guide and step 3 did not publish, stop here: skip steps 8 and 9 and end with "Not finished"/);
   });
   it("con la carpeta `.supcoflow/knowledge/`, el diff y el commit de §9 son los de sus documentos, no `guide.md`", () => {
-    expect(P(p9())).toMatch(/The guide's files are the documents of `\.supcoflow\/knowledge\/` you wrote, if the folder has any `\.md`/);
+    expect(P(p9())).toMatch(/The guide's files are the documents of `\.supcoflow\/knowledge\/` you wrote \(point 8\), or, in a repo that already had it, the single `\.supcoflow\/guide\.md`/);
     expect(P(p9())).toContain("`git add -- <files>`");
     expect(P(p9())).toContain('`git commit -m "<message>" -- <files>`');
     expect(P(p9())).not.toContain("-- .supcoflow/guide.md");
@@ -838,10 +838,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.8, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.8", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.8`/);
+  it("la versión es la 0.6.9, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.9", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.9`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.8`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.9`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2039,9 +2039,15 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     expect(ref()).toContain("If you change something a user can see, update `.supcoflow/knowledge/` in the same change.");
     expect(ref()).toMatch(/Only with their yes/);
   });
+  it("un proyecto nuevo recibe la guía directo en `.supcoflow/knowledge/`; sólo el archivo único existente se sigue escribiendo", () => {
+    const p8 = P(seccion(skillMd, /^## 8\. The guide/m, /^## 9\./m));
+    expect(p8).toMatch(/has neither it nor a `\.supcoflow\/guide\.md` \/ `guia\.md`[^]*write there directly, one document per area[^]*never a `guide\.md` first/);
+    expect(p8).toMatch(/Only a repo that already has the single `\.supcoflow\/guide\.md` keeps writing it/);
+    expect(P(skillMd)).toMatch(/or `\.supcoflow\/guide\.md` only if the repo already has that single file and no folder/);
+  });
   it("al terminar la instalación ofrece una vez el primer borrador de la carpeta, sin publicar, antes de «Testing beyond that»", () => {
     const orden = P(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m));
-    expect(orden).toMatch(/The first-draft offer \(after step 10, and at the end of the "Connect the repo" row\): after the summary \(point 13\), offer once, in one line, only when `\.supcoflow\/knowledge\/` has no `\.md`[^]*nothing is published[^]*section 9[^]*`vigente` null[^]*same by-branch ending/);
+    expect(orden).toMatch(/The first-draft offer \(after step 10, and at the end of the "Connect the repo" row\): after the summary \(point 13\), offer once, in one line, only when `\.supcoflow\/knowledge\/` has no `\.md`[^]*never made right after this order wrote the folder[^]*nothing is published[^]*section 9[^]*`vigente` null[^]*same by-branch ending/);
     expect(crudo).toMatch(/^## 9\. First draft after the setup/m);
     expect(ref()).toMatch(/If the repo has `\.supcoflow\/guide\.md` or `guia\.md`[^:]*: migrate it as in section 4, without losing content/);
   });

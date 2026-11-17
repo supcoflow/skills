@@ -26,7 +26,7 @@ Start like every row of point 3 (`project show`, the context line, `config`), th
    `CLAUDE.md` and `README`. Decide which of the three cases it is:
    - The folder already has documents: update them (section 5).
    - Only `.supcoflow/guide.md` or `guia.md`: split it first (section 4).
-   - Nothing: write the documents from the code (section 5), one per area.
+   - Nothing (a new project, also from `/supcoflow go`): write the documents from the code (section 5), one per area, directly in the folder.
 
 ## 3. A document
 
@@ -149,7 +149,7 @@ date if the agent that reads the file follows it, and that `guide stale` is what
 Only after a yes to the first-draft offer of `SKILL.md` (after the full order, or at the end of "Connect the repo"). Keep it
 small:
 
-- If the repo has `.supcoflow/guide.md` or `guia.md` (the install may have just written one): migrate it as in section 4,
+- If the repo has `.supcoflow/guide.md` or `guia.md` (the install writes the folder directly, so this is an old file): migrate it as in section 4,
   without losing content. Otherwise write the first documents from the code (section 5), one per area, each with its header and
   the four labels.
 - Then sections 6 and 7 as they are: `guide check`, `guide stale`, the diff and the proposed commit for the person to review. It

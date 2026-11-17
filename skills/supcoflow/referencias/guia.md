@@ -1,7 +1,8 @@
-# The guide: `.supcoflow/guide.md`
+# The guide: format of its sections
 
-It is what the chat knows about the app. It goes at the root of the repo, in `.supcoflow/guide.md`, in UTF-8 and up to
-64 KB. One section per screen or function a user uses (from 1 to 60).
+It is what the chat knows about the app. A new project writes it as documents in `.supcoflow/knowledge/` (where and how:
+[`guia-en-carpeta.md`](guia-en-carpeta.md)); the format below is that of each document's sections. A repo that already has
+the single file keeps it in `.supcoflow/guide.md`, at the root of the repo, in UTF-8 and up to 64 KB. One section per screen or function a user uses (from 1 to 60).
 
 The old name, `.supcoflow/guia.md`, still works: the terminal reads it only when `guide.md` does not exist, and says
 that `.supcoflow/guia.md` is the old name and should be renamed to `guide.md`. If both exist, `guide.md` wins and
@@ -90,6 +91,6 @@ out as `line N: reason`. Fix ALL the lines of the list and run it again; repeat 
 | `«Where:» must be a path that starts with /` | Write a real route of the app, like `/settings/billing`, or delete the line. |
 | `… is over 600 characters` | Shorten the text of that line. |
 
-Other codes of `guide check`, all with exit 3: `falta_guia` (there is no `.supcoflow/guide.md` at the root of the repo:
-write it), `guia_muy_grande` (over 64 KB: shorten it) and `guia_ilegible` (it cannot be read, e.g. invalid UTF-8: save
+Other codes of `guide check`, all with exit 3: `falta_guia` (there is no guide: no `.supcoflow/knowledge/` with `.md` and no
+`.supcoflow/guide.md`: write the documents of the folder), `guia_muy_grande` (over 64 KB: shorten it) and `guia_ilegible` (it cannot be read, e.g. invalid UTF-8: save
 it as UTF-8). With exit 4 `sin_proyecto`, the project is missing: go back to step 2 of the order.
