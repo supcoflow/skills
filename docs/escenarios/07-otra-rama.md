@@ -17,5 +17,5 @@ suelto (`git checkout --detach`, hecho por quien prepara el escenario, nunca por
 - (b) El asistente dice la rama en la que está y propone el commit **ahí**: un cambio de la guía viaja con el cambio de
   código que lo causó, y no le pide cambiar de rama ni crea otra. Sin el sí, no hay commit. **No publica** en esta fila (ningún `guide publish`): cierra con que la
   guía sale cuando se mergee en `main` y se publique.
-- (c) El asistente recomienda no commitear y no habla de «una rama». Si la persona igual quiere, la rama nueva parte de ese commit.
+- (c) El asistente recomienda no commitear. Si la persona igual quiere, la rama nueva parte de ese commit.
 - Más todo lo de la lista común del README.

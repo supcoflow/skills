@@ -112,13 +112,14 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
 Questions go one at a time through the options tool (point 2 of `SKILL.md`).
 
 1. Show, as text, the diff, the exact commit message and, if you are on `<rama>` (the project's main branch, the `rama` of
-   `supcoflow project show --json`), the name of the new branch (`supcoflow/guide`, or `supcoflow/guide-<n>` if it exists).
+   `supcoflow project show --json`) or on no branch, the name of the new branch (`supcoflow/guide`, or `supcoflow/guide-<n>` if it exists).
    Then ask, one question each: "Anything about your business the chat must know: deadlines, refunds, prices? I won't guess
    them from the code." (options "Nothing to add" and "Yes, I'll tell you"), and the commit: on `<rama>`, "I'll commit it
    on a new branch, `<new>`, not on `<rama>`." (commit, or not now). On another branch, the commit rides on the branch of
    the code change that caused it, and that is right: say the branch and ask commit or not now; do not ask them to move
-   or create another. If there is no branch (detached HEAD), recommend not committing.
-2. The yes comes BEFORE the commit. With a yes: on `<rama>` first `git switch -c <new>`; then `git add -- <each file of the folder you wrote>` and
+   or create another. If there is no branch (detached HEAD), recommend not committing; if they still want it, the new branch `<new>` starts
+   from this commit.
+2. The yes comes BEFORE the commit. With a yes: on `<rama>` or with no branch, first `git switch -c <new>`; then `git add -- <each file of the folder you wrote>` and
    `git commit -m "<message>" -- <the same files>`, with EXACTLY the message you showed and nothing added (no `Co-Authored-By` or other
    attribution; if your environment adds one, put it in the message you show). Never `git add .` or `git commit -a`. Check with
    `git show --name-only HEAD` that it touches only those files. If they answer with rules, add them to the guide, check again and
