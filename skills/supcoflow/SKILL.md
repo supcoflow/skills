@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.2"
+  version: "0.6.3"
 ---
 
 # Supcoflow go
@@ -152,6 +152,8 @@ Testing beyond that (optional, never without asking): offer the person the level
 [`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
 browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling
 that `supcoflow test --json` gave.
+
+11. After the summary (point 13), offer once, in one line, and only when the install ended well: "Want me to keep the guide as documents in `.supcoflow/knowledge/`, one per area of your app, so it stays up to date with your code? I'd leave it as a commit for you to review; nothing is published." With their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 10. With a no, do not offer again.
 
 Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
 

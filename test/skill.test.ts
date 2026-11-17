@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.2 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.2");
+  it("la skill es la 0.6.3 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.3");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -827,10 +827,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.2, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.2", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.2`/);
+  it("la versión es la 0.6.3, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.3", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.3`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.2`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.3`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2022,6 +2022,11 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     expect(ref()).toMatch(/offer to add ONE line to the instructions file/);
     expect(ref()).toContain("If you change something a user can see, update `.supcoflow/knowledge/` in the same change.");
     expect(ref()).toMatch(/Only with their yes/);
+  });
+  it("al terminar la instalación ofrece una vez el primer borrador de la carpeta, sin publicar", () => {
+    expect(P(skillMd)).toMatch(/11\. After the summary \(point 13\), offer once, in one line.*nothing is published/);
+    expect(ref()).toMatch(/First draft after the setup \(step 11 of the order\)/);
+    expect(ref()).toMatch(/migrate it as in section 4, without losing content/);
   });
   it("la tabla de motivos de la carpeta sale del vector de la terminal, una fila por motivo", () => {
     const motivos: string[] = JSON.parse(leer(RAIZ, "test", "vectores", "motivos-de-la-carpeta.json"));
