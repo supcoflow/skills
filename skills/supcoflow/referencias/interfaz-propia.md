@@ -198,7 +198,7 @@ interface or the tests: they are the person's to review and commit (SKILL.md, po
 ## Coming back later
 
 The interface is the app's code: there are no files of ours to merge. When the person runs `/supcoflow go` again,
-`supcoflow diagnose --json` compares the recorded contract version with the one the project declares today. A newer major
+`supcoflow diagnose --full --json` compares the recorded contract version with the one the project declares today. A newer major
 version of the contract is a new required point: say so, install the version `interfaz_propia` gives now (shown first, like the
 first time), read the new contract, change the interface, replace `checks.ts` with the new one (unedited), run the conformance
 checks again and record the installation again (step 6). A newer minor or patch only adds optional points: offer what is new
