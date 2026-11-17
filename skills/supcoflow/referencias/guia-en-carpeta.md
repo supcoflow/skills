@@ -116,13 +116,17 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
    attribution; if your environment adds one, put it in the message you show). Never `git add .` or `git commit -a`. Check with
    `git show --name-only HEAD` that it touches only those files. If they answer with rules, add them to the guide, check again and
    show the diff again before the commit.
-3. **This row does not publish, push, change branch or create one.** Close with one line: "The chat still uses the published guide: this
-   goes live when it is merged on `<rama>` and published. Pushing is up to you."
+3. **This row does not publish, push, change branch or create one.** Close with one line, by where the person is. On `<rama>`
+   with the commit: "The chat still uses the published guide: this goes live when your commit reaches `<rama>` on GitHub and is
+   published. Pushing, or opening a pull request from a branch, is up to you." On `<rama>` without the commit: "The chat still
+   uses the published guide: this goes live when it is committed on `<rama>`, reaches GitHub and is published." On another
+   branch or with no branch: "The chat still uses the published guide: this goes live when it is merged on `<rama>` and
+   published. Pushing is up to you."
 4. Publishing is a separate request, never part of this row. How the guide goes live, only if asked: `supcoflow guide publish --from-github --json`, on the project's main branch after the
-   merge (if it exits 5 `guia_no_subida` or `guia_distinta`, that branch does not have it yet: say so, do not publish another way),
-   or the project's CI step, which does the same after the merge. Never from another branch, not even with their yes, and never
-   `supcoflow guide publish --json` here: say "The guide goes live when it is merged on `<rama>`; the pull request is
-   the review." and propose merging.
+   merge (if it exits 5 `guia_no_subida` or `guia_distinta`, GitHub's `<rama>` does not have it yet: say so with the `<rama>` line
+   of step 3, push or a pull request, and do not publish another way), or the project's CI step, which does the same after the
+   merge. Never from another branch, not even with their yes, and never `supcoflow guide publish --json` here: say "The guide
+   goes live when it is merged on `<rama>`; the pull request is the review." and propose merging.
 
 ## 8. The rule for the project's instructions file (only with permission)
 

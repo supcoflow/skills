@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.5 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.5");
+  it("la skill es la 0.6.6 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.6");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -705,7 +705,8 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
   });
   it("si no salió en la rama principal pide que el commit llegue a GitHub (push o PR); en otra rama, mergear", () => {
     const paso3 = P(seccion(p9(), /^3\./m, /^4\./m));
-    expect(paso3).toMatch(/on `<rama>`, "The guide goes live when your commit reaches `<rama>` on GitHub: push it, or open a pull request from a branch/);
+    expect(paso3).toMatch(/on `<rama>` with the commit of step 2, "The guide goes live when your commit reaches `<rama>` on GitHub: push it, or open a pull request from a branch/);
+    expect(paso3).toMatch(/on `<rama>` without that commit, "The guide goes live when it is committed on `<rama>` and reaches GitHub: commit it/);
     expect(paso3).toMatch(/on another branch or with no branch, "The guide goes live when it is merged on `<rama>`[^"]*merge it/);
   });
   it("desde otra rama no publica: dice que sale al mergear y frena antes de `chat on` con «Not finished»", () => {
@@ -837,10 +838,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.5, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.5", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.5`/);
+  it("la versión es la 0.6.6, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.6", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.6`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.5`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.6`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2015,6 +2016,10 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     expect(P(skillMd)).toMatch(/\| Publish the guide \| Only `supcoflow guide publish --from-github --json`, from the project's main branch/);
     expect(ref()).toMatch(/`supcoflow guide publish --from-github --json`, on the project's main branch after the merge/);
     expect(ref()).toMatch(/Never from another branch, not even with their yes, and never\s+`supcoflow guide publish --json` here[^]*propose merging/);
+    const paso3 = P(seccion(crudo, /^3\. \*\*This row/m, /^4\. /m));
+    expect(paso3).toMatch(/On `<rama>` with the commit: "[^"]*when your commit reaches `<rama>` on GitHub[^"]*opening a pull request from a branch/);
+    expect(paso3).toMatch(/On `<rama>` without the commit: "[^"]*when it is committed on `<rama>`, reaches GitHub/);
+    expect(paso3).toMatch(/On another branch or with no branch: "[^"]*merged on `<rama>`/);
     expect(ref()).not.toMatch(/only with their\s+yes, `supcoflow guide publish --json`/);
     expect(c("guide publish").flags.join("\n")).toContain("--from-github");
   });

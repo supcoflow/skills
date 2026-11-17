@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.5"
+  version: "0.6.6"
 ---
 
 # Supcoflow go
@@ -309,8 +309,10 @@ otherwise `.supcoflow/guide.md`. `<files>` below is them.
    branch (`proyecto.rama`), run `supcoflow guide publish --from-github --json`: if it exits 0, the guide is live (also
    when it was already live from a cut session: say so and go on). If it exits 5 `guia_no_subida` or `guia_distinta`,
    GitHub's `<rama>` does not have this guide yet: say so and do not publish another way. On any other branch, or with
-   no branch, do not run it. When it did not publish, say what is missing, by where the person is: on `<rama>`, "The
-   guide goes live when your commit reaches `<rama>` on GitHub: push it, or open a pull request from a branch, and
+   no branch, do not run it. When it did not publish, say what is missing, by where the person is: on `<rama>` with the
+   commit of step 2, "The guide goes live when your commit reaches `<rama>` on GitHub: push it, or open a pull request
+   from a branch, and `/supcoflow go` goes on from there."; on `<rama>` without that commit, "The guide goes live when it
+   is committed on `<rama>` and reaches GitHub: commit it, then push it or open a pull request from a branch, and
    `/supcoflow go` goes on from there."; on another branch or with no branch, "The guide goes live when it is merged on
    `<rama>` (the pull request is the review): merge it, and `/supcoflow go` goes on from there." Then `supcoflow guide versions --json` (it
    only reads): if it lists a guide that governs (`vigente`), the chat keeps using it until this one is live; if not,
