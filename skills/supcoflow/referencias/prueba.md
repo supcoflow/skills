@@ -78,7 +78,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      ones of this `test --json`, or it has `politica: null`, do not ask for a new test: a new test cannot start while a
      request is pending. Follow **Resuming a pending request** below instead. If the person does not want to resume it,
      offer only "Not now". With the same ceiling and policy as now, the yes of point 3 covers it and point 4 resumes it.
-3. **Ask the person**, quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
+3. **Ask the person** (one yes or no question with the options tool; the install never asks it), quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
    <ceiling>. If the problem gets in, a test issue, marked as such, opens in
    your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
    `guardar`, tell them the test goes only as far as saving the problem and spends nothing. An answer that is not a

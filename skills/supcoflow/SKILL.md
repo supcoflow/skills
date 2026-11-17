@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.12"
+  version: "0.7.0"
 ---
 
 # Supcoflow go
@@ -29,6 +29,14 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
   settings"), so the person sees where you are.
 - Run the terminal from the app's folder: it reads the repo from that folder's `origin` (`--repo owner/repo` if you cannot).
 - Never paste the terminal's JSON to the person: say what it means in one sentence.
+- **Every question to the person goes through your options tool**: `AskUserQuestion` in Claude Code, the equivalent in
+  another agent, and only if there is none a short numbered list. One question at a time, never a block of mixed
+  questions, each with short options (a yes or no is two options; what is free text goes through "Other"). It applies
+  to everything below that asks: the confirmation of point 5, the commit, the push, the site, the business rules.
+- **The browser opens by itself**: when a command (`login --start`, `repo connect --start`) reports
+  `navegador_abierto: true`, the page is already open: say so ("I opened the page in your browser") with the code,
+  instead of pasting the link. With `false` or no field, show the link and the code. Open the browser yourself only for
+  a login, an approval or a step of the console, never for anything else.
 - Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).
 
 | Code | What you do |
@@ -73,12 +81,12 @@ full order is for a request to install that names nothing narrower.
 |---|---|
 | Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, handle it as section 3 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) says. |
 | `/supcoflow guide`, or update the guide | [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md): the guide as documents in `.supcoflow/knowledge/`. It writes and checks them and proposes the commit; it **never publishes**. Do not ask about data, policy or the test. The permissions of point 7 and the business-rules question stay. If the repo only has the single `.supcoflow/guide.md` (or `guia.md`), that file's section 4 splits it into the folder first. |
-| Publish the guide | Only `supcoflow guide publish --from-github --json`, from the project's main branch (`proyecto.rama`) once the guide is merged there, or the project's CI step. Never from another branch, not even with a yes: say that the guide goes live when it is merged on `<rama>` (the pull request is the review) and propose merging. |
-| Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
-| Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
+| Publish the guide | Point 9, step 4: the first guide of a project may go from the terminal; once the project has a guide published from GitHub, only `supcoflow guide publish --from-github --json`, from the project's main branch (`proyecto.rama`) once the guide is merged there, or the project's CI step. Never `--from-github` from another branch, not even with a yes: say that the guide goes live when it is merged on `<rama>` (the pull request is the review) and propose merging. |
+| Change what the chat sees about their users | Only the first question of point 5 ("Changing it"), with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second question and do not show the confirmation. The permissions of point 7 before touching files stay. |
+| Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes, asked on its own: the install never asks it. |
 | Connect the repo | Steps 1 and 2 of the full order, and stop after "Connected. Created the project <slug>." (or, if the project already existed, after saying so). Nothing else: no questions, no guide, no chat, and the app's code is not touched. Offer the rest as `/supcoflow go`, and end with the one line of the first-draft offer (after step 10): with a yes, its flow; with a no, it ends there. |
-| Change what happens with a report | Only the second question of point 5, with its words and its warning that investigating spends: ask it, do not decide it, then `supcoflow policy set --mode investigate --json` or `supcoflow policy set --mode save --json` and say the result in one sentence. Do not ask the first or the third question. |
-| Turn the chat on | Steps 8 and the checks before it, and nothing else: if the chat is required and not ready, [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) section 3 says stop. Ask for the site where its users use the app if the code does not say (`http://localhost:3000` only for a local test), `supcoflow sites add --site <site> --json`, then `supcoflow chat on --json`. If `chat on` says something is missing (a guide, the chat's AI account), say what and stop. Do not touch the app's code: if the chat is not in it yet, offer the full order. |
+| Change what happens with a report | Only the second question of point 5 ("Changing it"), with its words and its warning that investigating spends: ask it, do not decide it, then `supcoflow policy set --mode investigate --json` or `supcoflow policy set --mode save --json` and say the result in one sentence. Do not ask the first question and do not show the confirmation. |
+| Turn the chat on | Steps 8 and the checks before it, and nothing else: if the chat is required and not ready, [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) section 3 says stop. If the code does not say the site where its users use the app, ask it with the sites you found as options and "Other" (`http://localhost:3000` only for a local test), `supcoflow sites add --site <site> --json`, then `supcoflow chat on --json`. If `chat on` says something is missing (a guide, the chat's AI account), say what and stop. Do not touch the app's code: if the chat is not in it yet, offer the full order. |
 | Check an AI account (the chat's or the triage agent's) | `supcoflow agents check --agent <chat or triage> --json` and say in one line whether that agent's account is ready or what is still missing, as section 2 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) reads its exits. It spends nothing. Never ask for the key. |
 | Put or fix an AI account (the chat's or the triage agent's), or choose the chat's model | [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). The key is the person's: you never ask for it and never run `supcoflow agents set-key` or `supcoflow agents remove`. |
 | Install it, or `/supcoflow go` | The full order below, steps 1 to 10, then the first-draft offer after step 10. |
@@ -94,8 +102,8 @@ The full order:
    `repo connect`) or `project create` exits 4 with `contexto_incoherente` (the repo's owner is not the GitHub account
    of your key, or the account has no GitHub), stop and say its message: it is a possible mismatch, not proof.
 3. `supcoflow config --json`: what is already set is not asked again. Only what is set counts: `acuerdo: null` or
-   `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → ask it, with the warning that
-   investigating spends.
+   `politica.fijada_en: null` means not set (even if it says `modo: "relevar"`) → it goes in the confirmation of
+   point 5 (its defaults are the proposal; investigating, which spends, is never the default).
 4. `supcoflow agents show --json` (it only reads, and exits 0 even when an account is missing): the AI account of each agent,
    `agentes[].estado` for `chat` and `triaje` (the triage agent): `lista`, `rechazada`, `sin_saldo` or `falta`. Say each one in
    a line. `cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration (its model) is approved. Then
@@ -105,27 +113,22 @@ The full order:
    diagnosis now; its exit 4 `no_listo` is the report here, not a stop. Follow
    [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md): the person puts or fixes what is missing, never in this
    chat.
-5. `supcoflow test --json` (without authorizing: it sends nothing and exits 4 with `falta_autorizacion`) to have the
-   ceiling in numbers (`techo_usd`) before the third question. Read two more
-   things from it before asking anything (details in [`referencias/prueba.md`](referencias/prueba.md), point 2):
-   `maquina` and `intento_pendiente`. If `maquina.ok` is `false`, say why (each `detalle` of `impedimentos`, in your
-   words) BEFORE the three questions, and in the third offer only "Not now"; do not offer to resume a pending request
-   then. If `intento_pendiente` is not `null` and its ceiling or policy differ from the ones of this `test --json`, say so and
-   offer to resume that same request, not a new test, in place of option 1 of the third question and with its own yes
-   (see "Resuming a pending request" in [`referencias/prueba.md`](referencias/prueba.md)). If the triage agent is
-   required and not ready (step 4), say so BEFORE the three questions and in the third offer only "Not now"; do not offer
-   a test then.
+5. **No test in the install.** Do not run `supcoflow test` here and do not offer a paid test: the install spends nothing
+   (point 5). The test stays for later (the "Test it" row and the closing line of point 13), asked on its own. If the
+   triage agent is required and not ready (step 4), say it in the summary as point 13 says.
 6. Read the code (with your file tools, as point 2 says) → say what you will do: "From your code: <what you read>, on N pages." (N: count the `page.tsx`
    files under the layout where you will mount the chat; the chat covers what that layout covers, so never make up a
    list of pages). If the app is Next.js (App Router), also run `supcoflow widget --json` here (it only reads) to decide
-   the form (point 10: own interface or widget) before the questions. → the three questions (point 5), and with an own
-   interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
+   the form (point 10: own interface or widget) before the questions. → with an own
+   interface, how people open the chat (point 5) → the confirmation (point 5) → apply the configuration
+   (`supcoflow data set`, `supcoflow policy set`).
 7. `git status --porcelain --ignored -- .supcoflow` (point 7, before writing) → write the guide's files (point 8: the
    documents of `.supcoflow/knowledge/`; a repo that only has the single `.supcoflow/guide.md` or `guia.md` keeps writing that file and never gets a new `guide.md`) → `supcoflow guide
-   check --json` in another call → show the diff and ask for the yes to the local commit (point 9) → point 9, step 3:
-   only `supcoflow guide publish --from-github --json`, on the project's main branch. If the project has no live guide
-   and step 3 did not publish, stop here: skip steps 8 and 9 and end with "Not finished" (point 13), saying what step 3
-   said must happen for the guide to reach `<rama>` on GitHub and that `/supcoflow go` goes on from there.
+   check --json` in another call → show the diff, ask the business rules and ask for the yes to the commit on a new
+   branch (point 9) → point 9: the commit, the push and the pull request with their own yes, and the publication of
+   step 4. If the project has no live guide and step 4 did not publish, stop here: skip steps 8 and 9 and end with
+   "Not finished" (point 13), saying what step 4 said must happen for the guide to go live and that `/supcoflow go`
+   goes on from there.
 8. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
    `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added).
    Before `chat on`, if the chat is required and was not ready at step 4 (run `supcoflow diagnose --json` again and look only at
@@ -141,12 +144,9 @@ The full order:
    chat, guide and interface: N of 7, at no cost."; when `ia_del_chat` is among `instalacion.puntos` the total is 8 and the line
    names it: "Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost."
    (never a fixed number). If `ia_del_chat` (in `instalacion.puntos`) or `ia_del_triaje` (in `prueba.puntos`) fails, handle it
-   as section 3 of `referencias/cuentas-de-ia.md` says. If it says it is not ready for a test, or a point that is not an `aviso`
-   one fails, say so and nothing is spent. A failing `aviso` point (the interface one) lowers the count but does not stop a test: say
-   what it says. If it is ready, and the person said yes to the third question: `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy> --json`
-   in a call of its own, then `supcoflow test --wait --json` (details in
-   [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
-   not use these values: follow "Resuming a pending request" in the same file. Then the summary (point 13).
+   as section 3 of `referencias/cuentas-de-ia.md` says. If a point that is not an `aviso`
+   one fails, say so. A failing `aviso` point (the interface one) lowers the count: say what it says. Nothing is
+   tested or spent here. Then the summary (point 13).
 
 The first-draft offer (after step 10, and at the end of the "Connect the repo" row): after the summary (point 13), offer
 once, in one line, only when `.supcoflow/knowledge/` has no `.md` and the install did not stop for something other than
@@ -154,7 +154,7 @@ the guide not being live yet. After the full order that means the repo kept its 
 `guia.md`, point 8): the offer to migrate it to the folder. It is never made right after this order wrote the folder (point 8: a new project gets the
 folder directly). After "Connect the repo" nothing was written, so it is the offer of a first draft. "Want me to keep the
 guide as documents in `.supcoflow/knowledge/`, one per area of your app, so it stays up to date with your code? I'd leave
-it as a commit for you to review; nothing is published." With their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 9; its closing (section 7, step 3)
+it as a commit for you to review; nothing is published." With their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 9; its closing (section 7, step 4)
 reads `guide versions --json` and, with no active guide (`vigente` null, as after "Connect the repo"), says the draft is not
 published, with the same by-branch ending as the other cases. With a no, do not offer
 again.
@@ -174,13 +174,32 @@ interface (point 10) none of the widget's look settings exist: you never ask abo
 `supcoflow chat brand`; the chat takes the app's own look. What it does ask is how people open it (the second panel of
 point 5).
 
-## 5. What you ALWAYS ask the person
+## 5. What you ask the person
 
-These three, in one panel with exactly these words, in the full order and for whatever is still unset (a request to change only the data uses the first one: see the map of point 3). Do not decide them yourself even if the code suggests it. Before
-asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the investigating AI
-reads, not what the chat's AI sees while it talks; and with the widget, this chat always offers users screenshots and pointing at
-elements (there is no switch for them in the code: if the agreement rejects them, they are discarded when saved); an own
-interface offers only the tools of its second panel.
+In the full order and for whatever is still unset, ONE confirmation with the recommended settings, not three
+questions (a request to change only the data or only the policy uses the question of its row, "Changing it" below). Do
+not decide it yourself even if the code suggests it, and do not apply anything before the yes.
+
+**The defaults** (what the confirmation proposes): the chat sees the page and the browser, and nothing about who they are
+or what they have on screen; a report is saved for the person to review, not investigated; no paid test. Everything stays
+changeable later. Before asking, say what is true today: the data agreement limits what is SAVED in Supcoflow and what the
+investigating AI reads, not what the chat's AI sees while it talks; and with the widget, this chat always offers users
+screenshots and pointing at elements (there is no switch for them in the code: if the agreement rejects them, they are
+discarded when saved); an own interface offers only the tools of its second panel.
+
+**The confirmation.** First, in a few lines of text and not as a question, what it shows: what the chat will see ("the page
+they are on and their browser; not who they are, and no screenshots"), what happens with a report ("it is saved for you
+to review; nobody investigates it, so it spends nothing"), that it does not spend, and that they can change any of it
+later. Then ONE question with the options tool:
+
+> **Use these settings? The chat sees the page and browser, reports are saved for you to review, and nothing is spent.**
+> 1. Yes, use them (recommended)
+> 2. Let me change something
+
+With 1: `supcoflow data set --allow page_and_browser`, `supcoflow policy set --mode save` and, for the code, the second row
+of the table below. With 2: ask "Changing it" below, one question at a time, and only the ones the person wants to change.
+
+**Changing it.** Each of these is a question of its own, with the options tool:
 
 > **What can the chat see about your users?**
 > 1. Who they are, the page, and screenshots
@@ -190,13 +209,8 @@ interface offers only the tools of its second panel.
 > **What happens when someone reports a problem?**
 > 1. Look into it right away
 > 2. Save it for me to review
->
-> **Run one real test now?**
-> 1. Yes, run one test — up to US$ <ceiling>
-> 2. Not now
 
-Fill the ceiling from the `supcoflow test --json` of step 5 and print it as a number, not as a placeholder. Each answer
-goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>` (or `nothing`):
+Each answer goes to its mechanism, all at once, with ONE `supcoflow data set --allow <list>` (or `nothing`):
 
 | Answer to the first question | In Supcoflow | In the app's code |
 |---|---|---|
@@ -213,21 +227,24 @@ leave `user_id,user_role` out of the list of the first answer.
 
 - **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
   `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends** (the cost is theirs, at their AI provider), and that with "save" a person can ask for the investigation later.
-- **Third question**: a yes to numbers, not to a phrase. With "Save it for me to review", option 1 of the third
-  question says the test spends nothing (it stops at the saved problem): print the option as written and add under it "This test
-  spends nothing: it stops at the saved problem." That yes authorizes ONE test with exactly the
-  ceiling you showed and the policy you offered: the final command is `supcoflow test --authorize-spend --ceiling <ceiling> --expect-policy <policy>`
-  with the number you printed and the policy you offered. Never a number you re-read. `techo_distinto` or
-  `politica_distinta`: ask again with the new numbers.
+- **The test is not asked here.** The install never offers a paid test: a test comes later, from the "Test it" row, with
+  its own yes to numbers (`supcoflow test --json` gives the ceiling), never a phrase. With "Save it for me to review"
+  that test spends nothing (it stops at the saved problem).
 
-**Own interface only: a second panel**, in the same message, after the three questions. Never colors, fonts or icons: the app
+**Own interface only: a second panel** of two questions, each asked on its own through the options tool, the first before the
+confirmation and the second only after the data answer is settled. Never colors, fonts or icons: the app
 already answers those. Fill option 1 of the first with what you read in the code and print it as words, not as placeholders:
 
 > **How should people open the chat?**
 > 1. <your proposal: the trigger and what it opens, built with the app's own components — for example a "Help" button in the header that opens a side sheet>
 > 2. A floating button in a corner that opens a panel
 > 3. Somewhere else (tell me where)
->
+
+How it opens is the person's decision, never yours. So when the data answer is the default or the first answer is 2 or 3 (the agreement takes no screenshots, images or pointed
+elements; an image counts as a screenshot), do not ask the tools question: say "Your data agreement doesn't take
+screenshots, images or pointed elements, so the chat won't offer evidence tools." and declare all three `false`; the
+second panel then has only its first question. Only when the first answer is 1:
+
 > **Which tools should it offer to add evidence?**
 > 1. Attach an image, take a screenshot and point at an element
 > 2. Only attach an image
@@ -238,22 +255,19 @@ The second answer goes to the `capabilities` option of the chat and to nothing e
 `capabilities: { attachImage: true, screenshot: false, pickElement: false }` and 3 is
 `capabilities: { attachImage: false, screenshot: false, pickElement: false }`. `newConversation` stays on in all three
 (a person can always start another conversation after a report). The interface also follows `state.allows`, so a tool the
-data agreement rejects is not shown whatever they answer. So when the first answer was 2 or 3 (the agreement takes no
-screenshots, images or pointed elements: an image counts as a screenshot), do not ask the tools question: say "Your data
-agreement doesn't take screenshots, images or pointed elements, so the chat won't offer evidence tools." and declare all
-three `false`; the second panel then has only its first question. How it opens is the person's decision, never yours.
+data agreement rejects is not shown whatever they answer.
 
-The rules of their business (deadlines, refunds, prices, commitments) are not a fourth question: they are asked
-together with the diff of the guide (point 9). **Never deduce them from the code**; if there are none, the guide does
+The rules of their business (deadlines, refunds, prices, commitments) are not part of the confirmation: they are asked
+with the diff of the guide (point 9), per point 2. **Never deduce them from the code**; if there are none, the guide does
 not carry them.
 
 ## 6. Show before applying
 
 Show the person the configuration proposal and the list of files you will create or change before `data set`,
 `policy set` and before touching files. For an own interface the proposal also says which trigger and where, which of the
-app's components and icons it reuses, which files it creates, which tools it offers and whether it adds test packages. With an
-own interface the proposal goes in the same message as the panels of point 5, and their answers count as the yes only if the
-person does not correct the proposal; otherwise ask for the yes apart. Nothing is written before it.
+app's components and icons it reuses, which files it creates, which tools it offers and whether it adds test packages. The
+confirmation of point 5 is the yes to that proposal, so the proposal goes in the lines before it; if the person corrects
+the proposal, answer the correction and ask the confirmation again. Nothing is written before it.
 
 ## 7. Do not overwrite
 
@@ -274,63 +288,74 @@ index (sections 3 and 5 of that file), never a `guide.md` first. A repo that onl
 or the old `guia.md` never gets a new `guide.md`: keep that file as the guide and write it as usual (from the code, and with the business rules of point 9) until it is
 migrated (if it is `guia.md`, tell the person it is the old name), and the first-draft offer is the offer to migrate it to the
 folder (section 4 of that file); never rename or delete theirs. When the folder has documents, `guide.md` is ignored.
-When this order has just created the folder and it was committed in point 9 step 2, after point 9 (steps 1 to 4,
+When this order has just created the folder and it was committed in point 9 step 2, after point 9 (steps 1 to 5,
 publishing included) offer once the line of section 8 of that file, in a commit of its own; never amend the guide's
-commit. If step 3 did not publish, make this offer before the "Not finished" stop of step 7 of the full order. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
+commit. If step 4 did not publish, make this offer before the "Not finished" stop of step 7 of the full order. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
 screen or function a user uses; "Common problems" only from something visible (an issue, a TODO, the README) or
 dictated by the person. Only what exists in the code and a user really uses: no "Home" section because of a template
 page, no links or buttons the code does not have. Add `Where:` with the route only if that route exists in the code.
 `supcoflow guide check --json` until it exits 0.
 
-## 9. Publish the guide
+## 9. Commit the guide, open the pull request, publish it
 
-Never `git push`, neither to the main branch nor to another. Never change the branch or create one.
+Never push or commit on the project's main branch (`proyecto.rama`), never merge, never `--force`. The guide goes on a
+NEW branch of its own and reaches `<rama>` only through a pull request that the person merges.
 
 The guide's files are the documents of `.supcoflow/knowledge/` you wrote (point 8), or, in a repo that only has the
 single file, that file (`.supcoflow/guide.md` or `guia.md`). `<files>` below is them.
 
 1. If `git status --porcelain --ignored -- <files>` says git ignores one (`!!`), it cannot be committed: tell
    them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), first read
-   where the commit would land: `git branch --show-current` and the project's main branch, the `rama` of
-   `supcoflow project show --json` (`proyecto.rama`). If you cannot read the branch, treat it as no branch. Then, in
-   ONE message show them the diff of THOSE files (new, `??`: the whole file; changed: `git diff -- <files>`),
-   the exact commit message you will use, and the question about their business: "Anything about your business the
-   chat must know — deadlines, refunds, prices? I won't guess them from the code." And ask about the commit, inside that
-   same question (not a new question), according to where it would land:
-   - On the project's main branch: the question names the branch. "I'll leave it in a local commit on `<branch>`; it
-     stays in your repo, I don't push it to GitHub."
-   - On another branch: say so and recommend not committing there: "You're on `<branch>`, not on the project's main
-     branch (`<rama>`)." Two options: commit anyway on that branch, or do not commit now: it is committed on `<rama>` when
-     they want. Either way step 3 does not publish from this branch: the guide goes live when it is merged on `<rama>`.
-   - No branch (detached HEAD, empty output): recommend not committing, and say nothing about a branch. If they still
-     want it, tell them the commit would stay on no branch.
+   where you are: `git branch --show-current` and the project's main branch, the `rama` of
+   `supcoflow project show --json` (`proyecto.rama`). If you cannot read the branch, treat it as no branch. Then show
+   them, as text, the diff of THOSE files (new, `??`: the whole file; changed: `git diff -- <files>`), the exact commit
+   message and the name of the new branch (`supcoflow/guide`, or `supcoflow/guide-<n>` if it exists), and ask, one
+   question at a time with the options tool:
+   1. Their business: "Anything about your business the chat must know — deadlines, refunds, prices? I won't guess them
+      from the code." Options: "Nothing to add" and "Yes, I'll tell you" (the rules go through "Other"). If they give rules,
+      add them to the guide, run `supcoflow guide check --json` again and show the diff again before the commit.
+   2. The commit, by where they are:
+      - On `<rama>`: "I'll commit it on a new branch, `<new>`, not on `<rama>`." Options: commit, or not now.
+      - On another branch: say "You're on `<branch>`, not on `<rama>`; a pull request from a new branch made here would
+        carry this branch's commits too." Options: commit on a new branch from here, or not now.
+      - No branch (detached HEAD, empty output): recommend not committing; if they still want it, the new branch starts
+        from this commit.
 
    The yes comes BEFORE the commit.
-   If they answer with rules, add them to the guide, run `supcoflow guide check --json` again and show the diff again
-   before the commit.
-2. With a yes: `git add -- <files>` (if one is new, without this the commit fails) and then
-   `git commit -m "<message>" -- <files>`, with EXACTLY the message you showed: adding nothing (no
-   `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show. With the
-   path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check with
-   `git show --name-only HEAD` that the new commit touches only those files. With a no, or the option of not committing
-   now: do not commit, and tell them the guide is in no commit yet. Here too, with a no, the notice of point 4 goes.
-3. The guide goes live only with `supcoflow guide publish --from-github --json`, which publishes what GitHub's main
-   branch already has, or with the project's CI step after the merge. Never `supcoflow guide publish --json` without
-   `--from-github`, on any branch, not even with a yes. Only when `git branch --show-current` is the project's main
-   branch (`proyecto.rama`), run `supcoflow guide publish --from-github --json`: if it exits 0, the guide is live (also
-   when it was already live from a cut session: say so and go on). If it exits 5 `guia_no_subida` or `guia_distinta`,
-   GitHub's `<rama>` does not have this guide yet: say so and do not publish another way. On any other branch, or with
-   no branch, do not run it. When it did not publish, say what is missing, by where the person is: on `<rama>` with the
-   commit of step 2, "The guide goes live when your commit reaches `<rama>` on GitHub: push it, or open a pull request
-   from a branch, and `/supcoflow go` goes on from there."; on `<rama>` without that commit, "The guide goes live when it
-   is committed on `<rama>` and reaches GitHub: commit it, then push it or open a pull request from a branch, and
-   `/supcoflow go` goes on from there."; on another branch or with no branch, "The guide goes live when it is merged on
-   `<rama>` (the pull request is the review): merge it, and `/supcoflow go` goes on from there." Then `supcoflow guide versions --json` (it
-   only reads): if it lists a guide that governs (`vigente`), the chat keeps using it until this one is live; if not,
-   the project has no live guide and the chat needs one: stop before `chat on` (step 7 of the full order). If publishing
-   warns that `guia.md` is the old name, pass the warning on to the person.
-4. ALWAYS, whether they said yes or no to the commit, in the same message where you say whether step 3 published the
-   guide, say in one line: "Pushing the guide to GitHub is up to you".
+2. With a yes: `git switch -c <new>` (the uncommitted files go with you), then `git add -- <files>` (if one is new,
+   without this the commit fails) and `git commit -m "<message>" -- <files>`, with EXACTLY the message you showed: adding
+   nothing (no `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show.
+   With the path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check
+   with `git show --name-only HEAD` that the new commit touches only those files. You stay on `<new>` afterwards: say so, because the app's files of step 8 will be uncommitted there for the person to review.
+   With a no, or "not now": do not commit
+   and do not create a branch, and tell them the guide is in no commit yet.
+3. **The pull request**, only after the commit and with its own question: "Push `<new>` and open the pull request into
+   `<rama>`?" Options: yes, or not now. With a yes: `git push -u origin <new>` (only that branch, never `<rama>`), then
+   open the pull request: with `gh` if it is installed and signed in (`gh pr create --base <rama> --head <new>` with a
+   short title and body in the person's language), otherwise the compare link
+   `https://github.com/<owner>/<repo>/compare/<rama>...<new>?expand=1`, opened in the browser (`open` on macOS,
+   `xdg-open` on Linux) and said as "I opened the page to create the pull request", or shown if you could not open it.
+   Give the pull request's URL. Never merge it: merging is the person's. With "not now", say the branch `<new>` stays
+   committed here and pushing it is up to them.
+4. **Publishing the guide.** First `supcoflow guide versions --json` (it only reads): `publicaciones` says where each
+   publication came from (declared by the terminal or verified in GitHub) and `vigente` which one governs.
+   - **The project has no guide published from GitHub yet** (no publication is verified in GitHub): the first guide may go
+     from the terminal so the chat works now. With the guide committed (step 2), ask: "Publish this first guide now, from
+     here, so the chat can use it? Later ones go out when you merge." Options: yes, or not now. With a yes,
+     `supcoflow guide publish --json` (the engine decides and says if it refuses: pass its message on and do not try
+     another way). It publishes the commit of the new branch; say that the pull request is still the review for `<rama>`.
+   - **The project already has a guide published from GitHub**: only `supcoflow guide publish --from-github --json`, and
+     only when `git branch --show-current` is `<rama>` (after the pull request is merged); or the project's CI step. Never
+     `supcoflow guide publish --json` without `--from-github`, on any branch, not even with a yes. If `--from-github`
+     exits 5 `guia_no_subida` or `guia_distinta`, GitHub's `<rama>` does not have this guide yet: say "The guide goes live
+     when the pull request is merged on `<rama>`" and do not publish another way. On any other branch, or with no branch,
+     do not run it.
+   Exit 0 means the guide is live (also when it was already live from a cut session: say so and go on). If there is no
+   guide that governs (`vigente` null) and this one did not go live, the chat has no guide: stop before `chat on` (step 7
+   of the full order). If publishing warns that `guia.md` is the old name, pass the warning on to the person.
+5. ALWAYS, in the same message where you say whether the guide went live, say in one line where the guide is: "The pull
+   request is open: merging it is up to you", or "The branch `<new>` is committed here; pushing it and opening the pull
+   request is up to you", or "The guide is in no commit yet".
 
 ## 10. Put the chat
 
@@ -396,7 +421,8 @@ system) to step 6 (record).
 
 ## 11. What you do not do
 
-Spend on your own: the only test that spends is level 3 of [`referencias/prueba.md`](referencias/prueba.md), and only
+Push `<rama>` or commit on it, merge a pull request, or force anything: the guide goes on a new branch and the person
+merges. Spend on your own: the only test that spends is level 3 of [`referencias/prueba.md`](referencias/prueba.md), and only
 with the person's explicit yes to the numbers that `supcoflow test --json` gave; never add
 `--authorize-spend` without that yes, and never repeat an old yes for another test. Neither: raise the cap, relaunch
 an `arranque_incierto` (it is relaunched from the console inbox), delete the project, turn on the factory, give
@@ -418,9 +444,10 @@ lists of files:
    "Each problem gets looked into and ends up as an issue."; with "Save it for me to review", "Each problem is saved
    for you to review.";
 2. where the chat lives (the file and the layout);
-3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); an AI account that is not ready and that `diagnose` does not list as required also goes in line 3 ("the triage agent has no AI account yet"); if the guide
-   is not on GitHub, this line includes "pushing the guide to GitHub is up to you"; if the guide was not committed, it
-   also includes "commit the guide on `<rama>` when you want" (the project's main branch).
+3. what is missing, or "nothing" (if you tested, the level and its result; if not, that it can be tested); an AI account that is not ready and that `diagnose` does not list as required also goes in line 3 ("the triage agent has no AI account yet"); the guide's
+   state, in a few words: the pull request is open ("merging it is up to you", with its URL), or the branch is committed
+   but not pushed ("pushing `<branch>` and opening the pull request is up to you"), or the guide was not committed
+   ("commit the guide when you want"); and that a test can be run later (it is not run here).
 
 If something is not finished and you could not fix it (a site not added, the install not recorded, a failed check), line 1 is not "Done." but "Not finished: <what is missing>." and line 3 says what to do. If the engine requires the chat's AI account and it is not ready, line 1 is "Not finished: the chat's AI isn't ready (<the account | its model>)." and line 3 says what is missing and who does it (the account: the Agents tab, or `supcoflow agents set-key --agent chat` in their own terminal; its model: the Agents tab) and that `/supcoflow go` resumes from there. With an own interface line 1 is "Done. The chat opens from <the trigger>, built with your own components, on N pages, in <the language of its texts>." (then the sentence of the policy) and line 3 also says whether the conformance checks ran, passed and which points stay manual.
 

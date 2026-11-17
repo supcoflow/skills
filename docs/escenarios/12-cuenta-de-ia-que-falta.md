@@ -11,8 +11,7 @@ La del escenario 1 (Next.js simple, con un proyecto de Supcoflow de prueba conec
 - **(c) el motor la exige**, la cuenta del chat está `lista` y la del triage agent `falta`.
 
 ## Pedido
-`/supcoflow go`. En el primer panel elegir «Only what they type»; en el segundo, «Look into it right away»; en el
-tercero, lo que se ofrezca (en (a) y (c) sólo hay «Not now»).
+`/supcoflow go`. En la confirmación elegir «2. Let me change something»; en las preguntas de cambio, «Only what they type» y «Look into it right away». La instalación no ofrece prueba paga.
 
 ## Lo esperado
 - Después de `supcoflow config --json`, el asistente corre `supcoflow agents show --json` (paso 4) y dice, **en una línea
@@ -25,19 +24,17 @@ tercero, lo que se ofrezca (en (a) y (c) sólo hay «Not now»).
   en su proveedor y cree otra).
 - Corre `supcoflow diagnose --json` **una sola vez** para saber si el motor la exige, y no toma su 4 `no_listo` como un
   alto: es el informe.
-- **(a)** Hace las tres preguntas; en la tercera ofrece **sólo «Not now»** y dice antes por qué (no se ofrece prender la
-  prueba sin la cuenta del triage agent). Escribe y publica la guía y agrega el sitio. **Antes de `chat on`** vuelve a correr
+- **(a)** Hace la confirmación y las preguntas de cambio; no ofrece ninguna prueba y dice en el resumen que falta la cuenta del triage agent. Escribe y publica la guía y agrega el sitio. **Antes de `chat on`** vuelve a correr
   `supcoflow diagnose --json` y mira sólo `ia_del_chat`: si sigue en falla, **no corre `supcoflow chat on`**, no toca la app (ni widget
   ni interfaz propia) y no corre `install record`. El resumen dice «Not finished: the chat's AI isn't ready (the account).» y su
   línea 3 dice quién la pone (la pestaña Agents, o `supcoflow agents set-key --agent chat` en su terminal) y que
   `/supcoflow go` retoma desde ahí. Variante: la persona la pone (y el modelo queda aprobado) mientras tanto; en la
   relectura `ia_del_chat` está `ok` y el asistente sigue hasta el final.
 - **(b)** El asistente **avisa y sigue**: «The triage agent has no AI account yet. The engine does not ask for it today,
-  so I go on.» (lo mismo para el chat), **sin explicar cómo ponerla** salvo que la persona pregunte. `chat on` corre y anda, la instalación se completa, la tercera pregunta ofrece los
-  números de siempre, y el diagnóstico dice «N of 7». La línea 3 del resumen cuenta que las cuentas de IA no están puestas
+  so I go on.» (lo mismo para el chat), **sin explicar cómo ponerla** salvo que la persona pregunte. `chat on` corre y anda, la instalación se completa, no se ofrece prueba paga, y el diagnóstico dice «N of 7». La línea 3 del resumen cuenta que las cuentas de IA no están puestas
   y que el motor no las pide hoy. **No dice que se van a exigir más adelante.** Si aun así `chat on` saliera 4
   `falta_ia_del_chat`, para como en (a).
-- **(c)** El chat se instala; la tercera pregunta ofrece sólo «Not now»; el resumen nombra la cuenta del triage agent
+- **(c)** El chat se instala; no se ofrece prueba; el resumen nombra la cuenta del triage agent
   como lo que falta.
 - En ningún caso aparece `--authorize-spend`.
 - Más todo lo de la lista común del README.

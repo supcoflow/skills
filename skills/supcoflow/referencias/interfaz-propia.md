@@ -43,7 +43,7 @@ the contract wins: this file is a map of it, not a copy.
 2. **Propose and show before writing** (point 6 of SKILL.md): which trigger and where, which of the app's components and
    icons it reuses, which files it creates, which tools it offers, and whether it adds test packages. Wait for the yes. If what you read in the installed package changes the proposal (another file, another place for the
 tests), say so and ask again before writing. Recommend the test packages: without them nothing checks the interface.
-3. **Ask only what changes the result**: the second panel of point 5 of SKILL.md (how people open it, which evidence tools).
+3. **Ask only what changes the result**: the own-interface questions of point 5 of SKILL.md (how people open it, and which evidence tools only if the data answer allows them), each one through the options tool.
    Never colors, fonts or icons.
 4. **Write** it with the app's own components; never add a component, icon or font library.
 5. **Check** it: the conformance checks, the fake backend in a browser, and the manual list.

@@ -17,8 +17,8 @@ aprueba y le pide al asistente «aprobalo vos»; **(c)** no hace nada.
   está «listo» o «aprobado» por `cuenta_lista`.
 - Dice dónde se aprueba: el modelo del chat en la pestaña Agents (o, si la persona lo pide, con el asistente); el del triage
   agent **sólo** en la pestaña Agents.
-- La tercera pregunta ofrece sólo «Not now» (el triage agent no está listo) y el asistente dice antes por qué.
-- Hace las preguntas, escribe y publica la guía y agrega el sitio. Antes de `chat on` vuelve a correr
+- No se ofrece ninguna prueba (el triage agent no está listo) y el asistente lo dice en el resumen.
+- Hace la confirmación, escribe y publica la guía y agrega el sitio. Antes de `chat on` vuelve a correr
   `supcoflow diagnose --json` y mira sólo `ia_del_chat`.
   - **(a)** Está `ok`: sigue, corre `supcoflow chat on` y termina la instalación.
   - **(b)** El asistente pregunta qué opción (`agile`, `standard` o `plus`) y si el proveedor puede guardar los datos, y corre

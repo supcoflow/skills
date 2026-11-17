@@ -13,7 +13,7 @@ En la sesión nueva: `/supcoflow go`
 - La sesión nueva empieza por `supcoflow project show --json`, dice la línea de contexto (quién es, el equipo, el repo y el proyecto) y luego `supcoflow config --json`, y **sigue desde lo que falta**: no repite preguntas ya
   contestadas (lo fijado en `config` no se pregunta de nuevo; `acuerdo: null` o `politica.fijada_en: null` sí).
 - No se crea un segundo proyecto ni se repite `repo connect` si el proyecto ya existe.
-- (b): la guía ya está publicada: `supcoflow guide publish --from-github` sale con 0 y el asistente dice que ya está
+- (b): la guía ya está publicada: `supcoflow guide versions --json` muestra una guía vigente y el asistente dice que ya está
   publicada y sigue, **sin duplicar** la publicación.
 - (c): el asistente detecta que el chat ya está puesto (`.supcoflow/instalacion.json` y el layout), lo **actualiza
   en su lugar** y **no monta un segundo chat**.

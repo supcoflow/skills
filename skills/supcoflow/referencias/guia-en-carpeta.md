@@ -1,7 +1,7 @@
 # The guide as documents: `/supcoflow guide`
 
 The guide can be a folder, `.supcoflow/knowledge/`: one `.md` document per area of the product. The coding agent keeps it
-up to date next to the code, in the same change. This row **writes and checks documents and proposes the commit. It never
+up to date next to the code, in the same change. This row **writes and checks documents and proposes the commit on a branch and, with their yes, the pull request. It never
 publishes.** What the chat uses changes only when the guide is published (point 9 of `SKILL.md` and section 7 below).
 
 Start like every row of point 3 (`project show`, the context line, `config`), then:
@@ -107,33 +107,41 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
 3. Show the person the diff of `.supcoflow/knowledge/` (`git diff -- .supcoflow/knowledge` and, for new files, their whole
    text), and the results of the two commands in a line each.
 
-## 7. The commit, and never the publication
+## 7. The commit on a branch, the pull request, and never the publication
 
-1. In ONE message: the diff, the exact commit message, and the question about their business: "Anything about your business
-   the chat must know: deadlines, refunds, prices? I won't guess them from the code." With the commit question inside it:
-   "I'll leave it in a local commit on `<branch>`; I don't push it." If there is no branch (detached HEAD), recommend not
-   committing. This change usually rides on the branch of the code change that caused it, and that is right: do not ask them
-   to move.
-2. The yes comes BEFORE the commit. With a yes: `git add -- <each file of the folder you wrote>` and
+Questions go one at a time through the options tool (point 2 of `SKILL.md`).
+
+1. Show, as text, the diff, the exact commit message and, if you are on `<rama>` (the project's main branch, the `rama` of
+   `supcoflow project show --json`), the name of the new branch (`supcoflow/guide`, or `supcoflow/guide-<n>` if it exists).
+   Then ask, one question each: "Anything about your business the chat must know: deadlines, refunds, prices? I won't guess
+   them from the code." (options "Nothing to add" and "Yes, I'll tell you"), and the commit: on `<rama>`, "I'll commit it
+   on a new branch, `<new>`, not on `<rama>`." (commit, or not now). On another branch, the commit rides on the branch of
+   the code change that caused it, and that is right: say the branch and ask commit or not now; do not ask them to move
+   or create another. If there is no branch (detached HEAD), recommend not committing.
+2. The yes comes BEFORE the commit. With a yes: on `<rama>` first `git switch -c <new>`; then `git add -- <each file of the folder you wrote>` and
    `git commit -m "<message>" -- <the same files>`, with EXACTLY the message you showed and nothing added (no `Co-Authored-By` or other
    attribution; if your environment adds one, put it in the message you show). Never `git add .` or `git commit -a`. Check with
    `git show --name-only HEAD` that it touches only those files. If they answer with rules, add them to the guide, check again and
    show the diff again before the commit.
-3. **This row does not publish, push, change branch or create one.** First `supcoflow guide versions --json`: `vigente` says
-   whether the project has an active guide. Close with one line: its opening by `vigente`, its ending by where the person is.
+3. The push and the pull request, only after the commit and with their own question, as step 3 of point 9 of `SKILL.md`
+   says: `git push -u origin <branch>` (never `<rama>`, never `--force`), then the pull request with `gh` or the compare
+   link opened in the browser. Never merge it.
+4. **This row does not publish.** First `supcoflow guide versions --json`: `vigente` says whether the project has an active
+   guide. Close with one line: its opening by `vigente`, its ending by where the guide is.
    - Opening. `vigente` is `null` (no active guide: for example right after "Connect the repo"): "This draft isn't published
      and the project has no active guide yet:". Never say the chat uses a published guide. `vigente` is there: "The chat still
      uses the published guide:".
-   - Ending. On `<rama>` with the commit: "this goes live when your commit reaches `<rama>` on GitHub and is published with
-     `supcoflow guide publish --from-github --json` or by your CI step. Pushing, or opening a pull request from a branch, is
-     up to you." On `<rama>` without the commit: "this goes live when it is committed on `<rama>`, reaches GitHub and is
-     published." On another branch or with no branch: "this goes live when it is merged on `<rama>` and published. Pushing is
-     up to you."
-4. Publishing is a separate request, never part of this row. How the guide goes live, only if asked: `supcoflow guide publish --from-github --json`, on the project's main branch after the
-   merge (if it exits 5 `guia_no_subida` or `guia_distinta`, GitHub's `<rama>` does not have it yet: say so with the `<rama>` line
-   of step 3, push or a pull request, and do not publish another way), or the project's CI step, which does the same after the
-   merge. Never from another branch, not even with their yes, and never `supcoflow guide publish --json` here: say "The guide
-   goes live when it is merged on `<rama>`; the pull request is the review." and propose merging.
+   - Ending. With the pull request open: "this goes live when it is merged on `<rama>` and published." Committed and not
+     pushed: "this goes live when it is pushed, merged on `<rama>` and published; pushing is up to you." Not committed: "this
+     goes live when it is committed, merged on `<rama>` and published."
+5. Publishing is a separate request, never part of this row. How the guide goes live, only if asked: the first guide of a
+   project with no guide published from GitHub may go from the terminal (point 9, step 4 of `SKILL.md`); otherwise
+   `supcoflow guide publish --from-github --json`, on the project's main branch after the
+   merge (if it exits 5 `guia_no_subida` or `guia_distinta`, GitHub's `<rama>` does not have it yet: say so, with the pull request,
+   and do not publish another way), or the project's CI step, which does the same after the
+   merge. Never `supcoflow guide publish --json` without `--from-github` once the project has a guide published from GitHub,
+   and never `--from-github` from another branch, not even with their yes: say "The guide goes live when it is merged on
+   `<rama>`; the pull request is the review." and propose merging.
 
 ## 8. The rule for the project's instructions file (only with permission)
 

@@ -13,7 +13,7 @@ proveedor). Corridas: **(a)** la cuenta queda lista; **(b)** sigue rechazada o s
   arregla en su proveedor (o se reemplaza la clave con `supcoflow agents set-key` en **su** terminal, o en la pestaña
   Agents). **No pide la clave** y no corre `set-key` ni `remove`.
 - Con la del chat sin estar `lista` y exigida, el asistente no ofrece prender el chat ni corre `supcoflow chat on`; con la
-  del triage agent sin estar `lista` y exigida, la tercera pregunta ofrece sólo «Not now».
+  del triage agent sin estar `lista` y exigida, no se ofrece ninguna prueba y el resumen lo dice.
 - Al oír «ya lo arreglé» corre `supcoflow agents check --agent chat --json` (y `--agent triage` para la otra): es gratis y
   no necesita ninguna clave de la persona.
   - **(a)** Sale 0: dice que la cuenta está lista, relee `supcoflow agents show --json` y sigue (ahora sí puede prender el
