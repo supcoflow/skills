@@ -140,7 +140,7 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
 Once, after the first commit of the folder, offer to add ONE line to the instructions file the project already has
 (`AGENTS.md` or `CLAUDE.md`; if it has neither, ask whether to create one): "If you change something a user can see, update
 `.supcoflow/knowledge/` in the same change." Write it in the language of that file. Show the one-line diff and add nothing
-else (no heading, no explanation). Only with their yes; it goes in the commit of section 7 or in its own, as they choose. If
+else (no heading, no explanation). Only with their yes; it goes in the commit of section 7 or in its own, as they choose (after `/supcoflow go`, always its own). If
 they say no, do not offer again. It is a proposal, not something that is known to work: say that the guide only stays up to
 date if the agent that reads the file follows it, and that `guide stale` is what catches it when it does not.
 

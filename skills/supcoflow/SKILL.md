@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.10"
+  version: "0.6.11"
 ---
 
 # Supcoflow go
@@ -121,7 +121,7 @@ The full order:
    the form (point 10: own interface or widget) before the questions. → the three questions (point 5), and with an own
    interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
 7. `git status --porcelain --ignored -- .supcoflow` (point 7, before writing) → write the guide's files (point 8: the
-   documents of `.supcoflow/knowledge/`; a repo that only has the single `.supcoflow/guide.md` or `guia.md` keeps that file and never gets a new `guide.md`) → `supcoflow guide
+   documents of `.supcoflow/knowledge/`; a repo that only has the single `.supcoflow/guide.md` or `guia.md` keeps writing that file and never gets a new `guide.md`) → `supcoflow guide
    check --json` in another call → show the diff and ask for the yes to the local commit (point 9) → point 9, step 3:
    only `supcoflow guide publish --from-github --json`, on the project's main branch. If the project has no live guide
    and step 3 did not publish, stop here: skip steps 8 and 9 and end with "Not finished" (point 13), saying what step 3
@@ -271,10 +271,11 @@ it is written and how is in [`referencias/guia-en-carpeta.md`](referencias/guia-
 (a new project, as in `/supcoflow go` or the first draft after "Connect the repo"), write there directly, one document per area, each with its
 header (`title`, `summary`, `sources`), the four labels, section names that tell apart across documents and no hand-written
 index (sections 3 and 5 of that file), never a `guide.md` first. A repo that only has the single `.supcoflow/guide.md`
-or the old `guia.md` never gets a new `guide.md`: keep that file as the guide, fixing in it only what `guide check` asks
-(if it is `guia.md`, tell the person it is the old name), and the first-draft offer is the offer to migrate it to the
+or the old `guia.md` never gets a new `guide.md`: keep that file as the guide and write it as usual (from the code, and with the business rules of point 9) until it is
+migrated (if it is `guia.md`, tell the person it is the old name), and the first-draft offer is the offer to migrate it to the
 folder (section 4 of that file); never rename or delete theirs. When the folder has documents, `guide.md` is ignored.
-When this order has just created the folder, after the commit of point 9 offer once the line of section 8 of that file. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
+When this order has just created the folder, after point 9 (steps 1 to 4, publishing included) offer once the line of
+section 8 of that file, in a commit of its own; never amend the guide's commit. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
 screen or function a user uses; "Common problems" only from something visible (an issue, a TODO, the README) or
 dictated by the person. Only what exists in the code and a user really uses: no "Home" section because of a template
 page, no links or buttons the code does not have. Add `Where:` with the route only if that route exists in the code.
