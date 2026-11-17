@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.9"
+  version: "0.6.10"
 ---
 
 # Supcoflow go
@@ -121,7 +121,7 @@ The full order:
    the form (point 10: own interface or widget) before the questions. → the three questions (point 5), and with an own
    interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
 7. `git status --porcelain --ignored -- .supcoflow` (point 7, before writing) → write the guide's files (point 8: the
-   documents of `.supcoflow/knowledge/`, or `.supcoflow/guide.md` only if the repo already has that single file and no folder) → `supcoflow guide
+   documents of `.supcoflow/knowledge/`; a repo that only has the single `.supcoflow/guide.md` or `guia.md` keeps that file and never gets a new `guide.md`) → `supcoflow guide
    check --json` in another call → show the diff and ask for the yes to the local commit (point 9) → point 9, step 3:
    only `supcoflow guide publish --from-github --json`, on the project's main branch. If the project has no live guide
    and step 3 did not publish, stop here: skip steps 8 and 9 and end with "Not finished" (point 13), saying what step 3
@@ -150,8 +150,8 @@ The full order:
 
 The first-draft offer (after step 10, and at the end of the "Connect the repo" row): after the summary (point 13), offer
 once, in one line, only when `.supcoflow/knowledge/` has no `.md` and the install did not stop for something other than
-the guide not being live yet. After the full order that means the repo kept the old single `.supcoflow/guide.md` (or
-`guia.md`): a migration offer. It is never made right after this order wrote the folder (point 8: a new project gets the
+the guide not being live yet. After the full order that means the repo kept its old single `.supcoflow/guide.md` (or
+`guia.md`, point 8): the offer to migrate it to the folder. It is never made right after this order wrote the folder (point 8: a new project gets the
 folder directly). After "Connect the repo" nothing was written, so it is the offer of a first draft. "Want me to keep the
 guide as documents in `.supcoflow/knowledge/`, one per area of your app, so it stays up to date with your code? I'd leave
 it as a commit for you to review; nothing is published." With their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 9; its closing (section 7, step 3)
@@ -268,12 +268,13 @@ or changed yourself in this session (the guide between rounds of `guide check`, 
 The format of each section (the four labels) and the example are in [`referencias/guia.md`](referencias/guia.md); where
 it is written and how is in [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md). The guide is documents in
 `.supcoflow/knowledge/`: when the repo has that folder with `.md`, or has neither it nor a `.supcoflow/guide.md` / `guia.md`
-(a new project, as in `/supcoflow go` or "Connect the repo"), write there directly, one document per area, each with its
+(a new project, as in `/supcoflow go` or the first draft after "Connect the repo"), write there directly, one document per area, each with its
 header (`title`, `summary`, `sources`), the four labels, section names that tell apart across documents and no hand-written
-index (sections 3 and 5 of that file), never a `guide.md` first. Only a repo that already has the single
-`.supcoflow/guide.md` keeps writing it, and the first-draft offer migrates it; if it only has the old `.supcoflow/guia.md`,
-tell the person it is the old name and offer to write `guide.md`; never rename or delete theirs. When the folder has
-documents, `guide.md` is ignored. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
+index (sections 3 and 5 of that file), never a `guide.md` first. A repo that only has the single `.supcoflow/guide.md`
+or the old `guia.md` never gets a new `guide.md`: keep that file as the guide, fixing in it only what `guide check` asks
+(if it is `guia.md`, tell the person it is the old name), and the first-draft offer is the offer to migrate it to the
+folder (section 4 of that file); never rename or delete theirs. When the folder has documents, `guide.md` is ignored.
+When this order has just created the folder, after the commit of point 9 offer once the line of section 8 of that file. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
 screen or function a user uses; "Common problems" only from something visible (an issue, a TODO, the README) or
 dictated by the person. Only what exists in the code and a user really uses: no "Home" section because of a template
 page, no links or buttons the code does not have. Add `Where:` with the route only if that route exists in the code.
@@ -283,8 +284,8 @@ page, no links or buttons the code does not have. Add `Where:` with the route on
 
 Never `git push`, neither to the main branch nor to another. Never change the branch or create one.
 
-The guide's files are the documents of `.supcoflow/knowledge/` you wrote (point 8), or, in a repo that already had it,
-the single `.supcoflow/guide.md`. `<files>` below is them.
+The guide's files are the documents of `.supcoflow/knowledge/` you wrote (point 8), or, in a repo that only has the
+single file, that file (`.supcoflow/guide.md` or `guia.md`). `<files>` below is them.
 
 1. If `git status --porcelain --ignored -- <files>` says git ignores one (`!!`), it cannot be committed: tell
    them the declared commit will not contain it. Otherwise, and the output is not empty (new or changed), first read

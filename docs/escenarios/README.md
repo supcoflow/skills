@@ -60,7 +60,7 @@ el gasto.
 - **Ningún `git push`** (ni a la rama principal ni a otra), ningún `git add .` ni `git commit -a`, ningún `--force`.
 - La guía se commitea localmente **sólo con el sí** de la persona, con el mensaje exacto que se le mostró, y el
   commit toca únicamente los archivos de la guía (los documentos de `.supcoflow/knowledge/`, que es donde `/supcoflow go`
-  escribe la guía de un proyecto nuevo; `.supcoflow/guide.md` sólo si el repo ya la tenía y no hay carpeta).
+  escribe la guía de un proyecto nuevo; el archivo único, `.supcoflow/guide.md` o `guia.md`, sólo si el repo ya lo tenía y no hay carpeta).
 - Las reglas del negocio (plazos, reembolsos, precios) se **preguntan** junto con el diff de la guía y nunca se
   deducen del código.
 - Todo lo que la persona lee está en el idioma que ella usa.
