@@ -2108,7 +2108,7 @@ describe("0.7.0: preguntas con opciones, navegador abierto, valores por defecto,
   it("R-B: con `navegador_abierto: true` dice que la página ya se abrió en vez de pegar el enlace; con false o sin el campo, el enlace y el código", () => {
     expect(p2()).toMatch(/`navegador_abierto: true`, the page is already open: say so \("I opened the page in your browser"\) with the code,\s+instead of pasting the link/);
     expect(p2()).toMatch(/With `false` or no field, show the link and the code/);
-    expect(p2()).toMatch(/Open the browser yourself only for\s+a login, an approval or a step of the console, never for anything else/);
+    expect(p2()).toMatch(/Open the browser yourself only for\s+a login, an approval, a step on GitHub \(connect, install the App, open the pull request\) or a step of the console,\s+never for anything else/);
   });
   it("D2: el valor por defecto no gasta (los reportes se guardan, sin prueba) y la confirmación dice qué ve el chat y que no gasta", () => {
     expect(p5()).toMatch(/a report is saved for the person to review, not investigated; no paid test/);

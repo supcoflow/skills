@@ -125,7 +125,7 @@ Questions go one at a time through the options tool (point 2 of `SKILL.md`).
    show the diff again before the commit.
 3. The push and the pull request, only after the commit and with their own question, as step 3 of point 9 of `SKILL.md`
    says: `git push -u origin <branch>` (never `<rama>`, never `--force`), then the pull request with `gh` or the compare
-   link opened in the browser. Never merge it.
+   link opened in the browser (opening the pull request is a step on GitHub, point 2 of `SKILL.md`). Never merge it.
 4. **This row does not publish.** First `supcoflow guide versions --json`: `vigente` says whether the project has an active
    guide. Close with one line: its opening by `vigente`, its ending by where the guide is.
    - Opening. `vigente` is `null` (no active guide: for example right after "Connect the repo"): "This draft isn't published

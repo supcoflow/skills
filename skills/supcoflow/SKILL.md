@@ -36,7 +36,8 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
 - **The browser opens by itself**: when a command (`login --start`, `repo connect --start`) reports
   `navegador_abierto: true`, the page is already open: say so ("I opened the page in your browser") with the code,
   instead of pasting the link. With `false` or no field, show the link and the code. Open the browser yourself only for
-  a login, an approval or a step of the console, never for anything else.
+  a login, an approval, a step on GitHub (connect, install the App, open the pull request) or a step of the console,
+  never for anything else.
 - Read the app's files with your file-reading and search tools, not with shell pipelines (`grep`, `sed`, `cat`).
 
 | Code | What you do |
@@ -197,7 +198,13 @@ later. Then ONE question with the options tool:
 > 2. Let me change something
 
 With 1: `supcoflow data set --allow page_and_browser`, `supcoflow policy set --mode save` and, for the code, the second row
-of the table below. With 2: ask "Changing it" below, one question at a time, and only the ones the person wants to change.
+of the table below. When one of the two is already set (step 3), the confirmation proposes and applies only the other:
+say the one already set as it is today, leave it out of the question (no "the chat sees the page and browser" when the
+data is set; no "reports are saved" when the policy is set) and run only the command of the unset one; for the code, the
+row of the table that matches the data as it is. Never re-propose or overwrite a setting already set; changing it is a
+request of its own ("Changing it").
+
+With 2: ask "Changing it" below, one question at a time, and only the ones the person wants to change.
 
 **Changing it.** Each of these is a question of its own, with the options tool:
 
@@ -343,7 +350,8 @@ single file, that file (`.supcoflow/guide.md` or `guia.md`). `<files>` below is 
      from the terminal so the chat works now. With the guide committed (step 2), ask: "Publish this first guide now, from
      here, so the chat can use it? Later ones go out when you merge." Options: yes, or not now. With a yes,
      `supcoflow guide publish --json` (the engine decides and says if it refuses: pass its message on and do not try
-     another way). It publishes the commit of the new branch; say that the pull request is still the review for `<rama>`.
+     another way). It publishes the commit of the new branch; if step 3 opened the pull request, say that it is still the review for
+     `<rama>`; otherwise say that the branch `<new>` still has to be pushed and merged into `<rama>`.
    - **The project already has a guide published from GitHub**: only `supcoflow guide publish --from-github --json`, and
      only when `git branch --show-current` is `<rama>` (after the pull request is merged); or the project's CI step. Never
      `supcoflow guide publish --json` without `--from-github`, on any branch, not even with a yes. If `--from-github`
