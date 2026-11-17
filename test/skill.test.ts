@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.1 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.1");
+  it("la skill es la 0.6.2 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.2");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -666,7 +666,7 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
   it("la pregunta de reglas del negocio va en el mismo mensaje que el diff y el mensaje de commit", () => {
     const paso1 = seccion(p9(), /^1\./m, /^2\./m);
     expect(P(paso1)).toContain(PREGUNTA);
-    expect(P(paso1)).toMatch(/git diff -- \.supcoflow\/guide\.md/);
+    expect(P(paso1)).toMatch(/git diff -- <files>/);
     expect(P(paso1)).toMatch(/the exact commit message/);
     expect(P(paso1)).toMatch(/ONE message/);
   });
@@ -693,9 +693,22 @@ describe("la guía: reglas del negocio y diff antes del commit (spec §10.1, dec
     expect(P(p9())).toMatch(/\*\*only\*\* for the first guide of a project/);
     expect(P(p9())).toMatch(/only when `git branch --show-current` is the project's main branch/);
   });
-  it("desde otra rama avisa que cambia lo que usa el chat al instante y pregunta antes", () => {
-    expect(P(p9())).toMatch(/changes what the chat uses right away, for every user, before this is merged.*run it only with their yes/);
-    expect(P(p9())).toMatch(/Never use it to update a guide that is already published/);
+  it("antes de publicar mira con `guide versions --json` si ya hay una guía vigente, y entonces no publica", () => {
+    expect(P(p9())).toMatch(/First `supcoflow guide versions --json` \(it only reads\): if it lists a guide that governs \(`vigente`\)[^]*do not publish/);
+    expect(P(p9()).indexOf("`supcoflow guide versions --json`")).toBeLessThan(P(p9()).indexOf("`supcoflow guide publish --json`, without"));
+    expect(P(p9())).toMatch(/Never use `supcoflow guide publish --json` to update a guide that is already published/);
+  });
+  it("desde otra rama nunca publica, ni con un sí: dice que sale al mergear y frena antes de `chat on`", () => {
+    expect(P(p9())).toMatch(/From any other branch, or with no branch, never run it, not even with a yes/);
+    expect(P(p9())).toMatch(/The guide goes live when it is merged on `<rama>`[^]*stop before `chat on`/);
+    expect(P(p9())).not.toMatch(/run it only with their yes/);
+    expect(P(skillMd)).toMatch(/If the project has no live guide and step 3 did not publish, stop here: skip\s+steps 8 and 9 and end with "Not finished"/);
+  });
+  it("con la carpeta `.supcoflow/knowledge/`, el diff y el commit de §9 son los de sus documentos, no `guide.md`", () => {
+    expect(P(p9())).toMatch(/The guide's files are the documents of `\.supcoflow\/knowledge\/` you wrote, if the folder has any `\.md`/);
+    expect(P(p9())).toContain("`git add -- <files>`");
+    expect(P(p9())).toContain('`git commit -m "<message>" -- <files>`');
+    expect(P(p9())).not.toContain("-- .supcoflow/guide.md");
   });
 });
 
@@ -720,7 +733,8 @@ describe("la rama del commit de la guía (1A.1, fricción 4)", () => {
   it("en otra rama: lo dice, recomienda no commitear ahí y ofrece dos opciones dentro de la misma pregunta", () => {
     expect(paso1()).toMatch(/On another branch[^]*say so and recommend not committing there/);
     expect(paso1()).toMatch(/commit anyway on that branch/);
-    expect(paso1()).toMatch(/do not commit now: the guide is published anyway, and it is committed on `<rama>` when they want/);
+    expect(paso1()).toMatch(/do not commit now: it is committed on `<rama>` when they want\. Either way step 3 does not publish from this branch/);
+    expect(P(skillMd)).not.toMatch(/published anyway/);
     expect(paso1()).toMatch(/not a new question/i);
   });
   it("sin rama (HEAD suelto o salida vacía): recomienda no commitear, y si igual quiere, avisa que no queda en ninguna rama", () => {
@@ -741,7 +755,7 @@ describe("la rama del commit de la guía (1A.1, fricción 4)", () => {
   });
   it("el resumen (§13): sin commit, la línea 3 suma el comando para commitear en la rama del proyecto, sin pasar de tres líneas", () => {
     const r = P(seccion(skillMd, /^## 13\./m));
-    expect(r).toMatch(/commit `\.supcoflow\/guide\.md` on `<rama>` when you want/);
+    expect(r).toMatch(/commit the guide on `<rama>` when you want/);
     expect(r).toMatch(/three lines at most/);
   });
   it("con un no (o la opción de no commitear) no se commitea, y el aviso del punto 4 sigue", () => {
@@ -813,10 +827,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.1, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.1", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.1`/);
+  it("la versión es la 0.6.2, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.2", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.2`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.1`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.2`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -1122,6 +1136,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
     expect(fila(/or update the guide/)).toMatch(/referencias\/guia-en-carpeta\.md.*never publishes.*Do not ask about data, policy or the test\. The permissions of point 7 and the business-rules question stay/);
     expect(fila(/Publish the guide/)).toMatch(/Only `supcoflow guide publish --from-github --json`, from the project's main branch/);
+    expect(fila(/Publish the guide/)).toMatch(/Never from another branch, not even with a yes/);
     expect(fila(/what the chat sees/)).toMatch(/Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code\. Do not ask the second or the third question\. The permissions of point 7 before touching files stay/);
     expect(fila(/Test it/)).toMatch(/referencias\/prueba\.md.*Level 3 spends: only with its own yes/);
     expect(fila(/Install it/)).toMatch(/`\/supcoflow go`.*The full order below, steps 1 to 10/);
@@ -1952,7 +1967,7 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
   });
   it("lo que la skill nombra de la terminal está en lo que ella dice", () => {
     const resumen = c("guide check").resumen + c("guide stale").resumen;
-    for (const nombre of ["nombres_repetidos", "fuente_sin_archivos", "mapa_vacio", "mapa_roto", "fuera_del_mapa", "no_se_pudo_comparar", "sources"])
+    for (const nombre of ["nombres_repetidos", "fuente_sin_archivos", "mapa_vacio", "mapa_roto", "fuera_del_mapa", "no_se_pudo_comparar", "cobertura_quitada", "cambio_cosmetico", "sources"])
       expect(resumen, nombre).toContain(nombre);
     expect(JSON.stringify(c("guide check"))).toContain(".supcoflow/knowledge/");
   });
@@ -1985,10 +2000,11 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     expect(ref()).toMatch(/Publishing is a separate request, never part of this row/);
     expect(P(skillMd)).toMatch(/it \*\*never publishes\*\*/);
   });
-  it("sólo publica con `--from-github` en la rama principal; desde otra rama avisa y pregunta", () => {
+  it("sólo publica con `--from-github` en la rama principal; desde otra rama nunca, ni con un sí, y propone mergear", () => {
     expect(P(skillMd)).toMatch(/\| Publish the guide \| Only `supcoflow guide publish --from-github --json`, from the project's main branch/);
     expect(ref()).toMatch(/`supcoflow guide publish --from-github --json`, on the project's main branch after the merge/);
-    expect(ref()).toMatch(/That changes what the chat uses right away, for every user, before this is merged\.\" and ask; only with their yes/);
+    expect(ref()).toMatch(/Never from another branch, not even with their yes, and never\s+`supcoflow guide publish --json` here[^]*propose merging/);
+    expect(ref()).not.toMatch(/only with their\s+yes, `supcoflow guide publish --json`/);
     expect(c("guide publish").flags.join("\n")).toContain("--from-github");
   });
   it("migración: parte guide.md o guia.md sin cambiar el contenido, cuenta secciones antes y después y dice que la carpeta manda", () => {
@@ -1997,6 +2013,10 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     expect(ref()).toMatch(/it must say the same number of `secciones`/);
     expect(ref()).toMatch(/The folder takes precedence now/);
     expect(ref()).toMatch(/Do not delete or rename their old file/);
+  });
+  it("nombra los avisos `cobertura_quitada` y `cambio_cosmetico` de `guide stale` con qué hacer", () => {
+    expect(ref()).toMatch(/`cobertura_quitada`[^]*give that code back to a document's `sources`, or tell the person why/);
+    expect(ref()).toMatch(/`cambio_cosmetico`[^]*it is not an update/);
   });
   it("ofrece la regla de una línea para AGENTS.md o CLAUDE.md sólo con permiso", () => {
     expect(ref()).toMatch(/offer to add ONE line to the instructions file/);

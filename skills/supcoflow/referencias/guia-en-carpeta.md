@@ -93,6 +93,9 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
    - A document that explains code this change touched and you did not touch: read the change and update it if a user
      would see something different; if not, say why you left it.
    - `fuente_sin_archivos` (a pattern matches nothing), `mapa_vacio`, `mapa_roto`: fix the headers.
+   - `cobertura_quitada` (a document or a `sources` pattern was removed, and the change touches code it covered that no
+     document covers now): give that code back to a document's `sources`, or tell the person why it no longer needs one.
+   - `cambio_cosmetico` (a document changed only in whitespace): it is not an update; change what a user would see, or undo it.
    - `fuera_del_mapa` (a note, not a warning): new files that no `sources` covers; if they are something a user sees, offer to add
      them to a document's `sources`.
    - `no_se_pudo_comparar` (the base is missing or the clone is shallow): it did NOT compare. Say so, with its message; never
@@ -117,9 +120,9 @@ When the repo has `.supcoflow/guide.md` (or the old `guia.md`) and no folder:
    goes live when it is merged on `<rama>` and published. Pushing is up to you."
 4. Publishing is a separate request, never part of this row. How the guide goes live, only if asked: `supcoflow guide publish --from-github --json`, on the project's main branch after the
    merge (if it exits 5 `guia_no_subida` or `guia_distinta`, that branch does not have it yet: say so, do not publish another way),
-   or the project's CI step, which does the same after the merge. If they ask you to publish from another branch: do not do
-   it quietly. Say "That changes what the chat uses right away, for every user, before this is merged." and ask; only with their
-   yes, `supcoflow guide publish --json`.
+   or the project's CI step, which does the same after the merge. Never from another branch, not even with their yes, and never
+   `supcoflow guide publish --json` here: say "The guide goes live when it is merged on `<rama>`; the pull request is
+   the review." and propose merging.
 
 ## 8. The rule for the project's instructions file (only with permission)
 
