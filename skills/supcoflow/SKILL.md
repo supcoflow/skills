@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.7.0"
+  version: "0.7.1"
 ---
 
 # Supcoflow go
@@ -348,7 +348,8 @@ single file, that file (`.supcoflow/guide.md` or `guia.md`). `<files>` below is 
    publication came from (declared by the terminal or verified in GitHub) and `vigente` which one governs.
    - **The project has no guide published from GitHub yet** (no publication is verified in GitHub): the first guide may go
      from the terminal so the chat works now. With the guide committed (step 2), ask: "Publish this first guide now, from
-     here, so the chat can use it? Later ones go out when you merge." Options: yes, or not now. With a yes,
+     here, so the chat can use it? Later ones go out when you merge." Options: "Yes, publish it now (recommended)" first, and "Not now" second;
+     "Not now" is never the recommended one, because without a published guide the chat does not turn on. With a yes,
      `supcoflow guide publish --json` (the engine decides and says if it refuses: pass its message on and do not try
      another way). It publishes the commit of the new branch; if step 3 opened the pull request, say that it is still the review for
      `<rama>`; otherwise say that the branch `<new>` still has to be pushed and merged into `<rama>`.

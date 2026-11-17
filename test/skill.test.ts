@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.7.0 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.7.0");
+  it("la skill es la 0.7.1 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.7.1");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -848,10 +848,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.7.0, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.7.0", () => {
-    expect(readme).toMatch(/La skill es la `0\.7\.0`/);
+  it("la versión es la 0.7.1, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.7.1", () => {
+    expect(readme).toMatch(/La skill es la `0\.7\.1`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.7\.0`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.7\.1`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2129,6 +2129,11 @@ describe("0.7.0: preguntas con opciones, navegador abierto, valores por defecto,
   it("D1: el cierre del resumen y la fila de publicar no prometen publicar sin `--from-github` después de la primera de GitHub", () => {
     expect(P(skillMd)).toMatch(/once the project has a guide published from GitHub, only `supcoflow guide publish --from-github --json`/);
     expect(P(leer(CARPETA, "referencias", "guia-en-carpeta.md"))).toMatch(/Never `supcoflow guide publish --json` without `--from-github` once the project has a guide published from GitHub/);
+  });
+  it("H1: al preguntar si se publica la primera guía, la opción recomendada es publicarla ahora, nunca «Not now»", () => {
+    const paso4 = P(seccion(seccion(skillMd, /^## 9\./m, /^## 10\./m), /^4\./m, /^5\./m));
+    expect(paso4).toMatch(/Options: "Yes, publish it now \(recommended\)" first, and "Not now" second;\s+"Not now" is never the recommended one, because without a published guide the chat does not turn on/);
+    expect(paso4).not.toMatch(/Not now \(recommended\)/);
   });
   it("la terminal sigue fijada a la 0.11.0", () => {
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
