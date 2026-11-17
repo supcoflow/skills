@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.3"
+  version: "0.6.4"
 ---
 
 # Supcoflow go
@@ -76,12 +76,12 @@ full order is for a request to install that names nothing narrower.
 | Publish the guide | Only `supcoflow guide publish --from-github --json`, from the project's main branch (`proyecto.rama`) once the guide is merged there, or the project's CI step. Never from another branch, not even with a yes: say that the guide goes live when it is merged on `<rama>` (the pull request is the review) and propose merging. |
 | Change what the chat sees about their users | Only the first question of point 5, with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second or the third question. The permissions of point 7 before touching files stay. |
 | Test it | [`referencias/prueba.md`](referencias/prueba.md). Level 3 spends: only with its own yes. |
-| Connect the repo | Steps 1 and 2 of the full order, and stop after "Connected. Created the project <slug>." (or, if the project already existed, after saying so). Nothing else: no questions, no guide, no chat, and the app's code is not touched. Offer the rest as `/supcoflow go`. |
+| Connect the repo | Steps 1 and 2 of the full order, and stop after "Connected. Created the project <slug>." (or, if the project already existed, after saying so). Nothing else: no questions, no guide, no chat, and the app's code is not touched. Offer the rest as `/supcoflow go`, and end with the one line of the first-draft offer (after step 10): with a yes, its flow; with a no, it ends there. |
 | Change what happens with a report | Only the second question of point 5, with its words and its warning that investigating spends: ask it, do not decide it, then `supcoflow policy set --mode investigate --json` or `supcoflow policy set --mode save --json` and say the result in one sentence. Do not ask the first or the third question. |
 | Turn the chat on | Steps 8 and the checks before it, and nothing else: if the chat is required and not ready, [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) section 3 says stop. Ask for the site where its users use the app if the code does not say (`http://localhost:3000` only for a local test), `supcoflow sites add --site <site> --json`, then `supcoflow chat on --json`. If `chat on` says something is missing (a guide, the chat's AI account), say what and stop. Do not touch the app's code: if the chat is not in it yet, offer the full order. |
 | Check an AI account (the chat's or the triage agent's) | `supcoflow agents check --agent <chat or triage> --json` and say in one line whether that agent's account is ready or what is still missing, as section 2 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) reads its exits. It spends nothing. Never ask for the key. |
 | Put or fix an AI account (the chat's or the triage agent's), or choose the chat's model | [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md). The key is the person's: you never ask for it and never run `supcoflow agents set-key` or `supcoflow agents remove`. |
-| Install it, or `/supcoflow go` | The full order below, steps 1 to 10. |
+| Install it, or `/supcoflow go` | The full order below, steps 1 to 10, then the first-draft offer after step 10. |
 
 The full order:
 
@@ -122,10 +122,10 @@ The full order:
    interface its second panel → apply the configuration (`supcoflow data set`, `supcoflow policy set`).
 7. `git status --porcelain --ignored -- .supcoflow` (point 7, before writing) → write the guide's files (point 8: the
    documents of `.supcoflow/knowledge/` if the folder has any `.md`, otherwise `.supcoflow/guide.md`) → `supcoflow guide
-   check --json` in another call → show the diff and ask for the yes to the local commit (point 9) →
-   `supcoflow guide versions --json` and point 9, step 3: `supcoflow guide publish --json` only for the project's first
-   guide and only on its main branch. If the project has no live guide and step 3 did not publish, stop here: skip
-   steps 8 and 9 and end with "Not finished" (point 13).
+   check --json` in another call → show the diff and ask for the yes to the local commit (point 9) → point 9, step 3:
+   only `supcoflow guide publish --from-github --json`, on the project's main branch. If the project has no live guide
+   and step 3 did not publish, stop here: skip steps 8 and 9 and end with "Not finished" (point 13), saying the guide
+   must first reach `<rama>` on GitHub (a pull request or a merge) and that `/supcoflow go` goes on from there.
 8. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
    `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added).
    Before `chat on`, if the chat is required and was not ready at step 4 (run `supcoflow diagnose --json` again and look only at
@@ -148,12 +148,17 @@ The full order:
    [`referencias/prueba.md`](referencias/prueba.md), level 3). If instead they said yes to resuming a pending request, do
    not use these values: follow "Resuming a pending request" in the same file. Then the summary (point 13).
 
+The first-draft offer (after step 10, and at the end of the "Connect the repo" row): after the summary (point 13), offer
+once, in one line, only when `.supcoflow/knowledge/` has no `.md` and the install did not stop for something other than
+the guide not being live yet: "Want me to keep the guide as documents in `.supcoflow/knowledge/`, one per area of your
+app, so it stays up to date with your code? I'd leave it as a commit for you to review; nothing is published." With
+their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 9. With a no, do not offer
+again.
+
 Testing beyond that (optional, never without asking): offer the person the levels of
 [`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
 browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling
 that `supcoflow test --json` gave.
-
-11. After the summary (point 13), offer once, in one line, and only when the install ended well: "Want me to keep the guide as documents in `.supcoflow/knowledge/`, one per area of your app, so it stays up to date with your code? I'd leave it as a commit for you to review; nothing is published." With their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 10. With a no, do not offer again.
 
 Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
 
@@ -297,19 +302,18 @@ otherwise `.supcoflow/guide.md`. `<files>` below is them.
    `Co-Authored-By` or other attribution); if your environment adds one, put it in the message you show. With the
    path, what the person has in the index stays there, uncommitted. Never `git add .` or `git commit -a`. Check with
    `git show --name-only HEAD` that the new commit touches only those files. With a no, or the option of not committing
-   now: do not commit, and tell them the guide is in no commit yet (if step 3 publishes it, the commit recorded with it
-   is one that does not contain it). Here too, with a no, the notice of point 4 goes.
-3. First `supcoflow guide versions --json` (it only reads): if it lists a guide that governs (`vigente`), the project
-   already has one: do not publish, and say the chat keeps using it until this is merged on `<rama>` and published there
-   (`supcoflow guide publish --from-github --json` on that branch, or the project's CI step). Never use
-   `supcoflow guide publish --json` to update a guide that is already published: that is `/supcoflow guide`
-   ([`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md)), which never publishes. Otherwise
-   `supcoflow guide publish --json`, without `--from-github`, **only** for the first guide of a project (the chat
-   needs one before `chat on`) and only when `git branch --show-current` is the project's main branch (`proyecto.rama`).
-   From any other branch, or with no branch, never run it, not even with a yes: say "The guide goes live when it is merged
-   on `<rama>`: merge it, and `/supcoflow go` goes on from there." and stop before `chat on` (step 7 of the full order).
-   Repeating it with the same guide returns the same publication (`ya_publicada`): a cut session
-   is resumed without duplicating. If it warns that `guia.md` is the old name, pass the warning on to the person.
+   now: do not commit, and tell them the guide is in no commit yet. Here too, with a no, the notice of point 4 goes.
+3. The guide goes live only with `supcoflow guide publish --from-github --json`, which publishes what GitHub's main
+   branch already has, or with the project's CI step after the merge. Never `supcoflow guide publish --json` without
+   `--from-github`, on any branch, not even with a yes. Only when `git branch --show-current` is the project's main
+   branch (`proyecto.rama`), run `supcoflow guide publish --from-github --json`: if it exits 0, the guide is live (also
+   when it was already live from a cut session: say so and go on). If it exits 5 `guia_no_subida` or `guia_distinta`,
+   GitHub's `<rama>` does not have this guide yet: say so and do not publish another way. On any other branch, or with
+   no branch, do not run it. When it did not publish, say "The guide goes live when it is merged on `<rama>` (the pull
+   request is the review): merge it, and `/supcoflow go` goes on from there." Then `supcoflow guide versions --json` (it
+   only reads): if it lists a guide that governs (`vigente`), the chat keeps using it until this one is live; if not,
+   the project has no live guide and the chat needs one: stop before `chat on` (step 7 of the full order). If publishing
+   warns that `guia.md` is the old name, pass the warning on to the person.
 4. ALWAYS, whether they said yes or no to the commit, in the same message where you say whether step 3 published the
    guide, say in one line: "Pushing the guide to GitHub is up to you".
 

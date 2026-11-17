@@ -133,17 +133,18 @@ else (no heading, no explanation). Only with their yes; it goes in the commit of
 they say no, do not offer again. It is a proposal, not something that is known to work: say that the guide only stays up to
 date if the agent that reads the file follows it, and that `guide stale` is what catches it when it does not.
 
-## 10. First draft after the setup (step 11 of the order)
+## 9. First draft after the setup (the first-draft offer of the order)
 
-Only after a yes to the offer of step 11. Keep it small:
+Only after a yes to the first-draft offer of `SKILL.md` (after the full order, or at the end of "Connect the repo"). Keep it
+small:
 
-- If the repo has the folder, or only `.supcoflow/guide.md` / `guia.md` (the install has just written one): migrate it as in
-  section 4, without losing content. Otherwise write the first documents from the code (section 5), one per area, each with its
-  header and the four labels.
+- If the repo has `.supcoflow/guide.md` or `guia.md` (the install may have just written one): migrate it as in section 4,
+  without losing content. Otherwise write the first documents from the code (section 5), one per area, each with its header and
+  the four labels.
 - Then sections 6 and 7 as they are: `guide check`, `guide stale`, the diff and the proposed commit for the person to review. It
   does not publish, and no index is written by hand.
 
-## 9. Reasons of the folder
+## 10. Reasons of the folder
 
 | Reason (`motivo`) | What to do |
 |---|---|
