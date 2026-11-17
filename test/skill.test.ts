@@ -828,10 +828,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).not.toMatch(/Mientras tanto, se puede copiar/);
   });
   it("dice las tres vías del instalador tal cual y una línea para la terminal instalada", () => {
-    expect(readme).toContain("In your own terminal, check the agents it selects: Claude Code isn't ticked the first time.");
-    expect(readme).toContain("If it first asks about Eve and you use another agent, answer no to get the list.");
+    expect(readme).toContain("En tu propia terminal, revisá los asistentes que elige: la primera vez Claude Code no viene tildado.");
+    expect(readme).toContain("Si primero pregunta por Eve y usás otro asistente, respondé que no para ver la lista.");
     expect(readme).toContain(
-      "If your coding agent runs it, it installs for that agent without asking, and it replaces an earlier install of this skill.",
+      "Si lo corre tu asistente de código, instala para ese asistente sin preguntar y reemplaza una instalación anterior de esta skill.",
     );
     expect(readme).toContain("npm i -g supcoflow@0.11.0");
   });
