@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.11 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.11");
+  it("la skill es la 0.6.12 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.12");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -838,10 +838,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.11, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.11", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.11`/);
+  it("la versión es la 0.6.12, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.12", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.12`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.11`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.12`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2043,7 +2043,7 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
     const p8 = P(seccion(skillMd, /^## 8\. The guide/m, /^## 9\./m));
     expect(p8).toMatch(/has neither it nor a `\.supcoflow\/guide\.md` \/ `guia\.md`[^]*write there directly, one document per area[^]*never a `guide\.md` first/);
     expect(p8).toMatch(/A repo that only has the single `\.supcoflow\/guide\.md` or the old `guia\.md` never gets a new `guide\.md`[^]*the offer to migrate it to the folder \(section 4 of that file\)/);
-    expect(p8).toMatch(/When this order has just created the folder, after point 9 \(steps 1 to 4, publishing included\) offer once the line of section 8 of that file, in a commit of its own; never amend the guide's commit/);
+    expect(p8).toMatch(/When this order has just created the folder and it was committed in point 9 step 2, after point 9 \(steps 1 to 4, publishing included\) offer once the line of section 8 of that file, in a commit of its own; never amend the guide's commit\. If step 3 did not publish, make this offer before the "Not finished" stop/);
     expect(P(skillMd)).toMatch(/a repo that only has the single `\.supcoflow\/guide\.md` or `guia\.md` keeps writing that file and never gets a new `guide\.md`/);
   });
   it("al terminar la instalación ofrece una vez el primer borrador de la carpeta, sin publicar, antes de «Testing beyond that»", () => {

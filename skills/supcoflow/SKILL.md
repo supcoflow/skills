@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.11"
+  version: "0.6.12"
 ---
 
 # Supcoflow go
@@ -274,8 +274,9 @@ index (sections 3 and 5 of that file), never a `guide.md` first. A repo that onl
 or the old `guia.md` never gets a new `guide.md`: keep that file as the guide and write it as usual (from the code, and with the business rules of point 9) until it is
 migrated (if it is `guia.md`, tell the person it is the old name), and the first-draft offer is the offer to migrate it to the
 folder (section 4 of that file); never rename or delete theirs. When the folder has documents, `guide.md` is ignored.
-When this order has just created the folder, after point 9 (steps 1 to 4, publishing included) offer once the line of
-section 8 of that file, in a commit of its own; never amend the guide's commit. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
+When this order has just created the folder and it was committed in point 9 step 2, after point 9 (steps 1 to 4,
+publishing included) offer once the line of section 8 of that file, in a commit of its own; never amend the guide's
+commit. If step 3 did not publish, make this offer before the "Not finished" stop of step 7 of the full order. Read the code and, if they exist, `CLAUDE.md`/`README` to understand the screens; one section per
 screen or function a user uses; "Common problems" only from something visible (an issue, a TODO, the README) or
 dictated by the person. Only what exists in the code and a user really uses: no "Home" section because of a template
 page, no links or buttons the code does not have. Add `Where:` with the route only if that route exists in the code.
