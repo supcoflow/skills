@@ -1,6 +1,6 @@
 # Escenarios para correr a mano con un asistente real
 
-Quince casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.6.8), no sólo que el texto
+Quince casos para comprobar que un asistente de código **sigue** la skill `supcoflow` (0.6.12), no sólo que el texto
 diga lo correcto. Están **escritos, no corridos** por un asistente real: los escenarios 8 y 9 se siguieron con dos agentes de código contra un motor y un backend falsos (informe de la T9), no contra producción; los escenarios 12 a 15 (la cuenta de IA del cliente) están escritos y sin correr. Los tests de `test/` miran el texto;
 estos miran lo que el asistente hace.
 
@@ -59,8 +59,8 @@ el gasto.
   no está en GitHub incluye «pushing the guide to GitHub is up to you».
 - **Ningún `git push`** (ni a la rama principal ni a otra), ningún `git add .` ni `git commit -a`, ningún `--force`.
 - La guía se commitea localmente **sólo con el sí** de la persona, con el mensaje exacto que se le mostró, y el
-  commit toca únicamente los archivos de la guía (`.supcoflow/guide.md`, o los documentos de `.supcoflow/knowledge/`
-  si la carpeta tiene algún `.md`).
+  commit toca únicamente los archivos de la guía (los documentos de `.supcoflow/knowledge/`, que es donde `/supcoflow go`
+  escribe la guía de un proyecto nuevo; el archivo único, `.supcoflow/guide.md` o `guia.md`, sólo si el repo ya lo tenía y no hay carpeta).
 - Las reglas del negocio (plazos, reembolsos, precios) se **preguntan** junto con el diff de la guía y nunca se
   deducen del código.
 - Todo lo que la persona lee está en el idioma que ella usa.
