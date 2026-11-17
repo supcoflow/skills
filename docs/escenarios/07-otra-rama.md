@@ -17,10 +17,10 @@ en una rama de otra cosa (por ejemplo `fix/popovers-portal`) con cambios propios
 - (a) La pregunta del commit **nombra la rama**: «I'll leave it in a local commit on `main`…». Todo lo demás, como en el
   escenario 4.
 - (b) El asistente dice que está en `fix/popovers-portal`, no en `main`, y **recomienda no commitear ahí**. Dentro de la
-  misma pregunta (no una nueva) ofrece las dos opciones: commitear igual en esa rama, o no commitear ahora (la guía se
-  publica igual y se commitea en `main` cuando la persona quiera). Sin el sí, no hay commit.
+  misma pregunta (no una nueva) ofrece las dos opciones: commitear igual en esa rama, o no commitear ahora (se commitea en `main` cuando la persona quiera). Sin el sí, no hay commit. Desde esa rama
+  **no publica** (ningún `guide publish`, ni con un sí): dice que la guía sale cuando se mergee en `main`.
 - (c) El asistente recomienda no commitear y no habla de «una rama». Si la persona igual quiere, le dice que el commit
   no queda en ninguna rama.
-- Si no hubo commit, la línea 3 del resumen suma «commit `.supcoflow/guide.md` on `main` when you want» y sigue en tres
+- Si no hubo commit, la línea 3 del resumen suma «commit the guide on `main` when you want» y sigue en tres
   líneas.
 - Más todo lo de la lista común del README.

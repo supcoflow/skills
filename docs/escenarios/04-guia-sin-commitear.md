@@ -26,5 +26,5 @@ no instala nada) y **(ii)** `/supcoflow go` (recorrido completo).
   del índice **sigue sin commitear**, y `git show --name-only HEAD` muestra sólo la guía.
 - Variante (a): avisa que git ignora la guía y que el commit declarado no la contendrá.
 - Variante (b): avisa que `guia.md` es el nombre viejo y ofrece escribir `guide.md`; **no la renombra ni la borra**.
-- Siempre, en el mensaje donde dice que la guía se publicó: «Pushing the guide to GitHub is up to you». **Ningún `git push`.**
+- Siempre, en el mensaje donde dice si la guía se publicó: «Pushing the guide to GitHub is up to you». **Ningún `git push`.**
 - Más todo lo de la lista común del README.
