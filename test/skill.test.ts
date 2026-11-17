@@ -514,8 +514,8 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.6.7 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.7");
+  it("la skill es la 0.6.8 y fija la terminal 0.11.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.6.8");
     expect(describir.version).toBe("0.11.0");
     expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
     expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
@@ -838,10 +838,10 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.6.7, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.7", () => {
-    expect(readme).toMatch(/La skill es la `0\.6\.7`/);
+  it("la versión es la 0.6.8, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.6.8", () => {
+    expect(readme).toMatch(/La skill es la `0\.6\.8`/);
     expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.7`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.6\.8`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -2041,7 +2041,7 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
   });
   it("al terminar la instalación ofrece una vez el primer borrador de la carpeta, sin publicar, antes de «Testing beyond that»", () => {
     const orden = P(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m));
-    expect(orden).toMatch(/The first-draft offer \(after step 10, and at the end of the "Connect the repo" row\): after the summary \(point 13\), offer once, in one line, only when `\.supcoflow\/knowledge\/` has no `\.md`[^]*nothing is published[^]*section 9[^]*`vigente` null[^]*goes live after it reaches/);
+    expect(orden).toMatch(/The first-draft offer \(after step 10, and at the end of the "Connect the repo" row\): after the summary \(point 13\), offer once, in one line, only when `\.supcoflow\/knowledge\/` has no `\.md`[^]*nothing is published[^]*section 9[^]*`vigente` null[^]*same by-branch ending/);
     expect(crudo).toMatch(/^## 9\. First draft after the setup/m);
     expect(ref()).toMatch(/If the repo has `\.supcoflow\/guide\.md` or `guia\.md`[^:]*: migrate it as in section 4, without losing content/);
   });
@@ -2057,7 +2057,7 @@ describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
   });
   it("S2: con `vigente` nulo el cierre no dice que el chat usa una guía publicada", () => {
     expect(ref()).toMatch(/First `supcoflow guide versions --json`: `vigente` says whether the project has an active guide/);
-    expect(ref()).toMatch(/`vigente` is `null` \(no active guide.*This draft isn't published and the project has no active guide yet.*Never say the chat uses a published guide/);
+    expect(ref()).toMatch(/`vigente` is `null` \(no active guide[^]*This draft isn't published[^]*and the project has no active guide yet[^]*Never say the chat uses a published guide/);
     expect(P(skillMd)).toMatch(/with no active guide \(`vigente` null, as after "Connect the repo"\), says the draft is not published/);
   });
   it("la migración conserva primero los títulos heredados y muestra el renombre aparte", () => {

@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.6.7"
+  version: "0.6.8"
 ---
 
 # Supcoflow go
@@ -154,7 +154,7 @@ the guide not being live yet: "Want me to keep the guide as documents in `.supco
 app, so it stays up to date with your code? I'd leave it as a commit for you to review; nothing is published." With
 their yes, follow [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md) section 9; its closing (section 7, step 3)
 reads `guide versions --json` and, with no active guide (`vigente` null, as after "Connect the repo"), says the draft is not
-published and goes live after it reaches `<rama>`. With a no, do not offer
+published, with the same by-branch ending as the other cases. With a no, do not offer
 again.
 
 Testing beyond that (optional, never without asking): offer the person the levels of
