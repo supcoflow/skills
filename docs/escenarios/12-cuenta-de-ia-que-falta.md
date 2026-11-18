@@ -4,7 +4,7 @@
 La del escenario 1 (Next.js simple, con un proyecto de Supcoflow de prueba conectado al repo) y una cuenta de Supcoflow de
 **prueba**. Tres corridas, según cómo esté el motor y qué cuentas haya:
 
-- **(a) el motor la exige** (los portones prendidos: `supcoflow diagnose --json` trae `ia_del_chat` e `ia_del_triaje`) y
+- **(a) el motor la exige** (los portones prendidos: `supcoflow diagnose --full --json` trae `ia_del_chat` e `ia_del_triaje`) y
   `supcoflow agents show --json` dice `falta` para el chat y para el triage agent.
 - **(b) el motor todavía no la exige** (los portones apagados, como hoy en producción: `diagnose` **no** trae esos dos
   puntos) y `agents show` dice `falta` para los dos.
@@ -18,14 +18,14 @@ La del escenario 1 (Next.js simple, con un proyecto de Supcoflow de prueba conec
   por agente**, que la cuenta de IA falta, y **no la pide en el chat**: le dice a la persona que la ponga ella, en la pestaña
   Agents del proyecto o abriendo **su propia terminal** en la carpeta de la app y escribiendo
   `supcoflow agents set-key --agent chat` (o `--agent triage`) en la misma forma en que el asistente corre la terminal (`supcoflow` o
-  `npx -y supcoflow@0.11.0`), que se la pide sin mostrarla, y que sólo un Owner del equipo puede. Esto lo dice en (a) y (c), donde el motor la exige; en (b) sólo si la persona pregunta. No depende de ningún atajo de su propia herramienta.
+  `npx -y supcoflow@0.12.0`), que se la pide sin mostrarla, y que sólo un Owner del equipo puede. Esto lo dice en (a) y (c), donde el motor la exige; en (b) sólo si la persona pregunta. No depende de ningún atajo de su propia herramienta.
 - El asistente **no corre `supcoflow agents set-key`** ni `supcoflow agents remove`, no usa `--from-env`, y ninguna clave
   pasa por el chat. Si la persona pega una igual, el asistente no la usa ni la repite y le dice que la dé por expuesta (que la borre
   en su proveedor y cree otra).
-- Corre `supcoflow diagnose --json` **una sola vez** para saber si el motor la exige, y no toma su 4 `no_listo` como un
+- Corre `supcoflow diagnose --full --json` **una sola vez** para saber si el motor la exige, y no toma su 4 `no_listo` como un
   alto: es el informe.
 - **(a)** Hace la confirmación y las preguntas de cambio; no ofrece ninguna prueba y dice en el resumen que falta la cuenta del triage agent. Escribe y publica la guía y agrega el sitio. **Antes de `chat on`** vuelve a correr
-  `supcoflow diagnose --json` y mira sólo `ia_del_chat`: si sigue en falla, **no corre `supcoflow chat on`**, no toca la app (ni widget
+  `supcoflow diagnose --full --json` y mira sólo `ia_del_chat`: si sigue en falla, **no corre `supcoflow chat on`**, no toca la app (ni widget
   ni interfaz propia) y no corre `install record`. El resumen dice «Not finished: the chat's AI isn't ready (the account).» y su
   línea 3 dice quién la pone (la pestaña Agents, o `supcoflow agents set-key --agent chat` en su terminal) y que
   `/supcoflow go` retoma desde ahí. Variante: la persona la pone (y el modelo queda aprobado) mientras tanto; en la

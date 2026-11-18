@@ -38,7 +38,7 @@ asks how: if the engine does not require it, say only the one line of section 3 
 - `falta`: "The <chat | triage agent> has no AI account yet. Add it in the project's Agents tab, or open your own terminal in
   the app's folder and type `supcoflow agents set-key --agent chat` (or `--agent triage`): it asks for the key without
   showing it. Only a team Owner can." Give the command in the same form you are using (plain `supcoflow`, or
-  `npx -y supcoflow@0.11.0` if you are running it pinned), because their terminal may have an older one without `agents`
+  `npx -y supcoflow@0.12.0` if you are running it pinned), because their terminal may have an older one without `agents`
   (do not tell them to run it through this chat, and do not depend on a shell escape inside your own tool: it may have no
   interactive terminal, and then the command exits 4 `sin_terminal` and asks for nothing).
 - `rechazada` or `sin_saldo`: fix it at the AI provider (a new key, balance, the key's own cap), or replace the key the
@@ -56,7 +56,7 @@ asks how: if the engine does not require it, say only the one line of section 3 
 
 `agents show` says whether an account is there, not whether the engine insists on it, and not whether the agent is ready.
 Do not guess whether the engine requires an account: while its point is not listed, `chat on` and the test work without
-the account, and stopping the installation for it would break something that works. The terminal tells you: `supcoflow diagnose --json`
+the account, and stopping the installation for it would break something that works. The terminal tells you: `supcoflow diagnose --full --json`
 lists `ia_del_chat` (in `instalacion.puntos`) and `ia_del_triaje` (in `prueba.puntos`) only when the engine requires the
 accounts. Run it once at step 4, whatever `agents show` said, and use it only for those two points: do not tell the person
 the rest of the diagnosis now, and do not fix the rest yet (it is free and writes nothing; its exit 4 `no_listo` here is
@@ -84,7 +84,7 @@ What each one stops, when it is required and not ready:
 
 - The chat: do not propose turning the chat on, do not run `supcoflow chat on`, and do not touch the app (without it the
   chat cannot answer and disappears from the site). Everything that does not depend on it (the confirmation, the guide, the
-  allowed site) can be done. At step 8 run `supcoflow diagnose --json` again and look only at `ia_del_chat`: if it is `ok`
+  allowed site) can be done. At step 8 run `supcoflow diagnose --full --json` again and look only at `ia_del_chat`: if it is `ok`
   by then, go on; if not, stop there with "Not finished: the chat's AI isn't ready (<the account | its model>)." If
   `chat on` exits 4 with `falta_ia_del_chat`, it is this same case, whatever `agents show` said. The next `/supcoflow go`
   resumes from what is missing, and now says the right thing.
@@ -111,7 +111,7 @@ it there, never from here. A ready account is not a chosen model.
 
 ## 5. In the diagnosis (step 10 of the order)
 
-Read `instalacion.ok` and `instalacion.total` from `supcoflow diagnose --json`: seven, or eight when `ia_del_chat` is
+Read `instalacion.ok` and `instalacion.total` from `supcoflow diagnose --full --json`: seven, or eight when `ia_del_chat` is
 there; never write a fixed number. A failing `ia_del_chat` or `ia_del_triaje` is said with its `mensaje` and handled as in
 section 3 (run `supcoflow agents show --json` to say which state the account is in): do not try to fix it yourself, and
 with a failing `ia_del_triaje` no test is offered ([`prueba.md`](prueba.md), level 3).

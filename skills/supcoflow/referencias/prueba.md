@@ -5,13 +5,13 @@ the chat installed.
 
 | Level | What it tests | Spends |
 |---|---|---|
-| 1 | That Supcoflow sees everything ready (`supcoflow diagnose --json`) | No |
+| 1 | That Supcoflow sees everything ready (`supcoflow diagnose --full --json`) | No |
 | 2 | That the chat really works in a browser, on the running app | The chat's AI (little; not measured here) |
 | 3 | That a problem gets all the way to an issue in the repo (`supcoflow test`) | Yes: one investigation, up to a ceiling |
 
 ## Level 1: the diagnosis
 
-`supcoflow diagnose --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
+`supcoflow diagnose --full --json`: free and writes nothing. It exits 0 if everything is ready and 4 if something has to be
 fixed. The terminal prints "Checked sign-in, repo, GitHub App, allowed sites, chat, guide and interface: N of 7, at no cost."
 (N of 8 when the engine also reports `ia_del_chat`, the chat's AI account: the line then names it) and, apart, whether it is
 ready for a test (`listo`). The seventh point, the interface, is advice: it is marked `aviso` and lowers the count without stopping a test. It also checks `maquina`: whether this machine can save the test request (nothing is written to find out). It lists the triage agent's AI account (`ia_del_triaje`) when the engine requires it. A failing AI account point is handled as section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md) says. Each point on the list it brings is something to fix or know: **do not
@@ -59,12 +59,12 @@ written in the chat can start an investigation that spends.
 This test **spends real money**: one investigation, up to the ceiling that Supcoflow says. It is the only thing in the
 skill that spends and you **never add `--authorize-spend` on your own**.
 
-1. `supcoflow diagnose --json`. If it exits 4, or it is not ready for a test, or a point that is not an `aviso` one fails, fix it or tell them
+1. `supcoflow diagnose --full --json`. If it exits 4, or it is not ready for a test, or a point that is not an `aviso` one fails, fix it or tell them
    first; do not ask for money for a test that cannot get there. A failing `aviso` point (the interface one) lowers the count but does not stop the test: tell them what it says.
    If `ia_del_triaje` is in the points and the agent is not ready, do not ask for money either: the triage agent's AI
    account or its model (`ia_del_triaje`) is handled as section 3 of [`cuentas-de-ia.md`](cuentas-de-ia.md) says, and the
    only answer to offer is "Not now".
-2. `supcoflow test --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
+2. `supcoflow test --full --json` (without authorization: it sends nothing). It always exits 4 with `falta_autorizacion` and
    brings the ceiling, the `politica` and `prueba_abierta` (it also has the month's balance and cap: do not show them). If
    `prueba_abierta` brings an id, there is already a test without an outcome: do not ask for money; follow it with
    point 5 and `--test-id <id>`.
@@ -75,12 +75,12 @@ skill that spends and you **never add `--authorize-spend` on your own**.
      again right before sending.
    - If `intento_pendiente` is not `null`, there is a request waiting for confirmation from before. `maquina.ok: false`
      goes first: while it is `false`, do not offer to resume it. Otherwise, when its ceiling or its policy differ from the
-     ones of this `test --json`, or it has `politica: null`, do not ask for a new test: a new test cannot start while a
+     ones of this `test --full --json`, or it has `politica: null`, do not ask for a new test: a new test cannot start while a
      request is pending. Follow **Resuming a pending request** below instead. If the person does not want to resume it,
      offer only "Not now". With the same ceiling and policy as now, the yes of point 3 covers it and point 4 resumes it.
 3. **Ask the person** (one yes or no question with the options tool; the install never asks it), quoting the numbers as `test` gave them: "This test spends one investigation, up to US$
    <ceiling>. If the problem gets in, a test issue, marked as such, opens in
-   your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --json` is
+   your repo and stays open (I don't close it). Shall I run it?". If the `politica` of that same `test --full --json` is
    `guardar`, tell them the test goes only as far as saving the problem and spends nothing. An answer that is not a
    clear yes is a no.
 4. Only with the yes, in a call of its own:
@@ -91,7 +91,7 @@ skill that spends and you **never add `--authorize-spend` on your own**.
    fixed one from Supcoflow goes. If it does not exit 5, look at the `error` field, not only the code:
    - `intento_pendiente` (exits 1 or 4, and `--wait` gives it too): there is an unconfirmed request saved. If the yes
      you just got was to the numbers of that same pending request (its ceiling and policy, the ones this error or the
-     `intento_pendiente` of `test --json` shows), repeat
+     `intento_pendiente` of `test --full --json` shows), repeat
      `supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json` **without
      `--message`** (it resumes the same test, it does not ask for another; it is the same yes, to the numbers of that same
      pending request) and then `--wait`. If it has other numbers or `politica: null`, the yes you have does not cover it: go to **Resuming a
@@ -134,8 +134,8 @@ got an answer: it is not a new test, and it has its own yes.
    numbers) is not a yes to this: ask this one. An answer that is not a clear yes is a no.
 2. With the yes, in a call of its own, run the recovery command:
    `supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`, with its own ceiling
-   and policy, not the ones of this `test --json` and not the ones you offered, and without `--message`. The `message` of
-   this `test --json` gives the same command after "to recover that same request, repeat". Only with exit 5 and a
+   and policy, not the ones of this `test --full --json` and not the ones you offered, and without `--message`. The `message` of
+   this `test --full --json` gives the same command after "to recover that same request, repeat". Only with exit 5 and a
    `prueba_id`, go to point 5; otherwise handle the result as in point 4: `techo_distinto` or `politica_distinta`: go
    back to point 2 and ask again with the new numbers, before any new test.
 3. A pending request with `politica: null` (saved by the old 0.7.0 terminal) has no policy to put in that command: its
@@ -143,7 +143,7 @@ got an answer: it is not a new test, and it has its own yes.
    old request has no fixed policy: recovering it may spend up to US$ <its ceiling>, even if the project is on save
    now." Never tell them it is free, even if the current policy is `guardar`. Ask for a yes to exactly that. A yes to a
    test that spends nothing is not that yes: if they only authorize a test that spends nothing, stop: do not recover it.
-   With the yes, run exactly the command that the `message` of this `test --json` gives after "to recover that same
+   With the yes, run exactly the command that the `message` of this `test --full --json` gives after "to recover that same
    request, repeat" (it carries no `--expect-policy`), adding `--json` and nothing else. Do not add a policy to it: that
    would be another request. Only with exit 5 and a `prueba_id`, go to point 5; otherwise handle the result as in
    point 4.

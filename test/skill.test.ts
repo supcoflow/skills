@@ -37,7 +37,7 @@ function leerDescribe(archivo: string): Describir {
     flags_globales: crudo.global_flags ?? crudo.flags_globales,
   };
 }
-const describir: Describir = leerDescribe("describe-0.11.0.json");
+const describir: Describir = leerDescribe("describe-0.12.0.json");
 
 // ---------------------------------------------------------------------------------
 // YAML mínimo: el encabezado de una skill es chico y fijo (escalares y UN nivel
@@ -263,7 +263,7 @@ describe("los comandos y flags contra describir", () => {
     expect(comandosInventados("`supcoflow probar --json`")).toEqual(["probar"]);
   });
   it("control: lo válido pasa", () => {
-    expect(comandosInventados("```\nnpx -y supcoflow@0.11.0 guide publish --json\n```")).toEqual([]);
+    expect(comandosInventados("```\nnpx -y supcoflow@0.12.0 guide publish --json\n```")).toEqual([]);
     expect(comandosInventados("`supcoflow install record --skill 0.1.0`")).toEqual([]);
     expect(comandosInventados("`supcoflow --json widget`")).toEqual([]);
     expect(comandosInventados("`supcoflow whoami | cat`")).toEqual([]);
@@ -316,12 +316,12 @@ describe("la versión de la terminal", () => {
   });
 });
 
-describe("el vector de describe es el de la terminal 0.11.0 (T9, cuenta de IA)", () => {
-  const crudo = leer(RAIZ, "test", "vectores", "describe-0.11.0.json");
+describe("el vector de describe es el de la terminal 0.12.0 (T9, cuenta de IA)", () => {
+  const crudo = leer(RAIZ, "test", "vectores", "describe-0.12.0.json");
   const nombresDeArchivo = readdirSync(join(RAIZ, "test", "vectores"));
-  it("hay un único vector de describe y es el de la 0.11.0", () => {
-    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.11.0.json"]);
-    expect(JSON.parse(crudo).version).toBe("0.11.0");
+  it("hay un único vector de describe y es el de la 0.12.0", () => {
+    expect(nombresDeArchivo.filter((f) => f.startsWith("describe-"))).toEqual(["describe-0.12.0.json"]);
+    expect(JSON.parse(crudo).version).toBe("0.12.0");
   });
   it("lo que la skill nombra de la 0.8.1 sigue en lo que la terminal dice: maquina, intento_pendiente, contexto_incoherente y el remoto supcoflow", () => {
     for (const nombre of ["maquina", "intento_pendiente", "contexto_incoherente", "proyecto_del_clon_distinto", "archivo_del_clon_ilegible", "dueno_distinto_del_login", "sin_github", "git remote add supcoflow"])
@@ -442,8 +442,8 @@ describe("lo que la skill no hace", () => {
   it("control: el revisor las atrapa", () => {
     for (const mala of [
       "`supcoflow tope --usd 50`",
-      "`npx -y supcoflow@0.11.0 project delete`",
-      "`npx -y supcoflow@0.11.0 proyecto borrar`",
+      "`npx -y supcoflow@0.12.0 project delete`",
+      "`npx -y supcoflow@0.12.0 proyecto borrar`",
       "`supcoflow factory on`",
       "`supcoflow fabrica encender`",
       "`supcoflow access give`",
@@ -514,14 +514,14 @@ describe("el texto está en inglés", () => {
   it("conserva «hablale a la persona en su idioma» (la charla del asistente no es el producto)", () => {
     expect(P(skillMd)).toMatch(/Talk to the person in the language they use/);
   });
-  it("la skill es la 0.7.1 y fija la terminal 0.11.0", () => {
-    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.7.1");
-    expect(describir.version).toBe("0.11.0");
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
-    expect(P(skillMd)).toContain('if it says `"version":"0.11.0"`');
+  it("la skill es la 0.8.0 y fija la terminal 0.12.0", () => {
+    expect((encabezadoYaml(skillMd).metadata as Record<string, string>).version).toBe("0.8.0");
+    expect(describir.version).toBe("0.12.0");
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.12.0 describe --json");
+    expect(P(skillMd)).toContain('if it says `"version":"0.12.0"`');
   });
   it("el vector de describe no trae ni un nombre de comando ni de flag castellano", () => {
-    const crudo = leer(RAIZ, "test", "vectores", "describe-0.11.0.json");
+    const crudo = leer(RAIZ, "test", "vectores", "describe-0.12.0.json");
     for (const castellano of ["quien-soy", "describir", "guia publicar", "instalacion anotar", "--autorizo-gasto", "--permitir", "--modo"])
       expect(crudo, castellano).not.toContain(castellano);
   });
@@ -578,13 +578,13 @@ describe("la escena de la landing (spec §10)", () => {
     expect(p5).toMatch(/With 1: `supcoflow data set --allow page_and_browser`, `supcoflow policy set --mode save`/);
     expect(p5).toMatch(/it does not spend, and that they can change any of it\s+later/);
   });
-  it("la instalación no pregunta ni corre la prueba paga: sin tercera pregunta, sin `--authorize-spend`, sin `test --json` en el orden", () => {
+  it("la instalación no pregunta ni corre la prueba paga: sin tercera pregunta, sin `--authorize-spend`, sin `test --full --json` en el orden", () => {
     const p5 = P(seccion(skillMd, /^## 5\./m, /^## 6\./m));
     expect(p5).not.toContain("Run one real test now?");
     expect(p5).toMatch(/\*\*The test is not asked here\.\*\* The install never offers a paid test/);
     const orden = P(seccion(skillMd, /^The full order:/m, /^Testing beyond that/m));
     expect(orden).not.toContain("--authorize-spend");
-    expect(orden).not.toMatch(/`supcoflow test --json`/);
+    expect(orden).not.toMatch(/`supcoflow test --(full )?json`/);
     expect(orden).toMatch(/\*\*No test in the install\.\*\* Do not run `supcoflow test` here and do not offer a paid test: the install spends nothing/);
   });
   it("cada respuesta de la primera pregunta va a un `data set --allow`", () => {
@@ -843,15 +843,15 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
     expect(readme).toContain(
       "Si lo corre tu asistente de código, instala para ese asistente sin preguntar y reemplaza una instalación anterior de esta skill.",
     );
-    expect(readme).toContain("npm i -g supcoflow@0.11.0");
+    expect(readme).toContain("npm i -g supcoflow@0.12.0");
   });
   it("no pide reiniciar Claude Code (no hay evidencia)", () => {
     expect(readme).not.toMatch(/reinici|restart/i);
   });
-  it("la versión es la 0.7.1, fija la terminal 0.11.0 y avisa que 1B queda para una versión posterior a la 0.7.1", () => {
-    expect(readme).toMatch(/La skill es la `0\.7\.1`/);
-    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.11\.0`/);
-    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.7\.1`/);
+  it("la versión es la 0.8.0, fija la terminal 0.12.0 y avisa que 1B queda para una versión posterior a la 0.8.0", () => {
+    expect(readme).toMatch(/La skill es la `0\.8\.0`/);
+    expect(readme).toMatch(/Fija la terminal en `npx -y supcoflow@0\.12\.0`/);
+    expect(readme).toMatch(/1B.*queda para una versión posterior a la `0\.8\.0`/);
   });
   it("la 0.5.0 se publicó después de la terminal 0.10.0 en npm, y lo dice el README", () => {
     expect(readme).toMatch(/La `0\.5\.0` se publicó el 2026-11-04, después de la terminal `0\.10\.0` en npm/);
@@ -860,11 +860,11 @@ describe("el README de la instalación (1A.1, fricción 1)", () => {
 });
 
 // ---------------------------------------------------------------------------------
-// 1A.1, fricción 3: el aviso llega ANTES del sí al gasto (`maquina` e `intento_pendiente` de `test --json`).
+// 1A.1, fricción 3: el aviso llega ANTES del sí al gasto (`maquina` e `intento_pendiente` de `test --full --json`).
 // ---------------------------------------------------------------------------------
 describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
   const prueba = () => P(leer(CARPETA, "referencias", "prueba.md"));
-  const punto2 = () => P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  const punto2 = () => P(seccion(leer(CARPETA, "referencias", "prueba.md"), /^2\. `supcoflow test --full --json`/m, /^3\. \*\*Ask the person/m));
   it("el paso 5 de SKILL.md ya no mira `maquina` ni `intento_pendiente`: la instalación no prueba, eso queda en prueba.md", () => {
     const paso5 = P(seccion(skillMd, /^5\. \*\*No test in the install/m, /^6\. /m));
     expect(paso5).not.toMatch(/maquina|intento_pendiente/);
@@ -899,7 +899,7 @@ describe("el aviso antes del sí al gasto (1A.1, fricción 3)", () => {
 describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 1A.1, vuelta 1)", () => {
   const pruebaMd = () => leer(CARPETA, "referencias", "prueba.md");
   const retomar = () => P(seccion(pruebaMd(), /^### Resuming a pending request/m));
-  const punto2 = () => P(seccion(pruebaMd(), /^2\. `supcoflow test --json`/m, /^3\. \*\*Ask the person/m));
+  const punto2 = () => P(seccion(pruebaMd(), /^2\. `supcoflow test --full --json`/m, /^3\. \*\*Ask the person/m));
   const punto4 = () => P(seccion(pruebaMd(), /^4\. Only with the yes/m, /^5\. /m));
 
   it("la sección existe, está antes del resumen y sus pasos van en orden: decir, pedir el sí a ESE pedido, correr el comando de recuperación", () => {
@@ -919,11 +919,11 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
   });
   it("el comando de recuperación lleva el techo y la política DEL PENDIENTE, no los del diagnóstico actual ni los ofrecidos", () => {
     expect(retomar()).toContain("`supcoflow test --authorize-spend --ceiling <its ceiling> --expect-policy <its policy> --json`");
-    expect(retomar()).toMatch(/its own ceiling and policy, not the ones of this `test --json` and not the ones you offered/);
+    expect(retomar()).toMatch(/its own ceiling and policy, not the ones of this `test --full --json` and not the ones you offered/);
     expect(retomar()).toMatch(/`relevar` is `investigate`, `guardar` is `save`/);
   });
   it("techo distinto, política distinta y pendiente sin política (o con la máquina impedida) quedan cubiertos", () => {
-    expect(punto2()).toMatch(/when its ceiling or its policy differ from the ones of this `test --json`, or it has `politica: null`/);
+    expect(punto2()).toMatch(/when its ceiling or its policy differ from the ones of this `test --full --json`, or it has `politica: null`/);
     expect(punto2()).toMatch(/If `maquina\.ok` is `false`[^]*do not offer to resume it/);
   });
   it("sin poder retomarlo (no lo quiere, o la máquina no puede) sólo se ofrece «Not now»: una prueba nueva no arranca con un pendiente", () => {
@@ -951,7 +951,7 @@ describe("recuperar un pedido pendiente no es pedir una prueba nueva (revisión 
     expect(retomar()).toMatch(/if they only authorize a test that spends nothing, stop: do not recover it/);
   });
   it("pendiente sin política: el comando es el que da la terminal tras «to recover that same request, repeat», y no se le inventa una política", () => {
-    expect(retomar()).toMatch(/run exactly the command that the `message` of this `test --json` gives after "to recover that same request, repeat"/);
+    expect(retomar()).toMatch(/run exactly the command that the `message` of this `test --full --json` gives after "to recover that same request, repeat"/);
     expect(retomar()).toMatch(/Do not add a policy to it/);
   });
   it("las dos recetas de la recuperación sólo pasan a `--wait` con salida 5 y `prueba_id`; si no, se maneja el resultado como en el punto 4 (revisión vuelta 2, P3)", () => {
@@ -1142,7 +1142,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     const filas = mapa.split("\n").filter((l) => l.startsWith("| ") && !l.startsWith("| The person asked") && !l.startsWith("|---"));
     expect(filas).toHaveLength(11);
     const fila = (re: RegExp) => P(filas.find((l) => re.test(l)) ?? "");
-    expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --json`.*No test, nothing is spent/);
+    expect(fila(/Does the chat work/)).toMatch(/`supcoflow diagnose --full --json`.*No test, nothing is spent/);
     expect(fila(/or update the guide/)).toMatch(/referencias\/guia-en-carpeta\.md.*never publishes.*Do not ask about data, policy or the test\. The permissions of point 7 and the business-rules question stay/);
     expect(fila(/Publish the guide/)).toMatch(/the first guide of a project may go from the terminal; once the project has a guide published from GitHub, only `supcoflow guide publish --from-github --json`, from the project's main branch/);
     expect(fila(/Publish the guide/)).toMatch(/Never `--from-github` from another branch, not even with a yes/);
@@ -1182,7 +1182,7 @@ describe("el mapa de «qué hacer según lo que pidió la persona» (A1) y la de
     expect(skillMd).toMatch(/^## 8\. The guide/m);
     expect(skillMd).toMatch(/^## 9\. Commit the guide, open the pull request, publish it/m);
     expect(skillMd).toMatch(/^## 5\. What you ask the person/m);
-    expect(s3).toMatch(/^10\. `supcoflow diagnose --json`/m);
+    expect(s3).toMatch(/^10\. `supcoflow diagnose --full --json`/m);
     expect(s3).toMatch(/^7\. `git status/m);
   });
 });
@@ -1700,7 +1700,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.11.0)", () => {
     expect(P(mapa)).toContain("[`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md)");
   });
 
-  it("el paso 4 va DESPUÉS de `config` (3) y ANTES de `test --json` (5): lee `agents show --json` y los cuatro estados de los dos agentes", () => {
+  it("el paso 4 va DESPUÉS de `config` (3) y ANTES de `test --full --json` (5): lee `agents show --json` y los cuatro estados de los dos agentes", () => {
     expect(paso(3, 4)).toMatch(/^3\. `supcoflow config --json`/);
     expect(paso(4, 5)).toMatch(/^4\. `supcoflow agents show --json`/);
     expect(P(seccion(orden(), /^5\. /m, /^6\. /m))).toMatch(/^5\. \*\*No test in the install\.\*\*/);
@@ -1749,11 +1749,11 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.11.0)", () => {
     expect(ref()).toMatch(/1 `proveedor_no_responde`: the provider did not answer, which says nothing about the key; do not retry more than once/);
   });
 
-  it("saber si el motor la exige: `diagnose --json` trae `ia_del_chat` e `ia_del_triaje` sólo cuando rigen; su 4 `no_listo` acá es el informe, no un alto", () => {
-    expect(ref()).toMatch(/`supcoflow diagnose --json` lists `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\) only when the engine requires the accounts/);
+  it("saber si el motor la exige: `diagnose --full --json` trae `ia_del_chat` e `ia_del_triaje` sólo cuando rigen; su 4 `no_listo` acá es el informe, no un alto", () => {
+    expect(ref()).toMatch(/`supcoflow diagnose --full --json` lists `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\) only when the engine requires the accounts/);
     expect(ref()).toMatch(/its exit 4 `no_listo` here is the report, not a stop/);
     expect(ref()).toMatch(/Run it once at step 4, whatever `agents show` said, and use it only for those two points: do not tell the person the rest of the diagnosis now/);
-    expect(paso(4, 5)).toMatch(/Then `supcoflow diagnose --json` once, only to read `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\)/);
+    expect(paso(4, 5)).toMatch(/Then `supcoflow diagnose --full --json` once, only to read `ia_del_chat` \(in `instalacion\.puntos`\) and `ia_del_triaje` \(in `prueba\.puntos`\)/);
     expect(paso(4, 5)).toMatch(/Do not tell the person the rest of that diagnosis now; its exit 4 `no_listo` is the report here, not a stop/);
   });
 
@@ -1770,7 +1770,7 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.11.0)", () => {
     expect(ref()).toMatch(/`falta_ia_del_chat`/);
     const p8 = paso(8, 9);
     expect(p8).toMatch(/Before `chat on`, if the chat is required and was not ready at step 4/);
-    expect(p8).toMatch(/run `supcoflow diagnose --json` again and look only at `ia_del_chat`/);
+    expect(p8).toMatch(/run `supcoflow diagnose --full --json` again and look only at `ia_del_chat`/);
     expect(p8).not.toMatch(/agents show --agent chat/);
     expect(p8).toMatch(/do not turn the chat on or touch the app/);
     expect(p8).toMatch(/`falta_ia_del_chat` is the same case/);
@@ -1862,8 +1862,8 @@ describe("la cuenta de IA del cliente (skill 0.5.0, terminal 0.11.0)", () => {
     expect(ref()).toMatch(/a step that only reads stops nobody/);
   });
 
-  it("P3-3: el comando para la terminal de la persona va en la misma forma que usa la skill (`supcoflow` o `npx -y supcoflow@0.11.0`)", () => {
-    expect(ref()).toMatch(/Give the command in the same form you are using \(plain `supcoflow`, or `npx -y supcoflow@0\.11\.0` if you are running it pinned\)/);
+  it("P3-3: el comando para la terminal de la persona va en la misma forma que usa la skill (`supcoflow` o `npx -y supcoflow@0.12.0`)", () => {
+    expect(ref()).toMatch(/Give the command in the same form you are using \(plain `supcoflow`, or `npx -y supcoflow@0\.12\.0` if you are running it pinned\)/);
   });
 
   it("P3-5: otro 4 de `agents check` se dice con su mensaje; un punto que no pudo leer la cuenta no es de la persona", () => {
@@ -1968,7 +1968,7 @@ describe("la licencia viaja con la skill", () => {
 describe("`/supcoflow guide`: la guía como documentos (guía MVP 3/3)", () => {
   const crudo = leer(CARPETA, "referencias", "guia-en-carpeta.md");
   const ref = () => P(crudo);
-  const d = JSON.parse(leer(RAIZ, "test", "vectores", "describe-0.11.0.json")) as { comandos: { nombre: string; flags: string[]; resumen: string }[] };
+  const d = JSON.parse(leer(RAIZ, "test", "vectores", "describe-0.12.0.json")) as { comandos: { nombre: string; flags: string[]; resumen: string }[] };
   const c = (n: string) => d.comandos.find((x) => x.nombre === n)!;
   it("la terminal fijada trae `guide check` y `guide stale --base`, y la skill los usa tal cual", () => {
     expect(c("guide check")).toBeDefined();
@@ -2135,8 +2135,43 @@ describe("0.7.0: preguntas con opciones, navegador abierto, valores por defecto,
     expect(paso4).toMatch(/Options: "Yes, publish it now \(recommended\)" first, and "Not now" second;\s+"Not now" is never the recommended one, because without a published guide the chat does not turn on/);
     expect(paso4).not.toMatch(/Not now \(recommended\)/);
   });
-  it("la terminal sigue fijada a la 0.11.0", () => {
-    expect(P(skillMd)).toContain("npx -y supcoflow@0.11.0 describe --json");
-    expect(describir.version).toBe("0.11.0");
+  it("la terminal sigue fijada a la 0.12.0", () => {
+    expect(P(skillMd)).toContain("npx -y supcoflow@0.12.0 describe --json");
+    expect(describir.version).toBe("0.12.0");
+  });
+});
+
+// Skill 0.8.0: terminal 0.12.0 (salidas cortas). `diagnose` y `test` sin autorización devuelven un resumen; la skill pide
+// `--full` donde lee listas, política, cuentas y impedimentos de la máquina, y nunca en el gasto real ni en el seguimiento.
+describe("la terminal 0.12.0: --full donde la skill lee el detalle (skill 0.8.0)", () => {
+  const textos = () => [skillMd, ...readdirSync(join(CARPETA, "referencias")).map((f) => leer(CARPETA, "referencias", f))];
+  const comando = (nombre: string) => describir.comandos.find((c) => c.nombre === nombre)!;
+  it("la terminal tiene --full en diagnose y en test", () => {
+    expect(nombresDeFlags(comando("diagnose").flags)).toContain("--full");
+    expect(nombresDeFlags(comando("test").flags)).toContain("--full");
+  });
+  it("ninguna lectura de diagnose ni del preview de test queda en la salida corta", () => {
+    for (const t of textos()) {
+      expect(t).not.toMatch(/diagnose --json/);
+      expect(t).not.toMatch(/test --json/);
+    }
+    expect(P(skillMd)).toContain("`supcoflow diagnose --full --json`");
+    expect(P(leer(CARPETA, "referencias", "prueba.md"))).toContain("`supcoflow test --full --json` (without authorization");
+  });
+  it("el test autorizado, su recuperación y el seguimiento no llevan --full (con --full salen 3)", () => {
+    for (const t of textos())
+      for (const linea of t.split("\n"))
+        if (/test --(authorize-spend|wait)/.test(linea)) expect(linea).not.toMatch(/--full/);
+    expect(P(skillMd)).toMatch(/Never add `--full` to the authorized test \(`test --authorize-spend \.\.\.`\) or to its follow-up \(`test --wait \.\.\.`\)/);
+  });
+  it("el `siguiente` de la terminal es una pista: no reemplaza a la skill ni al sí al gasto", () => {
+    expect(P(skillMd)).toMatch(/`siguiente` field.*never replaces what this skill says.*still needs the person's own yes to the numbers/);
+  });
+  it("los campos que la skill lee con --full siguen en el contrato: impedimentos con detalle, intento pendiente, puntos de IA", () => {
+    const d = P(comando("diagnose").flags.join(" "));
+    expect(d).toMatch(/maquina: \{ ok, impedimentos: \[\{ codigo, detalle \}\] \}/);
+    expect(d).toMatch(/instalacion: \{ ok, total, puntos \}, prueba: \{ listo, puntos \}/);
+    expect(d).toMatch(/intento_pendiente: \{ techo_usd, politica \} \| null/);
+    expect(P((JSON.parse(leer(RAIZ, "test", "vectores", "describe-0.12.0.json")) as { comandos: { nombre: string; resumen: string }[] }).comandos.find((c) => c.nombre === "test")!.resumen)).toMatch(/with --full, the whole detail as before: puntos, saldo_usd, tope_usd, comprometido_usd/);
   });
 });

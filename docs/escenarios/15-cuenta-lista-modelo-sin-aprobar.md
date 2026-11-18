@@ -3,7 +3,7 @@
 ## App de ejemplo
 La del escenario 1, con el motor exigiendo las cuentas (los portones prendidos) y, en `supcoflow agents show --json`, la del
 chat y la del triage agent `lista` (`cuenta_lista: true`), pero **sin aprobar el modelo** del chat ni el del triage agent.
-En `supcoflow diagnose --json`, `ia_del_chat` e `ia_del_triaje` vienen en falla, con un `mensaje` que dice que la cuenta
+En `supcoflow diagnose --full --json`, `ia_del_chat` e `ia_del_triaje` vienen en falla, con un `mensaje` que dice que la cuenta
 está lista y que su configuración (el modelo) no está aprobada. Es el caso más común: la persona puso la clave y todavía
 no eligió el modelo.
 
@@ -19,7 +19,7 @@ aprueba y le pide al asistente «aprobalo vos»; **(c)** no hace nada.
   agent **sólo** en la pestaña Agents.
 - No se ofrece ninguna prueba (el triage agent no está listo) y el asistente lo dice en el resumen.
 - Hace la confirmación, escribe y publica la guía y agrega el sitio. Antes de `chat on` vuelve a correr
-  `supcoflow diagnose --json` y mira sólo `ia_del_chat`.
+  `supcoflow diagnose --full --json` y mira sólo `ia_del_chat`.
   - **(a)** Está `ok`: sigue, corre `supcoflow chat on` y termina la instalación.
   - **(b)** El asistente pregunta qué opción (`agile`, `standard` o `plus`) y si el proveedor puede guardar los datos, y corre
     `supcoflow agents configure --agent chat --option standard --data-retention allow` con lo que la persona contestó (acá,

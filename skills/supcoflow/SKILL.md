@@ -2,7 +2,7 @@
 name: supcoflow
 description: Installs and configures the Supcoflow support chat in an app with the `supcoflow` terminal, built with the app's own components, icons and styles (Next.js tested) or as the packaged widget. Use when the person asks for "/supcoflow go", to add a support or help chat to their app, says their users get stuck, asks why the support chat isn't showing, says "chat de soporte", asks for "/supcoflow guide" or to write or update the guide of what their users see, or wants to change the chat, its guide, its data or its AI account. Do not use for other chat vendors.
 metadata:
-  version: "0.7.1"
+  version: "0.8.0"
 ---
 
 # Supcoflow go
@@ -17,12 +17,18 @@ components, icons and styles (point 10): Supcoflow brings the engine, the rules 
 
 ## 2. How to talk to Supcoflow
 
-- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.11.0"`,
+- Always through the terminal and with `--json`. First `supcoflow describe --json`: if it says `"version":"0.12.0"`,
   use plain `supcoflow` in everything that follows. Only if it is not installed, fails, or is another version (an old
-  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.11.0 describe --json`. Never `@latest` and
+  0.7.0 has no `describe`), run every command pinned: `npx -y supcoflow@0.12.0 describe --json`. Never `@latest` and
   never another version.
 - One terminal command per call, as is: no `;`, `&&` or pipes, and no added `echo $?`. You read the exit code from the
   command's own result (if your tool shows no code for a success, a result without an error is 0; never add `echo $?`).
+- `diagnose` and `test` without authorization answer with a short summary by default. Wherever this skill reads their
+  lists, policy, accounts or machine impediments, it runs them with `--full` (`diagnose --full --json`,
+  `test --full --json`), which brings the whole detail. Never add `--full` to the authorized test
+  (`test --authorize-spend ...`) or to its follow-up (`test --wait ...`): there it exits 3. The `siguiente` field those
+  outputs carry is the terminal's suggested next step: it can help you choose what to check, but it never replaces what
+  this skill says, and a command it names that spends still needs the person's own yes to the numbers.
 - Never invent a command or a flag: read them from `describe --json` at the start. Below, `supcoflow` means the pinned
   terminal.
 - In the full order, start each step with one line: "Step N of 10: <what it is>" (for example "Step 3 of 10: your
@@ -80,7 +86,7 @@ full order is for a request to install that names nothing narrower.
 
 | The person asked | You do |
 |---|---|
-| Does the chat work? Why isn't it showing? | `supcoflow diagnose --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, handle it as section 3 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) says. |
+| Does the chat work? Why isn't it showing? | `supcoflow diagnose --full --json` and read its points (step 10). Fix only what it names. No test, nothing is spent. If the point of the chat's AI account (`ia_del_chat`) fails, handle it as section 3 of [`referencias/cuentas-de-ia.md`](referencias/cuentas-de-ia.md) says. |
 | `/supcoflow guide`, or update the guide | [`referencias/guia-en-carpeta.md`](referencias/guia-en-carpeta.md): the guide as documents in `.supcoflow/knowledge/`. It writes and checks them and proposes the commit; it **never publishes**. Do not ask about data, policy or the test. The permissions of point 7 and the business-rules question stay. If the repo only has the single `.supcoflow/guide.md` (or `guia.md`), that file's section 4 splits it into the folder first. |
 | Publish the guide | Point 9, step 4: the first guide of a project may go from the terminal; once the project has a guide published from GitHub, only `supcoflow guide publish --from-github --json`, from the project's main branch (`proyecto.rama`) once the guide is merged there, or the project's CI step. Never `--from-github` from another branch, not even with a yes: say that the guide goes live when it is merged on `<rama>` (the pull request is the review) and propose merging. |
 | Change what the chat sees about their users | Only the first question of point 5 ("Changing it"), with its scope warning, and all of its table, including what changes in the app's code. Do not ask the second question and do not show the confirmation. The permissions of point 7 before touching files stay. |
@@ -108,7 +114,7 @@ The full order:
 4. `supcoflow agents show --json` (it only reads, and exits 0 even when an account is missing): the AI account of each agent,
    `agentes[].estado` for `chat` and `triaje` (the triage agent): `lista`, `rechazada`, `sin_saldo` or `falta`. Say each one in
    a line. `cuenta_lista` says only that the ACCOUNT is ready, not that the agent's configuration (its model) is approved. Then
-   `supcoflow diagnose --json` once, only to read `ia_del_chat` (in `instalacion.puntos`) and `ia_del_triaje` (in
+   `supcoflow diagnose --full --json` once, only to read `ia_del_chat` (in `instalacion.puntos`) and `ia_del_triaje` (in
    `prueba.puntos`): they are there only when the engine requires the accounts, and then a failing one means the agent is not
    ready (its account, or its model not approved) even if its account is `lista`. Do not tell the person the rest of that
    diagnosis now; its exit 4 `no_listo` is the report here, not a stop. Follow
@@ -132,7 +138,7 @@ The full order:
    goes on from there.
 8. `supcoflow sites add --site <origin of the app> --json` (the site where its users use it, e.g. its public domain;
    `http://localhost:3000` only for a local test; if the code does not say, ask; if its `sitios` does not list the site, say so and do not go on as if it were added).
-   Before `chat on`, if the chat is required and was not ready at step 4 (run `supcoflow diagnose --json` again and look only at
+   Before `chat on`, if the chat is required and was not ready at step 4 (run `supcoflow diagnose --full --json` again and look only at
    `ia_del_chat`: the person may have fixed it by now), and the point still fails, do not turn the chat on or touch the app: say
    what is missing (the account, or its model, as the point says), skip step 9 and end with "Not finished" (point 13); `falta_ia_del_chat` is the same case if `chat on` exits 4 with it. Otherwise
    `supcoflow chat on --json` → `supcoflow widget --json` → put the chat, in the form decided in step 6 (point 10). The app is touched only here, with the guide already
@@ -141,7 +147,7 @@ The full order:
    (the number is the `metadata.version` in the YAML header of this SKILL.md: if you do not have it in view, open the
    file; never written separately; `--app <folder>` if the app is not at the root) → point 10 explains which file. For an own
    interface add `--shape own-interface` and one `--file` for each file of the interface (point 10).
-10. `supcoflow diagnose --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
+10. `supcoflow diagnose --full --json`. Say the line the terminal prints (with `--json`, build it from `instalacion.ok` and `instalacion.total`): "Checked sign-in, repo, GitHub App, allowed sites,
    chat, guide and interface: N of 7, at no cost."; when `ia_del_chat` is among `instalacion.puntos` the total is 8 and the line
    names it: "Checked sign-in, repo, GitHub App, allowed sites, chat, chat AI account, guide and interface: N of 8, at no cost."
    (never a fixed number). If `ia_del_chat` (in `instalacion.puntos`) or `ia_del_triaje` (in `prueba.puntos`) fails, handle it
@@ -161,9 +167,9 @@ published, with the same by-branch ending as the other cases. With a no, do not 
 again.
 
 Testing beyond that (optional, never without asking): offer the person the levels of
-[`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --json`) is free; level 2 uses a
+[`referencias/prueba.md`](referencias/prueba.md). Level 1 (`supcoflow diagnose --full --json`) is free; level 2 uses a
 browser and talks to the chat's AI; level 3 **spends** and you ask the person first, with the ceiling
-that `supcoflow test --json` gave.
+that `supcoflow test --full --json` gave.
 
 Every step can be resumed: if the session is cut, `/supcoflow go` starts like every row (`project show`, the context line, then `config`) and goes on from what is missing.
 
@@ -235,7 +241,7 @@ leave `user_id,user_role` out of the list of the first answer.
 - **Second question**: `supcoflow policy set --mode investigate` for "Look into it right away" and
   `supcoflow policy set --mode save` for "Save it for me to review". Tell them that investigating **spends** (the cost is theirs, at their AI provider), and that with "save" a person can ask for the investigation later.
 - **The test is not asked here.** The install never offers a paid test: a test comes later, from the "Test it" row, with
-  its own yes to numbers (`supcoflow test --json` gives the ceiling), never a phrase. With "Save it for me to review"
+  its own yes to numbers (`supcoflow test --full --json` gives the ceiling), never a phrase. With "Save it for me to review"
   that test spends nothing (it stops at the saved problem).
 
 **Own interface only: a second panel** of two questions, each asked on its own through the options tool, the first before the
@@ -432,7 +438,7 @@ system) to step 6 (record).
 
 Push `<rama>` or commit on it, merge a pull request, or force anything: the guide goes on a new branch and the person
 merges. Spend on your own: the only test that spends is level 3 of [`referencias/prueba.md`](referencias/prueba.md), and only
-with the person's explicit yes to the numbers that `supcoflow test --json` gave; never add
+with the person's explicit yes to the numbers that `supcoflow test --full --json` gave; never add
 `--authorize-spend` without that yes, and never repeat an old yes for another test. Neither: raise the cap, relaunch
 an `arranque_incierto` (it is relaunched from the console inbox), delete the project, turn on the factory, give
 people access (the API rejects them by key: they belong to the console). Never show or copy a `scf_` key. Never ask for an AI key, accept one that is pasted in the chat, or put one in a command, a
